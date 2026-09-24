@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { Card, Badge } from '@/components/ui/Card';
 import { Activity, Droplets, AlertTriangle, LayoutDashboard, Settings, Bell, Search, Menu } from 'lucide-react';
 
+import { Sidebar } from '@/components/ui/Sidebar';
+
 export default function Dashboard() {
   const [tanks, setTanks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,35 +21,7 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-blue-600 flex items-center gap-2">
-            <Droplets className="w-6 h-6" />
-            RSA UGM
-          </h2>
-        </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 rounded-lg font-medium">
-            <LayoutDashboard className="w-5 h-5" />
-            Dashboard
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors">
-            <Activity className="w-5 h-5" />
-            Histori & Log
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors">
-            <Bell className="w-5 h-5" />
-            Peringatan
-          </a>
-        </nav>
-        <div className="p-4 border-t border-slate-100">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors">
-            <Settings className="w-5 h-5" />
-            Pengaturan
-          </a>
-        </div>
-      </aside>
+      <Sidebar />
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
