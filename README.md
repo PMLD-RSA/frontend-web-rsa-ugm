@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌊 Sistem Informasi Pemantauan Level Air - Web Dashboard & BFF (RSA UGM)
 
-## Getting Started
+Selamat datang di repositori resmi **Dashboard Web dan BFF (Backend-for-Frontend)** untuk proyek Work Package 4 (WP-4): Sistem Informasi Pemantauan dan Pengendalian Level Air Berbasis IoT di Rumah Sakit Akademik (RSA) UGM.
 
-First, run the development server:
+Repositori ini memuat kode sumber untuk aplikasi *browser* dan peladen perantara (BFF) yang menjadi otak komunikasi data ke aplikasi seluler.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📖 Gambaran Umum (Overview)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Sistem ini diciptakan untuk memantau ketinggian, suhu, dan kualitas air pada tangki-tangki penyediaan air di RSA UGM secara *real-time*. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Dalam sistem ini, aplikasi web tidak hanya bertugas menampilkan grafik dan data kepada staf rumah sakit di layar besar (Desktop), tetapi juga bertugas sebagai **BFF (Backend-for-Frontend)**. Artinya, aplikasi ini menerima data dari sensor IoT (lewat *backend* inti), merapikannya, dan menyuapinya ke Aplikasi Mobile agar kinerja HP staf lapangan tidak berat.
 
-## Learn More
+### ✨ Fitur Utama
+1. **📊 Dashboard Real-time:** Menampilkan visualisasi ketinggian air dan status sensor dalam bentuk grafik interaktif.
+2. **🚨 Sistem Peringatan Dini (Alarms):** Memberikan notifikasi seketika jika air mencapai titik kritis (mau habis atau tumpah).
+3. **🗄️ Manajemen Data:** Mencakup data Master Tangki (Tanks), Gateway IoT, Audit Log, Laporan berkala, dan Pengguna (Users).
+4. **🔌 BFF API:** Menyediakan jalur komunikasi khusus yang super cepat dan ringan khusus untuk dibaca oleh Aplikasi Seluler (Mobile).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Teknologi yang Digunakan (Tech Stack)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Aplikasi ini dibangun menggunakan teknologi modern yang sangat cepat dan handal:
+- **[Next.js](https://nextjs.org/) (App Router):** Kerangka kerja utama (Framework) yang membuat web memuat lebih cepat.
+- **[Tailwind CSS](https://tailwindcss.com/):** Alat desain yang membantu mempercantik tampilan antarmuka (UI) secara fleksibel sesuai desain Figma.
+- **[Zustand](https://github.com/pmndrs/zustand):** Pengelola memori aplikasi (State Management) agar perpindahan data antar halaman terasa mulus.
+- **[Recharts](https://recharts.org/):** Pembangun grafik interaktif untuk membaca tren level air.
+- **Lucide React:** Perpustakaan ikon modern yang bersih dan jelas.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ⚙️ Cara Kerja Integrasi BFF (Backend-for-Frontend)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Bagi orang awam, BFF ini ibarat **"Penerjemah sekaligus Pelayan Khusus"** untuk aplikasi seluler (HP) staf RSA UGM.
+
+**Mengapa kita butuh BFF?**
+Sensor IoT dan Backend Inti mengirimkan data mentah yang sangat besar dan rumit. Jika HP langsung mengambil data tersebut, internet HP akan boros dan baterai cepat habis. 
+Oleh karena itu, Web ini memiliki rute API (contoh: `/api/tanks`) yang akan:
+1. Membaca data besar dari sensor/backend utama.
+2. Merangkum, menyaring, dan memotong bagian-bagian yang tidak penting.
+3. Memberikan "paket data ukuran kecil" yang sudah rapi ke Aplikasi Mobile (HP).
+
+Aplikasi Mobile RSA UGM (di repo terpisah) akan langsung "menelepon" rute API di web ini untuk memperbarui datanya seketika.
+
+---
+
+## 🚀 Panduan Instalasi (Untuk Developer)
+
+Ikuti langkah berikut untuk menjalankan sistem ini di komputer Anda:
+
+### Syarat Wajib (Prerequisites)
+Pastikan komputer Anda sudah terpasang:
+- **Node.js** (Minimal versi 18.x)
+- **NPM** atau **Yarn**
+
+### Langkah Instalasi
+1. **Clone Repositori:**
+   Buka terminal/CMD dan unduh kode ke laptop Anda.
+   ```bash
+   git clone https://github.com/PMLD-RSA/frontend-web-rsa-ugm.git
+   cd frontend-web-rsa-ugm
+   ```
+
+2. **Install Dependensi:**
+   Unduh semua bahan baku program.
+   ```bash
+   npm install
+   ```
+   *(Atau gunakan `yarn install`)*
+
+3. **Jalankan Aplikasi (Mode Developer):**
+   ```bash
+   npm run dev
+   ```
+
+4. **Buka di Browser:**
+   Buka aplikasi browser Anda (Chrome, Edge, dll) dan ketik:  
+   👉 `http://localhost:3000`
+
+---
+
+## 📱 Cara Menghubungkan Aplikasi Mobile ke Web (BFF) Ini
+
+Jika Anda sedang menguji Aplikasi Mobile RSA UGM dan ingin menyambungkannya ke Web ini:
+1. Pastikan laptop yang menjalankan Web ini dan HP yang menjalankan Aplikasi Mobile berada di **jaringan Wi-Fi yang sama**.
+2. Cari tahu IP Lokal laptop Anda (misal: `192.168.1.5`).
+3. Di proyek Mobile, atur alamat `BFF_URL` menuju IP tersebut ditambah port 3000, contoh:  
+   `http://192.168.1.5:3000`
+4. Selesai! HP Anda kini akan menerima data sensor dari laptop.
+
+---
+*Dikelola oleh Tim Pengembang WP-4 RSA UGM* 🏥
