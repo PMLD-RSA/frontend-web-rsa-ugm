@@ -4,9 +4,7 @@ on:
   pull_request:
     branches:
       - dev
-    # PR dev -> main adalah release merge — kode sudah ditest saat masuk ke dev.
-    # CI tidak dijalankan pada PR ke main untuk menghindari false-positive
-    # dari file legacy yang masih ada di main sebelum di-overwrite dev.
+      - main
 
 jobs:
   quality-gate:
