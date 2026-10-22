@@ -1,37 +1,63 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Database, 
-  FileBarChart, 
-  BellRing, 
-  ClipboardList, 
-  Users, 
+import {
+  LayoutDashboard,
+  Database,
+  FileBarChart,
+  BellRing,
+  ClipboardList,
+  Users,
+  Radio,
   PanelLeftClose,
   PanelLeftOpen,
   Hexagon,
-  Radio
+  User,
+  LogOut,
+  Loader2,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuthStore, isAdmin } from '@/stores/authStore';
+
+interface MenuItem {
+  icon: React.ElementType;
+  label: string;
+  href: string;
+  badge?: boolean;
+  adminOnly?: boolean;
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  { icon: LayoutDashboard, label: 'Dashboard',   href: '/' },
+  { icon: Database,        label: 'Tangki',      href: '/tanks' },
+  { icon: BellRing,        label: 'Peringatan',  href: '/alerts', badge: true },
+  { icon: Radio,           label: 'Perangkat',   href: '/devices' },
+  { icon: FileBarChart,    label: 'Laporan',     href: '/reports' },
+  { icon: ClipboardList,   label: 'Audit Log',   href: '/logs' },
+  { icon: Users,           label: 'Pengguna',    href: '/users', adminOnly: true },
+];
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout, isLoading } = useAuthStore();
 
-  const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
-    { icon: Database, label: 'Tanks', href: '/tanks' },
-    { icon: BellRing, label: 'Alarms', href: '/alerts', badge: true },
-    { icon: Radio, label: 'Devices', href: '/devices' },
-    { icon: FileBarChart, label: 'Reports', href: '/reports' },
-    { icon: ClipboardList, label: 'Audit Logs', href: '/logs' },
-    { icon: Users, label: 'Users', href: '/users' },
-  ];
+  async function handleLogout() {
+    await logout();
+    router.push('/login');
+  }
+
+  // Role label yang ditampilkan
+  const roleLabel: Record<string, string> = {
+    admin: 'Administrator',
+    operator: 'Operator',
+    viewer: 'Viewer',
+  };
 
   return (
-    <aside 
+    <aside
       className={`${isOpen ? 'w-64' : 'w-20'} bg-[#0a354c] flex flex-col h-screen transition-all duration-300 ease-in-out shrink-0 relative z-20 shadow-xl`}
     >
       {/* Header / Logo */}
@@ -48,10 +74,9 @@ export function Sidebar() {
       </div>
 
       {/* Toggle Button */}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={`p-4 flex items-center text-slate-400 hover:text-white transition-colors ${isOpen ? 'justify-start' : 'justify-center'}`}
-        aria-label="Toggle Sidebar"
       >
         {isOpen ? <PanelLeftClose className="w-5 h-5" /> : <PanelLeftOpen className="w-5 h-5" />}
       </button>
@@ -59,24 +84,35 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-2 overflow-y-auto overflow-x-hidden">
         <ul className="space-y-1 px-3">
-          {menuItems.map((item) => {
+          {MENU_ITEMS.map((item) => {
+            // Sembunyikan menu adminOnly jika user bukan admin
+            if (item.adminOnly && !isAdmin(user)) return null;
+
+            const isActive =
+              item.href === '/'
+                ? pathname === '/'
+                : pathname.startsWith(item.href);
             const Icon = item.icon;
-            const isActive = pathname === item.href;
 
             return (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-xl font-medium text-sm transition-all relative ${
-                    isActive 
-                      ? 'bg-blue-600/30 text-white border border-blue-400/30 shadow-inner' 
+                  className={`flex items-center ${isOpen ? 'gap-4 px-4' : 'justify-center px-0'} py-3 rounded-lg transition-all relative ${
+                    isActive
+                      ? 'bg-black/20 text-white'
                       : 'text-slate-300 hover:bg-white/5 hover:text-white'
                   }`}
+                  title={!isOpen ? item.label : undefined}
                 >
-                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-400'}`} />
-                  {isOpen && <span>{item.label}</span>}
-                  {item.badge && (
-                    <span className="w-2 h-2 rounded-full bg-red-500 absolute right-3 top-1/2 -translate-y-1/2 animate-pulse" />
+                  <div className="relative">
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-yellow-400' : 'text-yellow-500/70'}`} />
+                    {item.badge && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-[#0a354c]"></span>
+                    )}
+                  </div>
+                  {isOpen && (
+                    <span className="font-medium whitespace-nowrap">{item.label}</span>
                   )}
                 </Link>
               </li>
@@ -85,13 +121,36 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* Footer Info */}
-      {isOpen && (
-        <div className="p-4 border-t border-white/10 text-xs text-slate-400 text-center">
-          <p className="font-semibold text-slate-300">RS Akademik UGM</p>
-          <p className="text-[10px] text-slate-500 mt-0.5">Yogyakarta, Indonesia</p>
+      {/* Footer Profile + Logout */}
+      <div className={`p-4 border-t border-white/10 space-y-2`}>
+        {/* User info */}
+        <div className={`${isOpen ? 'flex items-center gap-3' : 'flex justify-center'}`}>
+          <div className="w-10 h-10 rounded-full bg-slate-700 overflow-hidden shrink-0 border border-slate-500 flex items-center justify-center">
+            <User className="text-slate-300 w-6 h-6" />
+          </div>
+          {isOpen && user && (
+            <div className="overflow-hidden whitespace-nowrap flex-1">
+              <h4 className="text-white text-sm font-semibold">{user.username}</h4>
+              <p className="text-slate-400 text-xs capitalize">{roleLabel[user.role] || user.role}</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          disabled={isLoading}
+          className={`w-full flex items-center ${isOpen ? 'gap-3 px-3' : 'justify-center'} py-2 rounded-lg text-slate-400 hover:bg-white/5 hover:text-rose-400 transition-colors text-sm`}
+          title={!isOpen ? 'Keluar' : undefined}
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <LogOut className="w-4 h-4 shrink-0" />
+          )}
+          {isOpen && <span className="font-medium">Keluar</span>}
+        </button>
+      </div>
     </aside>
   );
 }
