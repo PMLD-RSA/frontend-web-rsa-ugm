@@ -1,29 +1,28 @@
-import { NextRequest } from "next/server";
-import { cookies } from "next/headers";
-import { forwardToBackend } from "@/lib/bffProxy";
-import { MOCK_ALERTS } from "@/lib/mockData";
+// src/app/api/alerts/route.ts
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const status = url.searchParams.get("status");
+export async function GET() {
+  const dummyAlerts = [
+    {
+      id: "alert-1234-5678",
+      tankId: "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      tankName: "Tangki Reservoir Utama",
+      severity: "critical",
+      message: "Level air berada di bawah batas minimum (25%)",
+      triggeredAt: new Date().toISOString(),
+      resolvedAt: null,
+      status: "active"
+    }
+  ];
 
-  const cookieStore = await cookies();
-  const token =
-    cookieStore.get("auth_token")?.value ||
-    request.headers.get("authorization")?.replace("Bearer ", "");
-
-  const headers: Record<string, string> = {};
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  let fallbackAlerts = [...MOCK_ALERTS];
-  if (status) {
-    fallbackAlerts = fallbackAlerts.filter((a) => a.status === status);
-  }
-
-  const queryPath = status ? `/api/alerts?status=${status}` : "/api/alerts";
-
-  return forwardToBackend(queryPath, {
-    headers,
-    fallbackData: fallbackAlerts,
+  return NextResponse.json({
+    status: "success",
+    data: dummyAlerts,
+    meta: {
+      total: 1,
+      page: 1,
+      limit: 10,
+      totalPages: 1
+    }
   });
 }
