@@ -1,16 +1,36 @@
 import Link from 'next/link';
 import { Radio, ArrowRight, BookOpen } from 'lucide-react';
 
+export const metadata = {
+  title: 'Status Perangkat | RSA UGM Water Monitor',
+};
+
 export default function DevicesPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-6">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
         <Radio className="w-8 h-8 text-indigo-500" />
       </div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">Status Perangkat IoT</h1>
-      <p className="text-slate-500 max-w-md mb-8">
-        Halaman ini akan menampilkan status Gateway Raspberry Pi dan diagnostik sinyal LoRa RSSI setiap Sensor Node STM32. Sedang dalam pengembangan oleh Web Team.
-      </p>
+
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">Status Perangkat IoT</h1>
+        <p className="mt-2 text-slate-500 max-w-md">
+          Halaman ini sedang dalam pengembangan. Web team dapat mengimplementasikan
+          status Gateway Raspberry Pi dan diagnostik sinyal LoRa RSSI setiap
+          Sensor Node STM32 sesuai <strong>PRD-Web.md § 4.5</strong>.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-6 py-4 text-sm text-indigo-700 max-w-sm text-left">
+        <p className="font-semibold mb-2">📋 Yang perlu diimplementasi:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Kartu Gateway + status online/offline (<code>GET /api/gateways</code>)</li>
+          <li>Tabel Sensor Node + RSSI signal (<code>GET /api/nodes</code>)</li>
+          <li>Indikator last_seen timestamp per node</li>
+          <li>Badge status: ACTIVE / INACTIVE / ERROR</li>
+        </ul>
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
           href="/"

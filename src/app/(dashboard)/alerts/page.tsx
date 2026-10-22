@@ -1,16 +1,36 @@
 import Link from 'next/link';
 import { BellRing, ArrowRight, BookOpen } from 'lucide-react';
 
+export const metadata = {
+  title: 'Pusat Peringatan | RSA UGM Water Monitor',
+};
+
 export default function AlertsPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-      <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center mb-6">
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
+      <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
         <BellRing className="w-8 h-8 text-amber-500" />
       </div>
-      <h1 className="text-2xl font-bold text-slate-800 mb-2">Pusat Peringatan</h1>
-      <p className="text-slate-500 max-w-md mb-8">
-        Halaman ini akan menampilkan riwayat alert aktif dan tombol aksi Resolve Alert untuk role Operator/Admin. Sedang dalam pengembangan oleh Web Team.
-      </p>
+
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">Pusat Peringatan</h1>
+        <p className="mt-2 text-slate-500 max-w-md">
+          Halaman ini sedang dalam pengembangan. Web team dapat mengimplementasikan
+          riwayat alert aktif dan tombol aksi Resolve untuk role Operator/Admin
+          sesuai <strong>PRD-Web.md § 4.4</strong>.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-6 py-4 text-sm text-amber-700 max-w-sm text-left">
+        <p className="font-semibold mb-2">📋 Yang perlu diimplementasi:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Tabel alert aktif (<code>GET /api/alerts</code>)</li>
+          <li>Tombol Resolve (<code>POST /api/alerts/:id/resolve</code>)</li>
+          <li>Badge severity: LOW / MEDIUM / HIGH / CRITICAL</li>
+          <li>Guard: tombol resolve hanya untuk Admin &amp; Operator</li>
+        </ul>
+      </div>
+
       <div className="flex flex-col sm:flex-row gap-3">
         <Link
           href="/"

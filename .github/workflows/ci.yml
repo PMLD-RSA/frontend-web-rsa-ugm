@@ -38,8 +38,6 @@ jobs:
       - name: Build production bundle
         run: pnpm run build
         env:
-          # Gunakan nilai dummy agar build tidak gagal karena env kosong
+          # Nilai dummy agar build tidak gagal karena env kosong di CI
           NEXT_PUBLIC_APP_NAME: "RSA UGM Water Monitor (CI)"
           CORE_BACKEND_URL: "http://localhost:8000"
-          NEXTAUTH_SECRET: "ci-secret-placeholder"
-          NEXTAUTH_URL: "http://localhost:3000"

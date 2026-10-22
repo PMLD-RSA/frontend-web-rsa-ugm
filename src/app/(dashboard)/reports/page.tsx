@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BarChart2, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata = {
   title: 'Laporan | RSA UGM Water Monitor',
@@ -7,27 +8,13 @@ export const metadata = {
 export default function ReportsPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-      <div className="rounded-full bg-blue-100 p-5">
-        {/* BarChart2 icon */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12 text-blue-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 3v18h18M9 17V9m4 8v-5m4 5V5"
-          />
-        </svg>
+      <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center">
+        <BarChart2 className="w-8 h-8 text-blue-500" />
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Laporan &amp; Analitik</h1>
-        <p className="mt-2 text-gray-500 max-w-md">
+        <h1 className="text-2xl font-bold text-slate-800">Laporan &amp; Analitik</h1>
+        <p className="mt-2 text-slate-500 max-w-md">
           Halaman ini sedang dalam pengembangan. Web team dapat mengimplementasikan
           grafik historis, ekspor PDF/CSV, dan rangkuman harian sesuai{' '}
           <strong>PRD-Web.md § 4.7</strong>.
@@ -44,12 +31,24 @@ export default function ReportsPage() {
         </ul>
       </div>
 
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-      >
-        ← Kembali ke Dashboard
-      </Link>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-sm font-medium transition-colors"
+        >
+          Kembali ke Dashboard
+        </Link>
+        <a
+          href="https://github.com/PMLD-RSA/frontend-web-rsa-ugm/blob/dev/docs/PRD-Web.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors"
+        >
+          <BookOpen className="w-4 h-4" />
+          Lihat PRD-Web (section 4.7)
+          <ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
     </div>
   );
 }

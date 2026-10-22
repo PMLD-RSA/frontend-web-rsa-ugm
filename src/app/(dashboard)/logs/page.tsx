@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ClipboardList, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata = {
   title: 'Audit Log | RSA UGM Water Monitor',
@@ -7,27 +8,13 @@ export const metadata = {
 export default function LogsPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center px-4">
-      <div className="rounded-full bg-amber-100 p-5">
-        {/* ClipboardList icon */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-12 w-12 text-amber-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.5}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-          />
-        </svg>
+      <div className="w-16 h-16 rounded-2xl bg-amber-50 flex items-center justify-center">
+        <ClipboardList className="w-8 h-8 text-amber-500" />
       </div>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Audit Log</h1>
-        <p className="mt-2 text-gray-500 max-w-md">
+        <h1 className="text-2xl font-bold text-slate-800">Audit Log</h1>
+        <p className="mt-2 text-slate-500 max-w-md">
           Halaman ini sedang dalam pengembangan. Web team dapat mengimplementasikan
           tabel log aktivitas sistem sesuai <strong>PRD-Web.md § 4.6</strong>.
         </p>
@@ -45,16 +32,28 @@ export default function LogsPage() {
         </ul>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-gray-50 px-6 py-3 text-xs text-gray-500 max-w-sm">
+      <div className="rounded-lg border border-slate-200 bg-slate-50 px-6 py-3 text-xs text-slate-500 max-w-sm">
         💡 BFF endpoint <code>GET /api/audit-logs</code> sudah tersedia — siap digunakan.
       </div>
 
-      <Link
-        href="/"
-        className="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-amber-700 transition-colors"
-      >
-        ← Kembali ke Dashboard
-      </Link>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-sm font-medium transition-colors"
+        >
+          Kembali ke Dashboard
+        </Link>
+        <a
+          href="https://github.com/PMLD-RSA/frontend-web-rsa-ugm/blob/dev/docs/PRD-Web.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-medium transition-colors"
+        >
+          <BookOpen className="w-4 h-4" />
+          Lihat PRD-Web (section 4.6)
+          <ArrowRight className="w-4 h-4" />
+        </a>
+      </div>
     </div>
   );
 }
