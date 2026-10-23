@@ -1,5 +1,7 @@
 # 🌊 Sistem Informasi Pemantauan Level Air — Web Dashboard & BFF (RSA UGM)
 
+[![CI Quality Gate](https://github.com/PMLD-RSA/frontend-web-rsa-ugm/actions/workflows/ci.yml/badge.svg)](https://github.com/PMLD-RSA/frontend-web-rsa-ugm/actions/workflows/ci.yml)
+
 Repositori resmi **Dashboard Web dan BFF (Backend-for-Frontend)** untuk proyek Work Package 4 (WP-4): Sistem Informasi Pemantauan dan Pengendalian Level Air Berbasis IoT di Rumah Sakit Akademik (RSA) UGM.
 
 ---
