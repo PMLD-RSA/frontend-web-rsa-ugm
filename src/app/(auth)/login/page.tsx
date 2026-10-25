@@ -1,166 +1,204 @@
 'use client';
 
-import { Suspense, useState, FormEvent } from 'react';
+import Image from 'next/image';
+import localFont from 'next/font/local';
+import { FormEvent, Suspense, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AlertCircle, EyeOff, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { Hexagon, Eye, EyeOff, Droplets, AlertCircle, Loader2 } from 'lucide-react';
+import styles from './login.module.css';
 
-/**
- * Komponen inner yang menggunakan useSearchParams.
- * Dipisah agar bisa dibungkus <Suspense> — Next.js App Router requirement.
- */
+const plusJakartaSans = localFont({
+  src: [
+    { path: './fonts/PlusJakartaSans-VariableFont_wght.ttf', weight: '200 800', style: 'normal' },
+    { path: './fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf', weight: '200 800', style: 'italic' },
+  ],
+  display: 'swap',
+});
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading, error, clearError } = useAuthStore();
-
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [interactionNotice, setInteractionNotice] = useState('');
+  const usernameRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const [touched, setTouched] = useState({ username: false, password: false });
+  const [focusedField, setFocusedField] = useState<'username' | 'password' | null>(null);
+  const usernameError = touched.username && !username.trim()
+    ? 'Masukkan username Anda.'
+    : '';
+  // Only classify credential errors; connection and other API errors retain their message.
+  const rejectedCredentials = !!error && /^(Username atau password salah\.(?: \(Mock\))?|Invalid credentials\.?|Email or password (?:is )?incorrect\.?)$/i.test(error);
+  const rejectedPassword = !!error && /^(Password salah\.?|Incorrect password\.?|Invalid password\.?)$/i.test(error);
+  const passwordError = touched.password && !password
+    ? 'Masukkan password Anda.'
+    : rejectedPassword
+      ? 'Enter a valid password, your password is incorrect.'
+      : rejectedCredentials
+        ? 'Check your username and password and try again.'
+        : '';
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     clearError();
-    const success = await login(username, password);
+    setTouched({ username: true, password: true });
+    if (!username.trim()) {
+      usernameRef.current?.focus();
+      return;
+    }
+    if (!password) {
+      passwordRef.current?.focus();
+      return;
+    }
+    const success = await login(username.trim(), password);
     if (success) {
-      // Redirect ke halaman yang dituju sebelum login, fallback ke dashboard
-      const from = searchParams.get('from') || '/';
-      router.push(from);
+      router.push(searchParams.get('from') || '/');
       router.refresh();
     }
   }
 
   return (
-    <div className="w-full max-w-md">
-      {/* Card Container */}
-      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <main className={`${styles.page} ${plusJakartaSans.className}`}>
+      <div className={styles.background} aria-hidden="true">
+        <Image src="/images/login-tank-background.png" alt="" fill priority sizes="100vw" />
+      </div>
 
-        {/* Header Card */}
-        <div className="bg-gradient-to-r from-[#0a354c] to-[#0d4a6e] px-8 py-10 text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-2xl bg-yellow-500/20 border border-yellow-500/30 flex items-center justify-center">
-              <Hexagon className="w-9 h-9 text-yellow-400 fill-yellow-400/20" />
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <a className={styles.brand} href="/login" aria-label="RSA UGM — halaman login">
+            <Image src="/images/login-ugm-mark.png" alt="Lambang Universitas Gadjah Mada" width={44} height={46} priority />
+            <Image src="/images/login-rsa-logo.png" alt="Rumah Sakit Akademik UGM" width={160} height={50} priority />
+          </a>
+          <nav className={styles.navigation} aria-label="Navigasi utama">
+            <span>Tentang Sistem</span>
+            <span>Bantuan</span>
+          </nav>
+        </div>
+      </header>
+
+      <div className={styles.content}>
+        <section className={styles.visual} aria-label="Informasi sistem pemantauan tangki air">
+          <div className={styles.visualBackground}>
+            <Image src="/images/login-illustration-background.png" alt="" fill priority sizes="(min-width: 768px) 60vw, 100vw" />
+          </div>
+          <div className={styles.quote}>
+            <p className={styles.quoteText}>“Smarter water tank monitoring, real-time insights, and automated water management — all in one integrated system.”</p>
+            <div className={styles.credit}>
+              <span className={styles.creditRule} aria-hidden="true" />
+              <div>
+                <p className={styles.creditTitle}>Powered by IoT Edge Computing</p>
+                <p className={styles.creditText}>Dikembangkan oleh Tim Mahasiswa TRI dan TRPL UGM</p>
+              </div>
             </div>
           </div>
+          <Image className={styles.phoneSmall} src="/images/login-dashboard-phone.png" alt="Tampilan dashboard monitoring tangki air pada ponsel" width={425} height={371} priority />
+          <Image className={styles.phoneLarge} src="/images/login-dashboard-phone-large.png" alt="Tampilan detail dashboard monitoring tangki air pada ponsel" width={663} height={558} priority />
+        </section>
 
-          <h1 className="text-white font-bold text-2xl tracking-tight">RSA UGM</h1>
-          <p className="text-blue-200 text-sm font-semibold mt-1">SI-POTA v1.0</p>
-          <p className="text-blue-200/70 text-xs mt-2 leading-relaxed">
-            Sistem Informasi Pemantauan Tangki Air<br />
-            Rumah Sakit Akademik Universitas Gadjah Mada
-          </p>
-        </div>
-
-        {/* Form */}
-        <div className="px-8 py-8">
-          <h2 className="text-slate-800 font-bold text-lg mb-6 text-center">Masuk ke Sistem</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Error Banner */}
-            {error && (
-              <div className="flex items-start gap-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">
-                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Username */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                autoComplete="username"
-                autoFocus
-                required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Masukkan username"
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all bg-slate-50"
-              />
+        <section className={styles.loginPanel} aria-labelledby="welcome-title">
+          <div className={styles.formContent}>
+            <div className={styles.intro}>
+              <h1 id="welcome-title">Selamat Datang<br />Kembali</h1>
+              <p>Silakan masuk untuk memantau status operasional pompa, kontrol histeresis, dan peringatan tangki air.</p>
             </div>
 
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Masukkan password"
-                  className="w-full px-4 py-3 pr-12 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all bg-slate-50"
-                />
+            <form className={styles.form} onSubmit={handleSubmit} noValidate>
+              {error && !rejectedCredentials && !rejectedPassword && (
+                <div className={styles.error} role="alert">
+                  <AlertCircle size={17} aria-hidden="true" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <div className={styles.field}>
+                <label htmlFor="username">Username</label>
+                <div className={`${styles.inputWrap} ${usernameError ? styles.invalidInput : ''}`}>
+                  <Image src="/images/login-username-icon.png" alt="" width={23} height={23} />
+                  <input ref={usernameRef} id="username" name="username" type="text" autoCapitalize="none" spellCheck={false} autoComplete="username" autoFocus required placeholder="Masukkan username" value={username}
+                    aria-invalid={!!usernameError} aria-describedby={usernameError ? 'username-error' : focusedField === 'username' ? 'username-hint' : undefined}
+                    onFocus={() => setFocusedField('username')}
+                    onBlur={() => { setFocusedField(null); setTouched((fields) => ({ ...fields, username: true })); }}
+                    onChange={(event) => { setUsername(event.target.value); clearError(); }} />
+                </div>
+                {usernameError ? <p id="username-error" className={styles.fieldError} role="alert">{usernameError}</p> : focusedField === 'username' && <p id="username-hint" className={styles.fieldHint}>Masukkan username akun Anda.</p>}
+              </div>
+
+              <div className={`${styles.field} ${styles.passwordField}`}>
+                <label htmlFor="password">Password</label>
+                <div className={`${styles.inputWrap} ${passwordError ? styles.invalidInput : ''}`}>
+                  <Image src="/images/login-password-icon.svg" alt="" width={18} height={22} />
+                  <input ref={passwordRef} id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required placeholder="Masukkan password" value={password}
+                    aria-invalid={!!passwordError} aria-describedby={passwordError ? 'password-error' : focusedField === 'password' ? 'password-hint' : undefined}
+                    onFocus={() => setFocusedField('password')}
+                    onBlur={() => { setFocusedField(null); setTouched((fields) => ({ ...fields, password: true })); }}
+                    onChange={(event) => { setPassword(event.target.value); clearError(); }} />
+                  <button className={styles.visibilityButton} type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} aria-pressed={showPassword}>
+                    {showPassword ? <EyeOff size={22} /> : <Image src="/images/login-eye-icon.svg" alt="" width={24} height={24} />}
+                  </button>
+                </div>
+                {passwordError ? <p id="password-error" className={styles.fieldError} role="alert">{passwordError}</p> : focusedField === 'password' && <p id="password-hint" className={styles.fieldHint}>Masukkan password akun Anda.</p>}
+              </div>
+
+              <div className={styles.options}>
+                <label className={styles.remember}>
+                  <input
+                    className={styles.checkbox}
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                  />
+                  Remember me
+                </label>
                 <button
+                  className={styles.forgot}
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                  onClick={() => setInteractionNotice('Forgot Password belum dikonfigurasi untuk aplikasi ini.')}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  Forgot Password
                 </button>
               </div>
-            </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 bg-[#0a354c] hover:bg-[#0d4a6e] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl text-sm transition-colors flex items-center justify-center gap-2 mt-2"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Memverifikasi...
-                </>
-              ) : (
-                'Masuk ke Sistem'
-              )}
-            </button>
-          </form>
+              <button className={styles.submit} type="submit" disabled={isLoading}>
+                {isLoading ? <><Loader2 size={18} className={styles.spinner} /> Memverifikasi...</> : 'SIGN IN'}
+              </button>
 
-          {/* Dev hint */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-xl">
-              <p className="text-xs text-amber-700 font-semibold mb-1">
-                🔧 Mode Pengembangan (Dev Credentials)
+              <div className={styles.alternatives}>
+                <div className={styles.separator}><span />Or login with<span /></div>
+                <button
+                  className={styles.googleButton}
+                  type="button"
+                  onClick={() => setInteractionNotice('Google Sign-In belum dikonfigurasi untuk aplikasi ini.')}
+                >
+                  <Image src="/images/login-google-logo.svg" alt="Google" width={76} height={76} />
+                </button>
+              </div>
+
+              <p className={styles.signup}>
+                Don’t have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setInteractionNotice('Sign up belum dikonfigurasi untuk aplikasi ini.')}
+                >
+                  Sign up
+                </button>
               </p>
-              <p className="text-xs text-amber-600">
-                admin / admin123 &nbsp;|&nbsp; operator / op123 &nbsp;|&nbsp; viewer / view123
-              </p>
-            </div>
-          )}
-        </div>
+              {interactionNotice && <p className={styles.notice} role="status">{interactionNotice}</p>}
+            </form>
+          </div>
+        </section>
       </div>
-
-      {/* Footer */}
-      <div className="text-center mt-6 flex items-center justify-center gap-2 text-blue-200/60 text-xs">
-        <Droplets className="w-3.5 h-3.5" />
-        <span>Sistem Monitoring Air RSA UGM &copy; 2024</span>
-      </div>
-    </div>
+    </main>
   );
 }
 
-/**
- * LoginPage — wrapper dengan Suspense agar useSearchParams() aman di static generation.
- * Next.js App Router mensyaratkan komponen yang menggunakan useSearchParams
- * untuk dibungkus dalam Suspense boundary.
- */
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="w-full max-w-md flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 text-white/60 animate-spin" />
-      </div>
-    }>
+    <Suspense fallback={<main className={styles.loading}><Loader2 size={30} className={styles.spinner} aria-label="Memuat halaman login" /></main>}>
       <LoginForm />
     </Suspense>
   );
