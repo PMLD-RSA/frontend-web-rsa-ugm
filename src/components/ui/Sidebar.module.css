@@ -1,0 +1,165 @@
+.sidebar {
+  --sidebar-width: 75px;
+  --navigation-hover: linear-gradient(180deg, #016da6, #0a3f5c);
+  width: var(--sidebar-width);
+}
+
+.sidebar[data-expanded='true'] {
+  --sidebar-width: 191px;
+  --navigation-hover: linear-gradient(90deg, #0077b6, #0a3f5c);
+}
+
+.navItem {
+  isolation: isolate;
+}
+
+.navItem::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--navigation-hover);
+  content: '';
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+.navItem:hover::before,
+.navItem:focus-visible::before {
+  opacity: 1;
+}
+
+.accountMenu {
+  position: fixed;
+  inset: auto auto max(8px, env(safe-area-inset-bottom)) min(calc(var(--sidebar-width) + 11px), calc(100vw - 252px));
+  width: 244px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100dvh - 16px);
+  margin: 0;
+  padding: 8px;
+  overflow: auto;
+  border: 0;
+  border-radius: 8px;
+  background: white;
+  color: #212121;
+  box-shadow: inset 0 0 0 0.5px #e0e0e0, 0 4px 16px rgb(68 68 68 / 8%);
+}
+
+.accountMenu:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: account-menu-enter 300ms ease-out;
+}
+
+.accountMenu::backdrop {
+  background: transparent;
+}
+
+.accountItem {
+  --hover-start: 18%;
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  isolation: isolate;
+  border: 0;
+  border-radius: 12px;
+  background: #f8f8f8;
+  box-shadow: inset 0 0 0 0.5px #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.accountItem::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f8f8f8 var(--hover-start), rgb(172 172 172 / 50%) 50%);
+  content: '';
+  opacity: 0;
+}
+
+.accountItem:hover::before,
+.accountItem:focus-visible::before {
+  opacity: 1;
+}
+
+.accountItem:hover,
+.accountItem:focus-visible {
+  background: transparent;
+}
+
+.accountItem:focus-visible {
+  outline: 2px solid #0077b6;
+  outline-offset: 1px;
+}
+
+.accountItem:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.profileItem {
+  --hover-start: 12%;
+}
+
+.passwordItem {
+  --hover-start: 18.269%;
+  height: 36px;
+}
+
+.logoutSection {
+  position: relative;
+  flex-shrink: 0;
+  height: 64px;
+  padding-top: 24px;
+}
+
+.logoutDivider {
+  position: absolute;
+  top: -0.25px;
+  left: -0.25px;
+}
+
+.logoutDivider + .logoutDivider {
+  top: 11.75px;
+}
+
+.logoutItem {
+  background: white;
+  box-shadow: none;
+}
+
+.logoutItem::before {
+  background: linear-gradient(90deg, white 12%, rgb(172 172 172 / 50%) 50%);
+}
+
+@keyframes account-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navItem::before {
+    transition: none;
+  }
+
+  .accountMenu:popover-open {
+    animation: none;
+  }
+}
