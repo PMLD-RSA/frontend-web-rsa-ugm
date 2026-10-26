@@ -1,0 +1,186 @@
+.overview {
+  --dashboard-ink: #484f58;
+  --dashboard-border: #a1a1a1;
+  --dashboard-yellow: #fecb28;
+  container-type: inline-size;
+  color: #000;
+  margin-bottom: 32px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 79px;
+  padding: 16px 0 18px;
+  border-bottom: 1px solid var(--dashboard-border);
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 373px;
+  min-width: 0;
+  height: 39px;
+  padding: 0 13px;
+  border: 2px solid var(--dashboard-border);
+  border-radius: 13px;
+}
+
+.search img,
+.toolbarActions,
+.toolbarActions img,
+.controls img,
+.cardFooter img { flex-shrink: 0; }
+
+.search:focus-within { border-color: #016da6; }
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 30px;
+}
+
+.search input::placeholder { color: var(--dashboard-border); opacity: 1; }
+
+.toolbarActions { display: flex; align-items: center; gap: 8px; }
+
+.notification {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border: 1.5px solid var(--dashboard-border);
+  border-radius: 5px;
+}
+
+.download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  background: var(--dashboard-yellow);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.overview button,
+.overview select { cursor: pointer; }
+.overview button:disabled { cursor: not-allowed; opacity: 0.5; }
+.download:hover:not(:disabled), .apply:hover { background: #f2bc12; }
+.notification:hover, .filterButton:hover, .dateButton:hover { background: #f8f8f8; }
+.overview :is(button, a, select, input):focus-visible { outline: 2px solid #016da6; outline-offset: 3px; }
+
+.headingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 69px;
+  padding: 13px 0;
+}
+
+.headingRow h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -1.2px; line-height: 30px; }
+.controls { display: flex; align-items: center; gap: 16px; }
+.dateControl { display: flex; align-items: center; min-height: 37px; border: 0.667px solid #2e2e2e; border-radius: 8px; }
+.dateButton { display: flex; align-items: center; gap: 12px; padding: 7px 12px 7px 16px; border-radius: 8px 0 0 8px; }
+.dateButton span { min-width: 122px; text-align: left; }
+.dateButton, .period { color: var(--dashboard-ink); font-size: 13px; font-weight: 500; line-height: 21px; }
+.period { display: flex; align-items: center; position: relative; padding: 0 12px; border-left: 0.667px solid #2e2e2e; }
+.period select { appearance: none; max-width: 90px; padding-right: 17px; background: transparent; outline-offset: 0; }
+.period img { position: absolute; right: 12px; pointer-events: none; }
+.filterButton { display: flex; align-items: center; gap: 15px; position: relative; height: 39px; padding: 0 16px; border: 2px solid var(--dashboard-border); border-radius: 8px; font-size: 18px; font-weight: 600; line-height: 30px; }
+.filterButton[data-active='true'] { border-color: #016da6; }
+.filterDot { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: #016da6; }
+
+.summaryGrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px; padding: 0 4px; }
+
+/* Override the shared Card shell only within this dashboard component. */
+.summaryCard.summaryCard {
+  position: relative;
+  min-width: 0;
+  height: 146px;
+  padding: 0 16px 0 25px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 5px 6px 8px rgb(69 69 80 / 15%);
+}
+
+.summaryCard::before { position: absolute; inset: 0 auto 0 0; width: 11px; background: var(--status-color, transparent); content: ''; }
+.normal { --status-color: #42a132; }
+.warning { --status-color: #fecb28; }
+.critical { --status-color: #f21e1e; }
+.cardBody { position: relative; height: 105px; padding-top: 17px; }
+.cardBody h2 { position: relative; z-index: 1; width: fit-content; margin: 0; color: var(--dashboard-ink); font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.8px; }
+.metric { display: flex; align-items: baseline; gap: 3px; position: relative; z-index: 1; width: fit-content; margin-top: 3px; }
+.metric strong { font-size: 36px; font-weight: 600; line-height: 40px; letter-spacing: -1.08px; }
+.metric span { color: var(--dashboard-border); font-size: 13px; font-weight: 500; line-height: 30px; letter-spacing: -0.56px; }
+.illustration { position: absolute; top: 12px; right: 0; height: 106px; object-fit: contain; }
+.totalIllustration { display: grid; place-items: center; position: absolute; top: 18px; right: 0; width: 102px; height: 83px; }
+.cardFooter { display: flex; align-items: center; gap: 7px; position: relative; height: 41px; border-top: 1px solid #d9d9d9; color: var(--dashboard-ink); font-size: 12px; font-weight: 500; line-height: 18px; letter-spacing: -0.36px; white-space: nowrap; }
+.note { margin: 14px 4px 0; color: var(--dashboard-ink); font-size: 12px; }
+
+@container (max-width: 1190px) {
+  .summaryGrid { gap: 24px; }
+  .summaryCard.summaryCard { padding-left: 23px; padding-right: 12px; }
+  .cardBody h2 { font-size: 16px; }
+  .illustration, .totalIllustration { transform: scale(0.85); transform-origin: right center; }
+  .cardFooter { font-size: 11px; }
+}
+
+@container (max-width: 1000px) {
+  .summaryGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .cardBody h2 { font-size: 18px; }
+  .illustration, .totalIllustration { transform: none; }
+  .cardFooter { font-size: 12px; }
+}
+
+@container (max-width: 650px) {
+  .toolbar { gap: 12px; }
+  .search { flex: 1; width: auto; padding: 0 9px; }
+  .search input { font-size: 14px; }
+  .download { padding: 10px; gap: 5px; font-size: 11px; }
+  .headingRow { flex-wrap: wrap; padding: 16px 0; }
+  .headingRow h1 { font-size: 22px; }
+  .controls { justify-content: space-between; width: 100%; gap: 8px; }
+  .dateControl { min-width: 0; }
+  .dateButton { gap: 6px; padding: 7px 8px; font-size: 11px; }
+  .dateButton span { min-width: 0; }
+  .period { padding: 0 8px; font-size: 11px; }
+  .period img { right: 8px; }
+  .filterButton { gap: 7px; padding: 0 10px; font-size: 14px; }
+  .summaryGrid { gap: 16px; padding: 0; }
+}
+
+@container (max-width: 480px) {
+  .summaryGrid { grid-template-columns: 1fr; }
+  .toolbar { flex-wrap: wrap; gap: 10px; }
+  .search { flex-basis: 100%; }
+  .toolbarActions { margin-left: auto; }
+  .summaryCard.summaryCard { padding-left: 25px; padding-right: 20px; }
+  .controls { flex-wrap: wrap; }
+}
+
+@container (max-width: 280px) {
+  .summaryCard.summaryCard { padding-left: 20px; padding-right: 12px; }
+  .cardBody h2 { font-size: 15px; }
+  .metric strong { font-size: 30px; }
+  .metric span { font-size: 11px; }
+  .illustration { top: 0; transform: scale(0.65); transform-origin: right bottom; }
+  .totalIllustration { top: 14px; transform: scale(0.65); transform-origin: right bottom; }
+  .cardFooter { gap: 5px; font-size: 10px; }
+}

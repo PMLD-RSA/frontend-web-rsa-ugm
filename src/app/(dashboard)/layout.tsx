@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { Header } from '@/components/ui/Header';
 import { useAuthStore } from '@/stores/authStore';
@@ -19,6 +20,7 @@ import { useAuthStore } from '@/stores/authStore';
  */
 export default function DashboardRouteLayout({ children }: { children: ReactNode }) {
   const { fetchMe, isLoading } = useAuthStore();
+  const isOverview = usePathname() === '/';
 
   // Restore sesi user dari cookie saat pertama kali layout dimuat
   useEffect(() => {
@@ -31,12 +33,12 @@ export default function DashboardRouteLayout({ children }: { children: ReactNode
       <Sidebar />
 
       {/* Konten Utama */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
         {/* Header Topbar */}
-        <Header />
+        {!isOverview && <Header />}
 
         {/* Dynamic Content Viewport */}
-        <main className="flex-1 overflow-auto p-6 md:p-8">
+        <main className={isOverview ? 'flex-1 overflow-auto bg-white px-4 pb-8 md:pl-[15px] md:pr-[34px]' : 'flex-1 overflow-auto p-6 md:p-8'}>
           {isLoading ? (
             /* Skeleton saat sesi sedang di-restore dari cookie */
             <div className="animate-pulse space-y-6">
