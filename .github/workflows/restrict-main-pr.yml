@@ -1,0 +1,46 @@
+name: Restrict PR to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  check-source-branch:
+    name: Verify Source Branch is dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifikasi dan Auto-Close jika bukan dev
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "Target branch: ${{ github.base_ref }}"
+          echo "Source branch: $HEAD_REF"
+
+          if [ "$HEAD_REF" != "dev" ]; then
+            echo "::error title=Branch Policy Violation::PR ke main hanya diperbolehkan dari dev!"
+
+            # 1. Kirim komentar penjelasan otomatis ke PR
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "❌ **Pull Request Ditolak Otomatis**
+
+            PR ke branch \`main\` **hanya diperbolehkan berasal dari branch \`dev\`**.
+            Branch asal Anda (\`$HEAD_REF\`) tidak diizinkan langsung ke \`main\`.
+            
+            👉 Silakan ubah target base branch Anda ke \`dev\`." || true
+
+            # 2. Otomatis Close PR tersebut
+            gh pr close "$PR_NUMBER" --repo "$REPO" || true
+
+            # 3. Buat status check MERAH
+            exit 1
+          fi
+
+          echo "✅ Valid: PR berasal dari branch dev."
