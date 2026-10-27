@@ -1,36 +1,43 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, Badge } from '@/components/ui/Card';
-import { Tank } from '@/types';
+import { Badge } from '@/components/ui/Card';
+import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
+import { type DashboardFilters, filterDashboardTanks, getTankStatus, periodRange } from '@/lib/dashboard';
+import type { Tank } from '@/types';
 import {
-  Droplets,
   AlertTriangle,
   Radio,
   MapPin,
   ArrowUpRight,
   RefreshCw,
-  Layers,
-  DatabaseZap,
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Dashboard() {
   const [tanks, setTanks] = useState<Tank[]>([]);
+  const [query, setQuery] = useState('');
+  const [filters, setFilters] = useState<DashboardFilters>(() => ({
+    tankId: '', statuses: [], ...periodRange('Monthly'), period: 'Monthly',
+  }));
+  const [error, setError] = useState('');
   // State awal loading=true agar tidak ada flash kosong saat pertama render
   const [loading, setLoading] = useState(true);
 
   // Fungsi refresh manual (dipanggil oleh tombol klik, bukan di dalam useEffect)
   function loadTanks() {
     setLoading(true);
+    setError('');
     fetch('/api/tanks')
       .then((res) => res.json())
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           setTanks(res.data);
+        } else {
+          throw new Error('Gagal mengambil data tangki. Silakan coba lagi.');
         }
       })
-      .catch((err) => console.error('Gagal mengambil data tangki:', err))
+      .catch(() => setError('Gagal mengambil data tangki. Silakan coba lagi.'))
       .finally(() => setLoading(false));
   }
 
@@ -42,37 +49,24 @@ export default function Dashboard() {
       .then((res) => {
         if (res.success && Array.isArray(res.data)) {
           setTanks(res.data);
+        } else {
+          throw new Error('Gagal mengambil data tangki. Silakan coba lagi.');
         }
       })
-      .catch((err) => console.error('Gagal mengambil data tangki:', err))
+      .catch(() => setError('Gagal mengambil data tangki. Silakan coba lagi.'))
       .finally(() => setLoading(false));
   }, []);
 
-  // Hitung ringkasan metrik
-  const totalCapacity = tanks.reduce((acc, t) => acc + Number(t.capacityLiters || 0), 0);
-  const totalCurrentWater = tanks.reduce((acc, t) => acc + Number(t.latestReading?.volumeLiters || 0), 0);
+  const visibleTanks = filterDashboardTanks(tanks, query, filters);
   const activeAlerts = tanks.filter((t) => t.activeAlert != null);
-  const normalTanks = tanks.filter((t) => t.activeAlert == null).length;
 
   return (
     <>
-      {/* Top Welcome & Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Pemantauan Level Air</h1>
-          <p className="text-slate-500 mt-1">
-            Status telemetri IoT tangki air terpadu Rumah Sakit Akademik UGM.
-          </p>
-        </div>
-        <button
-          onClick={loadTanks}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-sm font-medium transition-colors shadow-sm self-start sm:self-auto"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
-          Segarkan Data
-        </button>
-      </div>
+      <DashboardOverview
+        tanks={visibleTanks} allTanks={tanks} loading={loading} failed={Boolean(error)}
+        query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters}
+      />
+      {error && <p role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
 
       {/* Emergency Alert Banner (jika ada alert aktif) */}
       {activeAlerts.length > 0 && (
@@ -99,84 +93,36 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Quick Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <Layers className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total Tangki</p>
-            <h3 className="text-xl font-bold text-slate-800">{tanks.length} Tangki</h3>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
-            <Droplets className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total Air Tersimpan</p>
-            <h3 className="text-xl font-bold text-slate-800">
-              {totalCurrentWater.toLocaleString('id-ID')} L
-            </h3>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-            <DatabaseZap className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Total Kapasitas</p>
-            <h3 className="text-xl font-bold text-slate-800">
-              {totalCapacity.toLocaleString('id-ID')} L
-            </h3>
-          </div>
-        </Card>
-
-        <Card className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <Radio className="w-6 h-6" />
-          </div>
-          <div>
-            <p className="text-xs font-medium text-slate-500">Tangki Kondisi Aman</p>
-            <h3 className="text-xl font-bold text-emerald-700">{normalTanks} / {tanks.length}</h3>
-          </div>
-        </Card>
-      </div>
-
       {/* Tank Cards Grid */}
-      <div className="mb-4">
-        <h2 className="text-lg font-bold text-slate-800 mb-4">Daftar Tangki Rumah Sakit</h2>
+      <div id="dashboard-tank-list" className="mb-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold text-slate-800">Daftar Tangki Rumah Sakit</h2>
+          <button onClick={loadTanks} disabled={loading} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Segarkan Data
+          </button>
+        </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64 bg-white rounded-2xl border border-slate-100">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
             <p className="text-xs text-slate-400">Memuat data sensor tangki...</p>
           </div>
+        ) : error ? null : visibleTanks.length === 0 ? (
+          <p role="status" className="rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
+            Tidak ada tangki yang sesuai. Coba ubah pencarian, periode, atau filter.
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tanks.map((tank) => {
+            {visibleTanks.map((tank) => {
               const level = Number(tank.latestReading?.levelPercent || 0);
               const volume = Number(tank.latestReading?.volumeLiters || 0);
               const capacity = Number(tank.capacityLiters || 0);
 
-              // Tentukan status berdasarkan threshold PRD:
-              // > 60% = Normal (Hijau), 30% - 60% = Warning (Kuning), < 30% = Critical (Merah)
-              let statusVariant: 'success' | 'warning' | 'critical' = 'success';
-              let statusLabel = 'NORMAL';
-              let progressColor = 'bg-emerald-500';
-
-              if (level < Number(tank.minThresholdPercent || 30)) {
-                statusVariant = 'critical';
-                statusLabel = 'CRITICAL';
-                progressColor = 'bg-rose-500';
-              } else if (level <= 60) {
-                statusVariant = 'warning';
-                statusLabel = 'WARNING';
-                progressColor = 'bg-amber-500';
-              }
+              const status = getTankStatus(tank);
+              const statusLabel = status ?? 'BELUM ADA DATA';
+              const statusVariant = status === 'CRITICAL' ? 'critical' : status === 'WARNING' ? 'warning' : status === 'NORMAL' ? 'success' : 'info';
+              const progressColor = status === 'CRITICAL' ? 'bg-rose-500' : status === 'WARNING' ? 'bg-amber-500' : status === 'NORMAL' ? 'bg-emerald-500' : 'bg-slate-300';
 
               return (
                 <div

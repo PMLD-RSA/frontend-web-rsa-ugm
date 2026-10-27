@@ -1,0 +1,149 @@
+.anchored, .downloadDialog {
+  --panel-ink: #071551;
+  --panel-muted: #828c9a;
+  --panel-border: #d9d9d9;
+  --panel-yellow: #fecb28;
+  color: var(--panel-ink);
+  background: #fff;
+  font-family: var(--font-plus-jakarta-sans), Arial, sans-serif;
+  font-size: 14px;
+}
+
+.anchored { position: fixed; inset: auto; margin: 0; padding: 0; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); overflow: auto; border: 0; border-radius: 8px; box-shadow: 0 10px 30px rgb(0 0 0 / 16%); }
+.anchored::backdrop { background: transparent; }
+.anchored img, .downloadDialog img { flex-shrink: 0; max-width: none; }
+.anchored button, .downloadDialog button, .anchored select, .downloadDialog select { cursor: pointer; }
+.anchored button:disabled, .downloadDialog button:disabled { cursor: not-allowed; }
+.anchored :is(button, input, select):focus-visible, .downloadDialog :is(button, input, select):focus-visible { outline: 2px solid #016da6; outline-offset: 3px; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.divider { width: 100%; overflow: hidden; }
+.closeButton { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 4px; }
+.closeButton:hover { background: #f1f3f7; }
+.primaryButton, .cancelButton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 10px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; line-height: 20px; white-space: nowrap; }
+.primaryButton { color: #000; background: var(--panel-yellow); }
+.primaryButton:hover:not(:disabled) { background: #f2bc12; }
+.primaryButton:disabled { opacity: 0.5; }
+.cancelButton { min-height: 44px; padding: 10px 20px; border: 1px solid var(--panel-border); }
+.cancelButton:hover { background: #f8f8f8; }
+.selectField { display: flex; align-items: center; position: relative; width: 100%; min-width: 0; height: 45px; border: 2px solid var(--panel-border); border-radius: 8px; color: #484f58; background: white; }
+.selectField select { appearance: none; width: 100%; height: 100%; min-width: 0; padding: 0 44px 0 20px; background: transparent; font-size: 14px; font-weight: 500; line-height: 30px; letter-spacing: -0.42px; text-overflow: ellipsis; }
+.selectField > img:last-child { position: absolute; right: 12px; pointer-events: none; }
+.selectWithIcon > img:first-child { position: absolute; left: 12px; pointer-events: none; }
+.selectWithIcon select { padding-left: 48px; }
+
+/* Filter: Figma frame 1014:18048, 414 × 529. */
+.filterPanel { width: 414px; padding: 24px 27px 18px 26px; }
+.filterHeader { position: relative; margin-bottom: 13px; }
+.filterHeader h2 { margin: 0 30px 0 0; font-size: 24px; font-weight: 600; line-height: 30px; letter-spacing: -0.96px; }
+.filterHeader .closeButton { position: absolute; top: -4px; right: 0; }
+.filterHeader p { margin: 0; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 30px; letter-spacing: -0.42px; }
+.filterTank { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.72px; }
+.statusField { margin-top: 16px; }
+.statusField legend { font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.72px; }
+.statusField p { margin: -5px 0 4px; color: var(--panel-muted); font-weight: 500; line-height: 30px; letter-spacing: -0.42px; }
+.checkboxes { display: flex; flex-direction: column; gap: 11px; }
+.checkboxes label { display: flex; align-items: center; gap: 13px; min-height: 30px; color: #484f58; font-size: 14px; font-weight: 500; letter-spacing: -0.42px; cursor: pointer; }
+.checkboxes input { appearance: none; position: relative; width: 24px; height: 24px; flex-shrink: 0; margin: 0; border: 2px solid var(--panel-muted); border-radius: 4px; cursor: pointer; }
+.checkboxes input:checked { border-color: #016da6; background: #016da6; }
+.checkboxes input:checked::after { position: absolute; top: 2px; left: 7px; width: 6px; height: 12px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); content: ''; }
+.filterNotice { display: flex; align-items: center; justify-content: center; min-height: 41px; margin: 21px 0 16px; padding: 6px 12px; border-radius: 4px; background: #f2f4f7; color: var(--panel-muted); font-size: 14px; font-weight: 500; letter-spacing: -0.42px; }
+.filterFooter { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
+.resetButton { color: #02395a; font-size: 20px; font-weight: 600; letter-spacing: -0.8px; }
+.activeDot { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: #016da6; }
+
+/* Calendar: Figma frame 1044:10515, 250 × 293 for a five-week month. */
+.calendarPopover { width: 250px; overflow: visible; border: 1px solid #e2e8f0; border-radius: 12px; }
+.calendar { width: 248px; padding: 12px 11px 11px; color: #1e293b; font-weight: 400; letter-spacing: normal; }
+.calendarHeader { display: flex; align-items: center; justify-content: space-between; height: 32px; }
+.calendarHeader > button { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; }
+.calendarHeader > button:hover { background: #f1f5f9; }
+.calendarSelectors { display: flex; gap: 6px; }
+.calendarSelect { display: flex; align-items: center; position: relative; height: 32px; border: 1px solid #e2e8f0; border-radius: 8px; }
+.calendarSelect select { appearance: none; width: 55px; height: 100%; padding: 0 16px 0 7px; background: transparent; font-size: 13px; font-weight: 500; }
+.calendarSelect:last-child select { width: 64px; }
+.calendarSelect img { position: absolute; right: 4px; pointer-events: none; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 32px); margin-top: 16px; height: 21px; color: #64748b; font-size: 11px; line-height: 21px; text-align: center; }
+.calendarGrid { display: grid; grid-template-columns: repeat(7, 32px); grid-auto-rows: 40px; }
+.calendarGrid button { display: grid; place-items: center; width: 32px; height: 32px; margin-top: 8px; border-radius: 8px; font-size: 13px; line-height: 20px; }
+.calendarGrid button:disabled { opacity: 0.5; }
+.calendarGrid button:hover:not(:disabled) { background: #f1f5f9; }
+.calendarGrid button[data-today='true'] { box-shadow: inset 0 0 0 1px #94a3b8; }
+.calendarGrid button[data-in-range='true']:not(:disabled) { background: #fff4cc; border-radius: 0; }
+.calendarGrid button[data-selected='true']:not(:disabled) { background: #fecb28; color: #071551; font-weight: 600; }
+
+/* Download: Figma frame 1046:10733, 584 × 763. */
+.downloadDialog { width: 584px; max-width: calc(100vw - 32px); max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: auto; border: 0; border-radius: 8px; box-shadow: 0 24px 80px rgb(0 0 0 / 22%); }
+.downloadDialog::backdrop { background: rgb(7 21 81 / 28%); }
+.downloadHeader { position: relative; padding: 30px 32px 0; }
+.downloadHeader h2 { padding-right: 32px; font-size: 32px; font-weight: 600; line-height: 30px; letter-spacing: -1.28px; }
+.downloadHeader .closeButton { position: absolute; top: 32px; right: 32px; }
+.downloadHeader p { margin: 0; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 30px; letter-spacing: -0.42px; }
+.downloadBody { margin: 12px 40px 0; }
+.reportLabel { display: flex; flex-direction: column; font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.72px; }
+.reportPeriod { gap: 12px; }
+.reportDates { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.reportDate { display: flex; flex-direction: column; min-width: 0; gap: 2px; color: var(--panel-muted); font-size: 14px; font-weight: 600; line-height: 30px; letter-spacing: -0.42px; }
+.dateField { display: flex; align-items: center; gap: 12px; width: 100%; height: 45px; padding: 0 13px; border: 2px solid var(--panel-border); border-radius: 8px; color: #484f58; background: white; font-size: 13px; font-weight: 500; letter-spacing: -0.42px; }
+.dateField span { flex: 1; min-width: 0; text-align: left; white-space: nowrap; }
+.reportHint { margin: 4px 0 0; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 30px; letter-spacing: -0.42px; }
+.reportFormat { margin-top: 8px; }
+.reportFormat legend { font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.72px; }
+.formatOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 3px; }
+.formatOption { display: flex; align-items: center; gap: 28px; position: relative; height: 70px; min-width: 0; padding: 8px 14px; border: 2px solid var(--panel-border); border-radius: 8px; cursor: pointer; }
+.formatOption:has(input:checked) { border-color: #4c5c70; background: #fcfcfd; }
+.formatOption:has(input:focus-visible) { outline: 2px solid #016da6; outline-offset: 3px; }
+.formatOption input { position: absolute; width: 21px; height: 21px; opacity: 0; }
+.radio { display: grid; place-items: center; position: relative; width: 21px; height: 21px; flex-shrink: 0; }
+.formatOption input:checked + .radio::after { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #4c5c70; content: ''; }
+.formatDescription { display: flex; align-items: center; gap: 5px; min-width: 0; }
+.formatDescription > span { display: flex; flex-direction: column; }
+.formatDescription strong { font-size: 14px; font-weight: 600; line-height: 20px; }
+.formatDescription small { color: var(--panel-muted); font-size: 13px; font-weight: 500; line-height: 20px; letter-spacing: -0.39px; white-space: nowrap; }
+.reportContents { min-height: 136px; margin-top: 24px; padding: 9px 13px 13px; background: #f1f3f7; }
+.reportContents h3 { font-size: 15px; font-weight: 600; line-height: 28px; letter-spacing: -0.6px; }
+.reportContents ul { list-style: none; padding: 0; margin: 0; }
+.reportContents li { display: flex; align-items: center; gap: 12px; min-height: 28px; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 20px; letter-spacing: -0.42px; }
+.reportContents li[data-unavailable='true'] img { opacity: 0.35; }
+.reportContents small { margin-left: auto; font-size: 10px; white-space: nowrap; }
+.downloadFooter { margin-top: 24px; }
+.downloadFooter > .divider { height: 1px; }
+.downloadActions { display: flex; align-items: center; justify-content: flex-end; gap: 17px; padding: 18px 34px 30px 40px; }
+.downloadActions p { margin-right: auto; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 20px; letter-spacing: -0.42px; }
+.downloadActions .primaryButton { min-height: 44px; }
+.reportError { margin: 16px 0 0; padding: 10px 12px; border-radius: 6px; background: #fff1f2; color: #b42318; font-size: 12px; line-height: 20px; }
+.reportBusy { margin: 12px 0 0; color: var(--panel-muted); font-size: 12px; }
+
+@media (max-width: 600px) {
+  .downloadHeader { padding: 24px 20px 0; }
+  .downloadHeader h2 { font-size: 25px; }
+  .downloadHeader .closeButton { top: 24px; right: 18px; }
+  .downloadHeader p { margin-top: 6px; line-height: 22px; }
+  .downloadBody { margin: 16px 20px 0; }
+  .reportDates { gap: 12px; }
+  .dateField { gap: 6px; padding: 0 8px; font-size: 11px; }
+  .reportHint { margin-top: 8px; line-height: 22px; }
+  .formatOptions { gap: 8px; }
+  .formatOption { gap: 8px; padding: 8px; }
+  .formatDescription small { white-space: normal; }
+  .formatDescription { gap: 3px; }
+  .reportContents li { flex-wrap: wrap; padding: 4px 0; gap: 8px; font-size: 12px; }
+  .reportContents li > span { flex: 1; }
+  .reportContents small { flex-basis: 100%; margin-left: 26px; }
+  .downloadActions { flex-wrap: wrap; gap: 12px; padding: 18px 20px 24px; }
+  .downloadActions p { width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .filterPanel { padding: 20px; }
+  .filterHeader h2 { font-size: 21px; }
+  .filterHeader p { line-height: 22px; margin-top: 8px; }
+  .filterNotice { font-size: 11px; }
+  .filterFooter { gap: 8px; }
+  .filterFooter .primaryButton { padding: 10px 12px; font-size: 12px; }
+  .reportDates, .formatOptions { grid-template-columns: 1fr; }
+  .reportDates { gap: 8px; }
+  .formatOption { gap: 16px; padding: 8px 12px; }
+  .formatDescription { gap: 8px; }
+  .formatDescription small { white-space: normal; }
+  .downloadActions .cancelButton { padding: 10px 14px; }
+}
