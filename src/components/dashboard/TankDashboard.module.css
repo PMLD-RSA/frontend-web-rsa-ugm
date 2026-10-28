@@ -109,7 +109,9 @@
 .statTankName { color: #1c1d21; font-size: 16px; font-weight: 700; min-height: 48px; line-height: 24px; }
 .statTankName:hover { color: #0077b6; }
 .donut { width: 146px; height: 146px; border-radius: 50%; margin: 26px auto 30px; display: grid; place-items: center; transform: rotate(0deg); }
-.donut > span { display: grid; place-items: center; width: 106px; height: 106px; border-radius: 50%; background: #fdfdfd; color: #a3a3a3; font-size: 24px; }
+.donut > span { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 106px; height: 106px; border-radius: 50%; background: #fdfdfd; color: #1c1d21; font-size: 24px; }
+.donut strong { font-size: 22px; line-height: 1.2; }
+.donut small { max-width: 90%; color: #8181a5; font-size: 11px; line-height: 1.2; font-weight: 600; }
 .statLegend { display: grid; gap: 8px; margin: 0; }
 .statLegend > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #1a1919; font-size: 14px; line-height: 24px; }
 .statLegend dt { display: flex; align-items: center; gap: 12px; }
@@ -128,6 +130,8 @@
   .statTabs button { min-width: 50px; font-size: 12px; }
   .donut { width: 100px; height: 100px; margin: 20px auto; }
   .donut > span { width: 72px; height: 72px; }
+  .donut strong { font-size: 16px; }
+  .donut small { font-size: 9px; }
   .statTankName { font-size: 13px; }
   .statLegend > div { font-size: 11px; gap: 4px; }
   .statLegend dt { gap: 4px; }
