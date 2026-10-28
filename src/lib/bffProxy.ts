@@ -58,12 +58,14 @@ export async function forwardToBackend<T>(
       // Return fallback data dengan envelope standar
       return NextResponse.json({
         success: true,
+        source: "mock",
         data: options.fallbackData,
       });
     }
 
     return NextResponse.json({
       success: true,
+      source: "mock",
       data: options.fallbackData,
     });
   }

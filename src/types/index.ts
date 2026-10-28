@@ -15,6 +15,7 @@ export type TankStatusCategory = "NORMAL" | "WARNING" | "CRITICAL";
  */
 export interface ApiResponse<T = unknown> {
   success: boolean;
+  source?: 'mock';
   data?: T;
   message?: string;
   errors?: Record<string, string[]>;
