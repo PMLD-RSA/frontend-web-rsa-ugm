@@ -78,7 +78,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
       <header className={styles.downloadHeader}>
         <h2 id={titleId}>Unduh Laporan</h2>
         <button type="button" className={styles.closeButton} aria-label="Tutup unduh laporan" onClick={close}><Icon name="close-download" width={25} /></button>
-        <p>Ekspor data monitoring tangki sesuai kebutuhan Anda</p>
+        <p>Laporan monitoring dengan tabel pemeriksaan dan area tanda tangan</p>
       </header>
       <div className={styles.downloadBody}>
         <label className={`${styles.reportLabel} ${styles.reportPeriod}`}>Periode laporan
@@ -127,7 +127,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
         <fieldset className={styles.reportFormat} disabled={busy}>
           <legend>Format file</legend>
           <div className={styles.formatOptions}>
-            {([{ value: 'pdf', label: 'PDF', description: 'Laporan siap baca', image: 'file-pdf', size: 44 }, { value: 'xlsx', label: 'Excel', description: 'Data untuk diolah', image: 'file-excel', size: 40 }] as const).map(option => <label key={option.value} className={styles.formatOption}>
+            {([{ value: 'pdf', label: 'PDF', description: 'Laporan siap cetak', image: 'file-pdf', size: 44 }, { value: 'xlsx', label: 'Excel', description: 'Laporan dan data tabel', image: 'file-excel', size: 40 }] as const).map(option => <label key={option.value} className={styles.formatOption}>
               <input type="radio" name="reportFormat" value={option.value} checked={format === option.value} onChange={() => setFormat(option.value)} aria-label={option.label} />
               <span className={styles.radio}><Icon name="format-radio" width={21} /></span>
               <span className={styles.formatDescription}><Icon name={option.image} width={option.size} /><span><strong>{option.label}</strong><small>{option.description}</small></span></span>
@@ -137,7 +137,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
         <section className={styles.reportContents} aria-label="Isi laporan">
           <h3>Isi laporan</h3>
           <ul>
-            <li><Icon name="report-tick" width={18} /><span>Ringkasan kondisi dan grafik level air</span></li>
+            <li><Icon name="report-tick" width={18} /><span>Laporan per tangki, grafik level terakhir, dan area tanda tangan</span></li>
             <li data-unavailable="true"><Icon name="report-tick" width={18} /><span>Data air masuk dan keluar</span><small>Belum tersedia</small></li>
             <li><Icon name="report-tick" width={18} /><span>Riwayat peringatan dan kondisi kritis</span></li>
           </ul>
