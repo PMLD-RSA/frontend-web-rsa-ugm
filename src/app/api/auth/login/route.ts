@@ -3,6 +3,12 @@ import { MOCK_USERS } from "@/lib/mockData";
 
 const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
 
+function isHttpsRequest(request: NextRequest): boolean {
+  // TLS may terminate at a reverse proxy before the request reaches Next.js.
+  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  return (forwardedProtocol || request.nextUrl.protocol.replace(":", "")) === "https";
+}
+
 /**
  * POST /api/auth/login
  *
@@ -58,7 +64,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set("auth_token", token, {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isHttpsRequest(request),
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7 hari
       });
@@ -77,7 +83,7 @@ export async function POST(request: NextRequest) {
     );
   } catch {
     // Backend offline → fallback mock auth
-    return handleMockLogin(username, password);
+    return handleMockLogin(request, username, password);
   }
 }
 
@@ -88,7 +94,7 @@ const MOCK_CREDENTIALS: Record<string, string> = {
   viewer: "view123",
 };
 
-function handleMockLogin(username: string, password: string): NextResponse {
+function handleMockLogin(request: NextRequest, username: string, password: string): NextResponse {
   const expectedPwd = MOCK_CREDENTIALS[username];
   if (!expectedPwd || password !== expectedPwd) {
     return NextResponse.json(
@@ -121,7 +127,7 @@ function handleMockLogin(username: string, password: string): NextResponse {
   response.cookies.set("auth_token", mockToken, {
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    secure: isHttpsRequest(request),
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });

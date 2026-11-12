@@ -3,12 +3,17 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Clock3, Droplets, Info, X } from 'lucide-react';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import type { ApiResponse, AuditLog, Tank, TankHourlyAggregation } from '@/types';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import type { ApiResponse, AuditLog, Tank, WaterLevelReading } from '@/types';
 import { TankStatistics, referenceTanks } from './TankStatistics';
 import { TankMap } from './TankMap';
 import { measurement, numeric, readingTime, TankDetails } from './TankLevel';
 import styles from './TankDashboard.module.css';
+
+const HOUR_MS = 3_600_000;
+const volumeColors = ['#0077b6', '#b87516', '#27806f', '#8062a8', '#bf5c63', '#526b94'];
+const formatVolume = (value: number) => value.toLocaleString('id-ID', { maximumFractionDigits: 1 });
+type VolumePoint = { timestamp: number; [tankId: string]: number };
 
 export async function dashboardData<T>(url: string, signal?: AbortSignal): Promise<T[]> {
   const response = await fetch(url, { signal });
@@ -48,31 +53,177 @@ function RecentLogins() {
   </section>;
 }
 
+function VolumeDetailDialog({ tanks, data, endHour, onClose }: { tanks: Tank[]; data: VolumePoint[]; endHour: number; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [selectedTankId, setSelectedTankId] = useState(() => tanks.find(tank => data.some(point => point[tank.id] !== undefined))?.id ?? tanks[0]?.id ?? '');
+  useEffect(() => { dialog.current?.showModal(); }, []);
+
+  const selectedTank = tanks.find(tank => tank.id === selectedTankId);
+  const color = volumeColors[Math.max(0, tanks.findIndex(tank => tank.id === selectedTankId)) % volumeColors.length];
+  const startHour = endHour - 23 * HOUR_MS;
+  const values = new Map(data.map(point => [point.timestamp, point[selectedTankId]]));
+  const chartData = Array.from({ length: 24 }, (_, index) => {
+    const timestamp = startHour + index * HOUR_MS;
+    return { timestamp, volume: values.get(timestamp) ?? null };
+  });
+  const availableHours = chartData.filter(point => point.volume !== null).length;
+  const axisTicks = chartData.filter((_, index) => index % 3 === 0 || index === 23).map(point => point.timestamp);
+
+  return (
+    <dialog
+      ref={dialog}
+      className={styles.volumeDialog}
+      aria-labelledby="volume-detail-title"
+      onClose={onClose}
+      onClick={event => { if (event.target === event.currentTarget) dialog.current?.close(); }}
+    >
+      <div className={styles.volumeDialogInner}>
+        <header className={styles.volumeDialogHeader}>
+          <div>
+            <h2 id="volume-detail-title">Rata-rata volume air per jam</h2>
+            <p>24 jam terakhir · {availableHours} jam memiliki pembacaan</p>
+          </div>
+          <button type="button" autoFocus aria-label="Tutup detail grafik" onClick={() => dialog.current?.close()}><X size={20} /></button>
+        </header>
+
+        <div className={styles.volumeDialogControls}>
+          <label htmlFor="volume-detail-tank">Tangki</label>
+          <select id="volume-detail-tank" value={selectedTankId} onChange={event => setSelectedTankId(event.target.value)}>
+            {tanks.map(tank => <option key={tank.id} value={tank.id}>{tank.name}</option>)}
+          </select>
+          <span>Volume dalam liter</span>
+        </div>
+
+        {availableHours > 0 ? (
+          <div className={styles.volumeDialogScroll}>
+            <div className={styles.volumeDialogChart} role="img" aria-label={`Grafik rata-rata volume air ${selectedTank?.name ?? 'tangki'} selama 24 jam`}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 14, right: 18, bottom: 8, left: 4 }}>
+                  <CartesianGrid stroke="#e8edf2" strokeDasharray="3 5" />
+                  <XAxis dataKey="timestamp" type="number" scale="time" domain={[startHour, endHour]} ticks={axisTicks} tickFormatter={value => new Date(value).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} tick={{ fill: '#667587', fontSize: 11 }} tickLine={false} axisLine={false} tickMargin={12} />
+                  <YAxis tickFormatter={value => formatVolume(Number(value))} tick={{ fill: '#667587', fontSize: 11 }} tickLine={false} axisLine={false} tickMargin={8} width={66} domain={['auto', 'auto']} />
+                  <Tooltip cursor={{ stroke: '#9aabba', strokeDasharray: '4 4' }} labelFormatter={value => new Date(Number(value)).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} formatter={value => `${formatVolume(Number(value))} L`} contentStyle={{ border: '1px solid #e4eaf0', borderRadius: 8, boxShadow: '0 8px 24px rgb(16 44 67 / 10%)', fontSize: 12 }} />
+                  <Line dataKey="volume" name={selectedTank?.name ?? 'Tangki'} type="linear" stroke={color} strokeWidth={2.5} dot={{ r: 3, fill: color, strokeWidth: 0 }} activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }} connectNulls={false} isAnimationActive={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.volumeDialogEmpty}>Belum ada pembacaan untuk tangki ini dalam 24 jam terakhir.</div>
+        )}
+        <p className={styles.volumeDialogNote}>Setiap titik menunjukkan rata-rata pembacaan pada jam tersebut. Jam tanpa data dibiarkan kosong.</p>
+      </div>
+    </dialog>
+  );
+}
+
 function VolumeHistory({ tanks }: { tanks: Tank[] }) {
-  const [history, setHistory] = useState<TankHourlyAggregation[]>([]);
+  const [history, setHistory] = useState<WaterLevelReading[]>([]);
   const [state, setState] = useState('loading');
+  const [detailEndHour, setDetailEndHour] = useState<number | null>(null);
   useEffect(() => {
     const controller = new AbortController();
-    dashboardData<TankHourlyAggregation>('/api/readings/history?hours=24', controller.signal)
+    dashboardData<WaterLevelReading>('/api/readings/history?hours=24', controller.signal)
       .then(data => { setHistory(data); setState('ready'); })
       .catch(() => { if (!controller.signal.aborted) setState('unavailable'); });
     return () => controller.abort();
   }, []);
-  const groups = new Map<string, { timestamp: number; [id: string]: number }>();
+  const visibleTankIds = new Set(tanks.map(tank => tank.id));
+  const groups = new Map<number, Map<string, { total: number; count: number }>>();
   for (const row of history) {
-    const timestamp = Date.parse(row.timeBucket);
-    const volume = numeric(row.avgVolume);
-    if (!Number.isFinite(timestamp) || volume == null || !tanks.some(tank => tank.id === row.tankId)) continue;
-    const group = groups.get(row.timeBucket) ?? { timestamp };
-    group[row.tankId] = volume;
-    groups.set(row.timeBucket, group);
+    const timestamp = Date.parse(row.recordedAt);
+    const volume = numeric(row.volumeLiters);
+    if (!Number.isFinite(timestamp) || volume == null || !row.tankId || !visibleTankIds.has(row.tankId)) continue;
+    const hour = Math.floor(timestamp / HOUR_MS) * HOUR_MS;
+    const group = groups.get(hour) ?? new Map<string, { total: number; count: number }>();
+    const current = group.get(row.tankId) ?? { total: 0, count: 0 };
+    group.set(row.tankId, { total: current.total + volume, count: current.count + 1 });
+    groups.set(hour, group);
   }
-  const data = [...groups.values()].sort((a, b) => a.timestamp - b.timestamp);
-  const colors = ['#0077b6', '#fecb28', '#42a132', '#8659ce'];
-  return <section className={styles.panel}><header className={styles.panelHeader}><h2>Transaksi Debit Air Tangki (24 Jam)</h2></header>
-    <p className={styles.helper}>Fitur debit masuk/keluar belum tersedia. {data.length ? 'Grafik menampilkan rata-rata volume air per jam (liter).' : 'Data debit belum disediakan oleh sistem.'}</p>
-    {data.length ? <><div className={styles.chart} aria-label="Grafik rata-rata volume air per jam"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid vertical={false} stroke="#eef1f5" /><XAxis dataKey="timestamp" tickFormatter={value => new Date(value).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} tick={{ fontSize: 11 }} minTickGap={24} /><YAxis tick={{ fontSize: 11 }} width={48} /><Tooltip labelFormatter={value => new Date(Number(value)).toLocaleString('id-ID')} />{tanks.map((tank, index) => <Bar key={tank.id} dataKey={tank.id} name={`${tank.name} (L)`} fill={colors[index % colors.length]} radius={[2, 2, 0, 0]} />)}</BarChart></ResponsiveContainer></div><div className={styles.legend}>{tanks.map((tank, index) => <span key={tank.id}><i style={{ background: colors[index % colors.length] }} />{tank.name}</span>)}</div></> : <div className={styles.empty}><Droplets size={30} /><p>{state === 'loading' ? 'Memuat riwayat volume…' : state === 'unavailable' ? 'Riwayat volume air belum tersedia.' : 'Tidak ada riwayat volume untuk tangki yang dipilih.'}</p></div>}
-  </section>;
+  const data: VolumePoint[] = [...groups.entries()].sort(([a], [b]) => a - b).map(([timestamp, group]) => {
+    const point: VolumePoint = { timestamp };
+    for (const [tankId, { total, count }] of group) point[tankId] = total / count;
+    return point;
+  });
+  return (
+    <section className={`${styles.panel} ${styles.volumePanel}`} aria-labelledby="volume-history-title">
+      <header className={styles.volumeHeader}>
+        <div>
+          <h2 id="volume-history-title">Rata-rata Volume Air Tangki</h2>
+          <p>Riwayat pembacaan sensor dalam 24 jam terakhir</p>
+        </div>
+        <button type="button" className={styles.detailLink} onClick={() => setDetailEndHour(Math.floor(Date.now() / HOUR_MS) * HOUR_MS)} disabled={!tanks.length} aria-haspopup="dialog">Lihat detail</button>
+      </header>
+
+      {data.length > 0 ? (
+        <>
+          <div className={styles.volumeChart} role="img" aria-label="Grafik garis rata-rata volume air per jam untuk setiap tangki">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data} margin={{ top: 12, right: 12, bottom: 4, left: 0 }}>
+                <CartesianGrid vertical={false} stroke="#e8edf2" strokeDasharray="3 5" />
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  domain={data.length === 1 ? [data[0].timestamp - 30 * 60_000, data[0].timestamp + 30 * 60_000] : ['dataMin', 'dataMax']}
+                  tickFormatter={value => new Date(value).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  tick={{ fill: '#667587', fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={12}
+                  minTickGap={32}
+                />
+                <YAxis
+                  tickFormatter={value => formatVolume(Number(value))}
+                  tick={{ fill: '#667587', fontSize: 11 }}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  width={58}
+                  domain={['auto', 'auto']}
+                />
+                <Tooltip
+                  cursor={{ stroke: '#aab9c7', strokeDasharray: '3 4' }}
+                  labelFormatter={value => new Date(Number(value)).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}
+                  formatter={value => `${formatVolume(Number(value))} L`}
+                  contentStyle={{ border: '1px solid #e4eaf0', borderRadius: 8, boxShadow: '0 8px 24px rgb(16 44 67 / 10%)', fontSize: 12 }}
+                  labelStyle={{ color: '#344354', fontWeight: 600, marginBottom: 6 }}
+                />
+                {tanks.map((tank, index) => (
+                  <Line
+                    key={tank.id}
+                    dataKey={tank.id}
+                    name={tank.name}
+                    type="linear"
+                    stroke={volumeColors[index % volumeColors.length]}
+                    strokeWidth={2.5}
+                    dot={data.filter(point => point[tank.id] !== undefined).length === 1 ? { r: 4 } : false}
+                    activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }}
+                    connectNulls={false}
+                    isAnimationActive={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className={styles.volumeLegend} aria-label="Tangki pada grafik">
+            {tanks.map((tank, index) => (
+              <span key={tank.id} className={styles.volumeLegendItem}>
+                <i style={{ backgroundColor: volumeColors[index % volumeColors.length] }} aria-hidden="true" />
+                {tank.name}
+              </span>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className={styles.empty}>
+          <Droplets size={30} />
+          <p>{state === 'loading' ? 'Memuat riwayat volume…' : state === 'unavailable' ? 'Riwayat volume air belum tersedia.' : 'Belum ada pembacaan sensor dalam 24 jam terakhir untuk tangki yang dipilih.'}</p>
+        </div>
+      )}
+      {detailEndHour !== null && <VolumeDetailDialog tanks={tanks} data={data} endHour={detailEndHour} onClose={() => setDetailEndHour(null)} />}
+    </section>
+  );
 }
 
 export function TankDashboard({ tanks, loading, unavailable, onRefresh }: { tanks: Tank[]; loading: boolean; unavailable: boolean; onRefresh: () => void }) {
