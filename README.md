@@ -48,7 +48,18 @@ Alur data:
 Sensor IoT → Core Backend (:8000) → BFF Next.js API Routes (:3000) → Web Browser / Mobile App
 ```
 
-Jika Core Backend sedang offline (development), BFF otomatis menggunakan **mock data** yang skema-nya 100% sesuai PRD sehingga pengembangan UI tidak terhenti.
+Login dan pemeriksaan sesi harus terhubung ke Core Backend. Jika backend tidak tersedia, halaman login menampilkan pesan kesalahan koneksi. Beberapa endpoint data lain masih memiliki fallback data contoh, tetapi dashboard menolak hasil yang ditandai sebagai data contoh.
+
+### Alamat backend dan protokol
+
+`CORE_BACKEND_URL` diakses oleh proses Next.js, sehingga alamatnya bergantung pada lokasi frontend berjalan:
+
+- Frontend di laptop, backend di VPS melalui jaringan UGM/VPN: `CORE_BACKEND_URL=http://10.33.102.140:8000`.
+- Frontend dan backend berjalan pada VPS yang sama: `CORE_BACKEND_URL=http://127.0.0.1:8000`.
+
+`127.0.0.1` selalu menunjuk ke mesin yang menjalankan proses Next.js. Setelah mengubah `.env.local`, mulai ulang frontend. `NEXT_PUBLIC_WS_URL` ditujukan ke browser dan harus dapat diakses dari perangkat pengguna; integrasi WebSocket pada dashboard masih belum diimplementasikan.
+
+Pada akses HTTP internal saat ini, cookie login dipasang sesuai protokol HTTP. Untuk akses HTTPS, terminasi TLS dan header `X-Forwarded-Proto` perlu dikonfigurasi pada reverse proxy agar cookie diberi atribut `Secure`. `NODE_ENV` mengikuti perintah Next.js dan tidak perlu disetel ke `development` untuk menjalankan aplikasi melalui HTTP.
 
 ---
 
