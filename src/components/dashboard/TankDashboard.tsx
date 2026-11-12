@@ -14,8 +14,6 @@ const HOUR_MS = 3_600_000;
 const volumeColors = ['#0077b6', '#b87516', '#27806f', '#8062a8', '#bf5c63', '#526b94'];
 const formatVolume = (value: number) => value.toLocaleString('id-ID', { maximumFractionDigits: 1 });
 type VolumePoint = { timestamp: number; [tankId: string]: number };
-type HourlyVolumeRow = { timeBucket: string; tankId: string | null; avgVolume: string | number; sampleCount: number };
-type HistoryRow = WaterLevelReading | HourlyVolumeRow;
 
 export async function dashboardData<T>(url: string, signal?: AbortSignal): Promise<T[]> {
   const response = await fetch(url, { signal });
@@ -120,12 +118,12 @@ function VolumeDetailDialog({ tanks, data, endHour, onClose }: { tanks: Tank[]; 
 }
 
 function VolumeHistory({ tanks }: { tanks: Tank[] }) {
-  const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [history, setHistory] = useState<WaterLevelReading[]>([]);
   const [state, setState] = useState('loading');
   const [detailEndHour, setDetailEndHour] = useState<number | null>(null);
   useEffect(() => {
     const controller = new AbortController();
-    dashboardData<HistoryRow>('/api/readings/history?hours=24&aggregate=hour', controller.signal)
+    dashboardData<WaterLevelReading>('/api/readings/history?hours=24', controller.signal)
       .then(data => { setHistory(data); setState('ready'); })
       .catch(() => { if (!controller.signal.aborted) setState('unavailable'); });
     return () => controller.abort();
@@ -133,8 +131,8 @@ function VolumeHistory({ tanks }: { tanks: Tank[] }) {
   const visibleTankIds = new Set(tanks.map(tank => tank.id));
   const groups = new Map<number, Map<string, { total: number; count: number }>>();
   for (const row of history) {
-    const timestamp = Date.parse('timeBucket' in row ? row.timeBucket : row.recordedAt);
-    const volume = numeric('avgVolume' in row ? row.avgVolume : row.volumeLiters);
+    const timestamp = Date.parse(row.recordedAt);
+    const volume = numeric(row.volumeLiters);
     if (!Number.isFinite(timestamp) || volume == null || !row.tankId || !visibleTankIds.has(row.tankId)) continue;
     const hour = Math.floor(timestamp / HOUR_MS) * HOUR_MS;
     const group = groups.get(hour) ?? new Map<string, { total: number; count: number }>();

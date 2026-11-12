@@ -5,7 +5,6 @@ import { cookies } from "next/headers";
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const hours = url.searchParams.get("hours") || "24";
-  const aggregate = url.searchParams.get("aggregate") === "hour" ? "&aggregate=hour" : "";
 
   const cookieStore = await cookies();
   const token =
@@ -15,7 +14,7 @@ export async function GET(request: NextRequest) {
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  return forwardToBackend(`/api/readings/history?hours=${encodeURIComponent(hours)}${aggregate}`, {
+  return forwardToBackend(`/api/readings/history?hours=${encodeURIComponent(hours)}`, {
     headers,
   });
 }
