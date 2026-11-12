@@ -11,7 +11,7 @@ const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000"
  *  - Header `Authorization: Bearer <token>` (Mobile App)
  *
  * Mengembalikan profil user aktif.
- * Jika backend offline: decode mock token (base64 JSON).
+ * Sesi diperiksa langsung ke backend.
  */
 export async function GET(request: NextRequest) {
   const cookieToken = request.cookies.get("auth_token")?.value;
@@ -52,32 +52,9 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     );
   } catch {
-    // Backend offline → decode mock token
-    return handleMockMe(token);
+    return NextResponse.json(
+      { success: false, message: "Backend tidak dapat dihubungi." },
+      { status: 503 }
+    );
   }
-}
-
-function handleMockMe(token: string): NextResponse {
-  try {
-    const decoded = JSON.parse(Buffer.from(token, "base64").toString("utf8"));
-    if (decoded.id && decoded.username && decoded.role) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          id: decoded.id,
-          username: decoded.username,
-          role: decoded.role,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-        } satisfies User,
-      });
-    }
-  } catch {
-    // Token tidak bisa di-decode → tidak valid
-  }
-
-  return NextResponse.json(
-    { success: false, message: "Token tidak valid." },
-    { status: 401 }
-  );
 }

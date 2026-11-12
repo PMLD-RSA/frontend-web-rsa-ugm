@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { forwardToBackend } from "@/lib/bffProxy";
-import { getMock24HourAggregation } from "@/lib/mockData";
 import { cookies } from "next/headers";
 
 export async function GET(request: NextRequest) {
@@ -15,8 +14,7 @@ export async function GET(request: NextRequest) {
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  return forwardToBackend(`/api/readings/history?hours=${hours}`, {
+  return forwardToBackend(`/api/readings/history?hours=${encodeURIComponent(hours)}`, {
     headers,
-    fallbackData: getMock24HourAggregation(),
   });
 }

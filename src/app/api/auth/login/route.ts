@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MOCK_USERS } from "@/lib/mockData";
 
 const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
+
+function isHttpsRequest(request: NextRequest): boolean {
+  // TLS may terminate at a reverse proxy before the request reaches Next.js.
+  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  return (forwardedProtocol || request.nextUrl.protocol.replace(":", "")) === "https";
+}
 
 /**
  * POST /api/auth/login
@@ -10,7 +15,7 @@ const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000"
  * Jika sukses:
  *  - Pasang cookie HttpOnly untuk browser Web
  *  - Kembalikan token JWT untuk Mobile App
- * Jika backend offline: gunakan mock auth (admin/admin123, operator/op123, viewer/view123)
+ * Jika backend tidak dapat dihubungi, tampilkan kesalahan koneksi.
  */
 export async function POST(request: NextRequest) {
   let body: { username?: string; password?: string };
@@ -46,8 +51,15 @@ export async function POST(request: NextRequest) {
 
     if (beRes.ok) {
       const data = await beRes.json();
-      const token: string = data.token || data.data?.token;
+      const token: unknown = data.token || data.data?.token;
       const user = data.user || data.data?.user;
+
+      if (data.success === false || typeof token !== "string" || !token || !user) {
+        return NextResponse.json(
+          { success: false, message: "Respons login dari backend tidak valid." },
+          { status: 502 }
+        );
+      }
 
       const response = NextResponse.json({
         success: true,
@@ -58,7 +70,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set("auth_token", token, {
         httpOnly: true,
         sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        secure: isHttpsRequest(request),
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7 hari
       });
@@ -71,60 +83,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        message: errData.message || "Username atau password salah.",
+        message: errData.message || (beRes.status === 401 || beRes.status === 403
+          ? "Username atau password salah."
+          : "Backend tidak dapat memproses login."),
       },
       { status: beRes.status }
     );
   } catch {
-    // Backend offline → fallback mock auth
-    return handleMockLogin(username, password);
-  }
-}
-
-// --- Mock login untuk pengembangan saat backend offline ---
-const MOCK_CREDENTIALS: Record<string, string> = {
-  admin: "admin123",
-  operator: "op123",
-  viewer: "view123",
-};
-
-function handleMockLogin(username: string, password: string): NextResponse {
-  const expectedPwd = MOCK_CREDENTIALS[username];
-  if (!expectedPwd || password !== expectedPwd) {
     return NextResponse.json(
-      { success: false, message: "Username atau password salah. (Mock)" },
-      { status: 401 }
+      { success: false, message: "Backend tidak dapat dihubungi. Periksa koneksi jaringan dan coba lagi." },
+      { status: 503 }
     );
   }
-
-  const mockUser = MOCK_USERS.find((u) => u.username === username);
-  if (!mockUser) {
-    return NextResponse.json(
-      { success: false, message: "User tidak ditemukan." },
-      { status: 401 }
-    );
-  }
-
-  // Token mock (tidak terenkripsi — hanya untuk dev)
-  const mockToken = Buffer.from(
-    JSON.stringify({ id: mockUser.id, username: mockUser.username, role: mockUser.role })
-  ).toString("base64");
-
-  const response = NextResponse.json({
-    success: true,
-    data: {
-      token: mockToken,
-      user: { id: mockUser.id, username: mockUser.username, role: mockUser.role },
-    },
-  });
-
-  response.cookies.set("auth_token", mockToken, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: false,
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-
-  return response;
 }
