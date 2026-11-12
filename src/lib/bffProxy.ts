@@ -4,7 +4,7 @@ import { ApiResponse } from "@/types";
 const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
 
 /**
- * Proksi HTTP pintar ke Core Backend Fastify dengan automatic fallback ke mock data
+ * Proksi HTTP ke Core Backend Fastify, dengan fallback opsional ke data contoh.
  */
 export async function forwardToBackend<T>(
   path: string,
@@ -12,7 +12,7 @@ export async function forwardToBackend<T>(
     method?: string;
     body?: unknown;
     headers?: HeadersInit;
-    fallbackData: T;
+    fallbackData?: T;
   }
 ): Promise<NextResponse<ApiResponse<T>>> {
   const url = `${CORE_BACKEND_URL}${path}`;
@@ -51,16 +51,12 @@ export async function forwardToBackend<T>(
         { status: res.status }
       );
     }
-  } catch (err: unknown) {
-    // Backend offline / connection refused -> Gunakan Fallback Mock Data
-    const isConnRefused = err instanceof Error && (err.name === "AbortError" || err.message.includes("fetch failed"));
-    if (isConnRefused) {
-      // Return fallback data dengan envelope standar
-      return NextResponse.json({
-        success: true,
-        source: "mock",
-        data: options.fallbackData,
-      });
+  } catch {
+    if (options.fallbackData === undefined) {
+      return NextResponse.json(
+        { success: false, message: "Backend tidak dapat diakses." },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json({

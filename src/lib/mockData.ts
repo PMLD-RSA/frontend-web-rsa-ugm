@@ -1,4 +1,4 @@
-import { Tank, Alert, Gateway, SensorNode, User, AuditLog, TankHourlyAggregation } from "@/types";
+import { Tank, Alert, Gateway, SensorNode, User, AuditLog } from "@/types";
 
 export const MOCK_GATEWAY: Gateway = {
   id: "11111111-2222-3333-4444-555555555555",
@@ -195,44 +195,3 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
     createdAt: new Date(Date.now() - 240 * 60 * 1000).toISOString(),
   },
 ];
-
-/**
- * Generate 24 jam histori agregasi per jam untuk Recharts
- */
-export function getMock24HourAggregation(): TankHourlyAggregation[] {
-  const result: TankHourlyAggregation[] = [];
-  const now = Date.now();
-
-  for (let i = 23; i >= 0; i--) {
-    const timeBucket = new Date(now - i * 60 * 60 * 1000).toISOString();
-    
-    // Tangki 1: Gedung Utama (~70% - 85%)
-    result.push({
-      timeBucket,
-      tankId: "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-      tankName: "Tangki Atap Gedung Utama",
-      avgLevel: Math.round(75 + Math.sin(i / 3) * 8),
-      avgVolume: Math.round(7500 + Math.sin(i / 3) * 800),
-    });
-
-    // Tangki 2: Rawat Inap (~40% - 55%)
-    result.push({
-      timeBucket,
-      tankId: "b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-      tankName: "Tangki Gedung Rawat Inap",
-      avgLevel: Math.round(45 + Math.cos(i / 4) * 10),
-      avgVolume: Math.round(3600 + Math.cos(i / 4) * 800),
-    });
-
-    // Tangki 3: Bedah (~80% - 92%)
-    result.push({
-      timeBucket,
-      tankId: "c2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-      tankName: "Tangki Instalasi Bedah Sentral",
-      avgLevel: Math.round(85 + Math.sin(i / 2) * 5),
-      avgVolume: Math.round(4250 + Math.sin(i / 2) * 250),
-    });
-  }
-
-  return result;
-}
