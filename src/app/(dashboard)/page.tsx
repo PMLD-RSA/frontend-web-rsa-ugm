@@ -38,7 +38,7 @@ export default function Dashboard() {
   return <>
     <DashboardOverview tanks={visibleTanks} allTanks={tanks} loading={loading} failed={unavailable}
       query={query} onQueryChange={setQuery} filters={filters} onFiltersChange={setFilters} />
-    {unavailable && <p role="status" className={styles.notice}><Info size={18} />Fitur pemantauan belum tersedia: server data tangki belum dapat diakses. Silakan gunakan tombol Segarkan untuk mencoba kembali.</p>}
+    {unavailable && <p role="status" className={styles.notice}><Info size={18} />Monitoring is unavailable: the tank data server could not be reached. Use Refresh to try again.</p>}
     <TankDashboard tanks={visibleTanks} loading={loading} unavailable={unavailable} onRefresh={loadTanks} />
   </>;
 }
