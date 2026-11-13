@@ -23,19 +23,19 @@ export function readingTime(value?: string) {
 
 export const statusLabels = { NORMAL: 'Normal', WARNING: 'Warning', CRITICAL: 'Critical', UNKNOWN: 'No data' };
 
-export function TankLevel({ tank, compact = false }: { tank: Tank; compact?: boolean }) {
+export function TankLevel({ tank, compact = false, flat = false }: { tank: Tank; compact?: boolean; flat?: boolean }) {
   const raw = numeric(tank.latestReading?.levelPercent);
   const level = raw == null ? null : Math.max(0, Math.min(100, raw));
   const status = getTankStatus(tank) ?? 'UNKNOWN';
-  return <div className={`${styles.gauge} ${compact ? styles.compactGauge : ''}`} data-status={status}
+  return <div className={`${styles.gauge} ${compact ? styles.compactGauge : ''} ${flat ? styles.flatGauge : ''}`} data-status={status}
     role="img" aria-label={`${tank.name}: ${measurement(raw, '%')}`}>
     <div className={styles.scale} aria-hidden="true">{[100, 80, 60, 40, 20, 0].map(value => <span key={value}>{value}%</span>)}</div>
     <div className={styles.vessel}>
       {level != null && level > 0 && <div className={styles.water} style={{ height: `${level}%` } as CSSProperties}>
-        {level < 100 && <>{[false, true].map(back => <svg key={String(back)} className={`${styles.wave} ${back ? styles.waveBack : ''}`} viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 T400 10 V20 H0Z" /></svg>)}</>}
+        {!flat && level < 100 && <>{[false, true].map(back => <svg key={String(back)} className={`${styles.wave} ${back ? styles.waveBack : ''}`} viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 T400 10 V20 H0Z" /></svg>)}</>}
       </div>}
       <div className={styles.gridLines} aria-hidden="true">{[100, 80, 60, 40, 20, 0].map(value => <span key={value} />)}</div>
-      <strong className={styles.levelLabel}>{level == null ? '—' : `${Math.round(level)}%`}</strong>
+      <strong className={styles.levelLabel} style={flat && level != null ? level >= 15 ? { top: `${100 - level / 2}%` } : { color: '#0a3f5c', textShadow: 'none' } : undefined}>{level == null ? '—' : `${Math.round(level)}%`}</strong>
     </div>
   </div>;
 }

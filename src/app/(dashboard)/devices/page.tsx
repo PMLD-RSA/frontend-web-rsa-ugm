@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Radio, ArrowRight, BookOpen } from 'lucide-react';
+import { LuRadio as Radio, LuArrowRight as ArrowRight, LuBookOpen as BookOpen } from "react-icons/lu";
 
 export const metadata = {
   title: 'Status Perangkat | RSA UGM Water Monitor',

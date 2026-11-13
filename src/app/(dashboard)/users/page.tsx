@@ -1,8 +1,10 @@
 'use client';
 
+import { downloadCsv } from '@/lib/downloadCsv';
+
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Eye, Plus, RefreshCw, X } from 'lucide-react';
+import { LuEye as Eye, LuPlus as Plus, LuRefreshCw as RefreshCw, LuX as X } from "react-icons/lu";
 import { DashboardIcon as Icon } from '@/components/dashboard/DashboardIcon';
 import type { ApiResponse, User } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
@@ -32,10 +34,10 @@ export default function UsersPage() {
   const pages = Math.max(1, Math.ceil(filtered.length / 8));
   const rows = all ? filtered : filtered.slice(page * 8, page * 8 + 8);
   function download() {
-    const cell = (value: string) => `"${(/^[=+@\-\t\r]/.test(value) ? "'" + value : value).replaceAll('"', '""')}"`;
-    const csv = ['Username,Role,Status,Tanggal dibuat', ...users.map(user => [user.username, user.role, user.isActive ? 'Active' : 'Inactive', user.createdAt ?? ''].map(cell).join(','))].join('\r\n');
-    const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'users.csv'; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    downloadCsv('users.csv', [
+      ['Username', 'Role', 'Status', 'Tanggal dibuat'],
+      ...users.map(user => [user.username, user.role, user.isActive ? 'Active' : 'Inactive', user.createdAt ?? '']),
+    ]);
   }
   return <section className={styles.page}>
     <header className={styles.heading}><h1>User roles</h1><div className={styles.actions}><Link href="/alerts" aria-label="Notifikasi"><Icon name="notification" width={20} /></Link><button className={styles.download} disabled={state !== 'ready' || !users.length} onClick={download}><Icon name="download" width={18} />Download All</button></div></header>

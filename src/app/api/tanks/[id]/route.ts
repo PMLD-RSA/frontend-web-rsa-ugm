@@ -23,3 +23,19 @@ export async function GET(
     fallbackData: fallbackTank,
   });
 }
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+  let body: unknown;
+  try { body = await request.json(); } catch { return Response.json({ success: false, message: 'Invalid JSON.' }, { status: 400 }); }
+  return forwardToBackend(`/api/tanks/${encodeURIComponent(id)}`, { method: 'PATCH', body, headers: token ? { Authorization: `Bearer ${token}` } : {} });
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth_token')?.value || request.headers.get('authorization')?.replace('Bearer ', '');
+  return forwardToBackend(`/api/tanks/${encodeURIComponent(id)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+}

@@ -1,0 +1,166 @@
+.dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(523px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 29px 30px;
+  color: #071551;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
+}
+.dialog::backdrop {
+  background: rgba(111, 117, 121, 0.24);
+}
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.header h2 {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -1.2px;
+}
+.header p {
+  font-size: 14px;
+  font-weight: 600;
+  color: #828c9a;
+  margin-top: 3px;
+}
+.close {
+  flex: none;
+  cursor: pointer;
+}
+.dialog h3 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 9px;
+}
+.fields {
+  display: grid;
+  gap: 9px;
+}
+.dialog label {
+  display: block;
+  font-size: 13px;
+  line-height: 22px;
+  font-weight: 600;
+  color: #10283a;
+}
+.dialog label span,
+.footer span {
+  color: #b3261e;
+}
+.dialog input {
+  display: block;
+  width: 100%;
+  height: 45px;
+  border: 2px solid #d9d9d9;
+  border-radius: 8px;
+  margin-top: 4px;
+  padding: 0 11px;
+  background: #fff;
+  color: #10283a;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+}
+.dialog input::placeholder {
+  color: #a1a1a1;
+  opacity: 1;
+}
+.dialog input:focus {
+  border-color: #0a3f5c;
+}
+.dialog input:disabled {
+  background: #f6f7f8;
+  color: #82909d;
+  cursor: not-allowed;
+}
+.dialog small {
+  display: block;
+  color: #506274;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 16px;
+  margin-top: 3px;
+}
+.capacityTitle {
+  margin-top: 10px;
+}
+.capacity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.error {
+  color: #b3261e;
+  font-size: 13px;
+  margin-top: 10px;
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 2px solid #d9d9d9;
+  margin-top: 17px;
+  padding-top: 18px;
+}
+.footer p {
+  font-size: 13px;
+  color: #8b949e;
+  font-weight: 600;
+}
+.footer > div {
+  display: flex;
+  gap: 16px;
+}
+.footer button {
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.cancel {
+  border: 1px solid #d9d9d9;
+  color: #071551;
+}
+.save {
+  background: #fecb28;
+  color: #000;
+}
+.footer button:disabled,
+.close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (max-width: 520px) {
+  .dialog {
+    padding: 24px 20px;
+  }
+  .header h2 {
+    font-size: 24px;
+  }
+  .capacity {
+    gap: 12px;
+  }
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .footer > div {
+    align-self: flex-end;
+  }
+}

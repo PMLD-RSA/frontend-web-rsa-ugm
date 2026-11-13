@@ -29,11 +29,11 @@
   border-radius: 13px;
 }
 
-.search img,
+.search :is(img, svg),
 .toolbarActions,
-.toolbarActions img,
-.controls img,
-.cardFooter img { flex-shrink: 0; }
+.toolbarActions :is(img, svg),
+.controls :is(img, svg),
+.cardFooter :is(img, svg) { flex-shrink: 0; }
 
 .search:focus-within { border-color: #016da6; }
 
@@ -100,7 +100,7 @@
 .dateButton, .period { color: var(--dashboard-ink); font-size: 13px; font-weight: 500; line-height: 21px; }
 .period { display: flex; align-items: center; position: relative; padding: 0 12px; border-left: 0.667px solid #2e2e2e; }
 .period select { appearance: none; max-width: 90px; padding-right: 17px; background: transparent; outline-offset: 0; }
-.period img { position: absolute; right: 12px; pointer-events: none; }
+.period :is(img, svg) { position: absolute; right: 12px; pointer-events: none; }
 .filterButton { display: flex; align-items: center; gap: 15px; position: relative; height: 39px; padding: 0 16px; border: 2px solid var(--dashboard-border); border-radius: 8px; font-size: 18px; font-weight: 600; line-height: 30px; }
 .filterButton[data-active='true'] { border-color: #016da6; }
 .filterDot { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: #016da6; }
@@ -161,7 +161,7 @@
   .dateButton { gap: 6px; padding: 7px 8px; font-size: 11px; }
   .dateButton span { min-width: 0; }
   .period { padding: 0 8px; font-size: 11px; }
-  .period img { right: 8px; }
+  .period :is(img, svg) { right: 8px; }
   .filterButton { gap: 7px; padding: 0 10px; font-size: 14px; }
   .summaryGrid { gap: 16px; padding: 0; }
 }
