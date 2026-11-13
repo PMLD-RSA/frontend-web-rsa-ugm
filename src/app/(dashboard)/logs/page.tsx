@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ClipboardList, ArrowRight, BookOpen } from 'lucide-react';
+import { LuClipboardList as ClipboardList, LuArrowRight as ArrowRight, LuBookOpen as BookOpen } from "react-icons/lu";
 
 export const metadata = {
   title: 'Audit Log | RSA UGM Water Monitor',

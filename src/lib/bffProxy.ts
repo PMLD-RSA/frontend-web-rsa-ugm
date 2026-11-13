@@ -21,15 +21,15 @@ export async function forwardToBackend<T>(
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000); // 2 detik timeout
 
-    const fetchHeaders: Record<string, string> = {
-      "Content-Type": "application/json",
-      ...(options.headers as Record<string, string>),
-    };
+    const fetchHeaders = new Headers(options.headers);
+    if (options.body !== undefined && !fetchHeaders.has("Content-Type")) {
+      fetchHeaders.set("Content-Type", "application/json");
+    }
 
     const res = await fetch(url, {
       method: options.method || "GET",
       headers: fetchHeaders,
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
       cache: "no-store",
     });

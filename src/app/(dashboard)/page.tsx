@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { useEffect, useState } from 'react';
-import { Info } from 'lucide-react';
+import { LuInfo as Info } from "react-icons/lu";
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { dashboardData, TankDashboard } from '@/components/dashboard/TankDashboard';
 import { type DashboardFilters, filterDashboardTanks } from '@/lib/dashboard';

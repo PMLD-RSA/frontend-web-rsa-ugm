@@ -1,0 +1,68 @@
+.historyLink {
+  display: block;
+  margin-top: 4px;
+  color: #0b3b57;
+  text-decoration: underline;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.history {
+  margin: -6px 0 16px;
+  padding: 12px;
+  border: 1px solid #d9e4eb;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 12px;
+}
+.history ul {
+  display: grid;
+  gap: 8px;
+  max-height: 140px;
+  overflow: auto;
+}
+.history li {
+  display: grid;
+  gap: 3px;
+}
+.history time {
+  color: #64748b;
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+.pagination button {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.changed {
+  display: inline-block;
+  background: #ffc21a;
+  color: #10283a !important;
+  border-radius: 99px;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 16px;
+  vertical-align: middle;
+}
+.changedInput {
+  border-color: #0b3b57 !important;
+}
+.thresholds {
+  margin-top: 12px;
+  color: #0b3b57;
+  font-size: 13px;
+  font-weight: 600;
+}
+.thresholds summary {
+  cursor: pointer;
+  margin-bottom: 8px;
+}

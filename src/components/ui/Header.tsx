@@ -1,6 +1,6 @@
 'use client';
 
-import { Search, Bell, Shield, Wifi, WifiOff } from 'lucide-react';
+import { LuSearch as Search, LuBell as Bell, LuShield as Shield, LuWifi as Wifi, LuWifiOff as WifiOff } from "react-icons/lu";
 import Link from 'next/link';
 import { useAuthStore, isAdmin, isOperator } from '@/stores/authStore';
 

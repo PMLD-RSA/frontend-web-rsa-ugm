@@ -1,0 +1,523 @@
+[
+  {
+    "removed": "assets/UI/chevron-down.svg",
+    "retained": "public/images/dashboard/calendar-down.svg",
+    "sha256": "13228963c94fe840a56f85b8d4ed22d6fdf8bfadae25bfd6be9eac7332edb53a",
+    "bytes": 201,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/chevron-left.svg",
+    "retained": "public/images/dashboard/calendar-left.svg",
+    "sha256": "e0cc5cbd3c38dc63ff942803d67b23be28f2e4e839ac17e3e770025900511177",
+    "bytes": 198,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/chevron-right.svg",
+    "retained": "public/images/dashboard/calendar-right.svg",
+    "sha256": "f8cf7333a5bfc2af66734a04dee3a078660156be8439e877df7535c6bf354ff9",
+    "bytes": 197,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Icon-1.svg",
+    "retained": "public/images/dashboard/calendar.svg",
+    "sha256": "c7647319ed6e2222fa7d295bf475051ac14da33f935ab6517f0e11a85b0f13ac",
+    "bytes": 776,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Icon.svg",
+    "retained": "public/images/dashboard/chevron-down.svg",
+    "sha256": "6c394fdce05cf5b5b6a47c53350c5319273d571584fc68bd36f2e0aa17f8d66a",
+    "bytes": 236,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/ant-design_close-outlined.svg",
+    "retained": "public/images/dashboard/close-download.svg",
+    "sha256": "41aebbafa9f5992590f1483677cb586361687e71e68a9cbdf2bc0ed8a42fa4b3",
+    "bytes": 689,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/ant-design_close-outlined.svg",
+    "retained": "public/images/dashboard/close-filter.svg",
+    "sha256": "8884368da8d2d80549740ce5e438175526c362089f5b93382874bf056c728420",
+    "bytes": 691,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/UI/ant-design_close-outlined.svg",
+    "retained": "public/images/dashboard/close-filter.svg",
+    "sha256": "8884368da8d2d80549740ce5e438175526c362089f5b93382874bf056c728420",
+    "bytes": 691,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 12.svg",
+    "retained": "public/images/dashboard/dot-critical.svg",
+    "sha256": "80305923536663260cdbeedb40fc1eff28c0470a035cfbb3c80974603e7870c4",
+    "bytes": 174,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 12-1.svg",
+    "retained": "public/images/dashboard/dot-normal.svg",
+    "sha256": "50066d2fb9c1fe58a129372b8c6234540ba475d36161b2f9da2751e6a76a3dc4",
+    "bytes": 174,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 11.svg",
+    "retained": "public/images/dashboard/dot-warning.svg",
+    "sha256": "7ead0cc28dfcbaf246613567a2162d1281111d32fbd8de5156b07904bc1fe915",
+    "bytes": 174,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/uiw_file-excel.svg",
+    "retained": "public/images/dashboard/file-excel.svg",
+    "sha256": "2ab0e67b7d23ae555791a2cfab38a496f3ef0f462c60a99bade64e20822507d2",
+    "bytes": 1093,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/carbon_document.svg",
+    "retained": "public/images/dashboard/file-pdf.svg",
+    "sha256": "5ae2d94ff7c268635b8f8e9fe21944a144a8426bb00d3f4694923acc8b7e916b",
+    "bytes": 572,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 17.svg",
+    "retained": "public/images/dashboard/filter-critical.svg",
+    "sha256": "a5b50aa66b1351e50d32533d2c966c9da36004c457dd63689fd6f08314da074a",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/UI/Ellipse 17.svg",
+    "retained": "public/images/dashboard/filter-critical.svg",
+    "sha256": "a5b50aa66b1351e50d32533d2c966c9da36004c457dd63689fd6f08314da074a",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 15.svg",
+    "retained": "public/images/dashboard/filter-normal.svg",
+    "sha256": "e9c5b40a9464e0cdc0d14134fc5e50d6aab4c69f0e7cda28fd68cada51dcb0c0",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/UI/Ellipse 15.svg",
+    "retained": "public/images/dashboard/filter-normal.svg",
+    "sha256": "e9c5b40a9464e0cdc0d14134fc5e50d6aab4c69f0e7cda28fd68cada51dcb0c0",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 16.svg",
+    "retained": "public/images/dashboard/filter-warning.svg",
+    "sha256": "e52a02b49e1194958adffb185a1b40abf38421e8f2924adb82a31d6f462023c0",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/UI/Ellipse 16.svg",
+    "retained": "public/images/dashboard/filter-warning.svg",
+    "sha256": "e52a02b49e1194958adffb185a1b40abf38421e8f2924adb82a31d6f462023c0",
+    "bytes": 157,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/andrsrxn_calendar-days.svg",
+    "retained": "public/images/dashboard/report-calendar.svg",
+    "sha256": "8ed85bd3f752bffa931ba0c0342a36f98c0daebd34ff1fd005ce30763b8b77bd",
+    "bytes": 3476,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Vector.svg",
+    "retained": "public/images/dashboard/report-tank-chevron.svg",
+    "sha256": "2a25663e2d4ef371f31ea11c25c8eb676ac6f278e86a39f9df8b3907368e4275",
+    "bytes": 163,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Group 2147220717.svg",
+    "retained": "public/images/dashboard/report-tank.svg",
+    "sha256": "ba407f7d6f18c6ef5601e653c595dc634f009fcc673cbce481789f964675a0db",
+    "bytes": 2490,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/charm_tick.svg",
+    "retained": "public/images/dashboard/report-tick.svg",
+    "sha256": "2567c039f63ac5a70b969b2ce56048ddabe73be84169565356ef83baaa242c3f",
+    "bytes": 248,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/source/source/ChatGPT Image 21 Sep 2026, 22.55.21.png",
+    "retained": "public/images/dashboard/rsa-site-plan-figma.png",
+    "sha256": "14a09343afefad1471cd0ebc72eda94fe181a584c22951843e7584331d016323",
+    "bytes": 1326732
+  },
+  {
+    "removed": "assets/UI/dashicons_arrow-down-alt2.svg",
+    "retained": "public/images/dashboard/select-chevron.svg",
+    "sha256": "fbc80889b2900c96aebb1a692d69e7d766b6f9c261661bc3dee0f69325404df4",
+    "bytes": 169,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/dashicons_arrow-down-alt2.svg",
+    "retained": "public/images/dashboard/select-chevron.svg",
+    "sha256": "fbc80889b2900c96aebb1a692d69e7d766b6f9c261661bc3dee0f69325404df4",
+    "bytes": 169,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/UI/dashicons_arrow-down-alt2.svg",
+    "retained": "public/images/dashboard/select-chevron.svg",
+    "sha256": "fbc80889b2900c96aebb1a692d69e7d766b6f9c261661bc3dee0f69325404df4",
+    "bytes": 169,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Tiga status tangki air horizontal 1.png",
+    "retained": "public/images/dashboard/tank-critical.png",
+    "sha256": "9adc33664a6e46dfbd5b93eb875aacd69cd9b370fba79d0fdc22d450f1c6c197",
+    "bytes": 8610
+  },
+  {
+    "removed": "assets/UI/UI/Tiga status tangki air horizontal 1.png",
+    "retained": "public/images/dashboard/tank-critical.png",
+    "sha256": "9adc33664a6e46dfbd5b93eb875aacd69cd9b370fba79d0fdc22d450f1c6c197",
+    "bytes": 8610
+  },
+  {
+    "removed": "assets/UI/Tiga status tangki air horizontal 3.png",
+    "retained": "public/images/dashboard/tank-normal.png",
+    "sha256": "99238846dc874aa5c6553956e23c500995854f46c7f4c046bc294050e910c12d",
+    "bytes": 9151
+  },
+  {
+    "removed": "assets/UI/UI/Tiga status tangki air horizontal 3.png",
+    "retained": "public/images/dashboard/tank-normal.png",
+    "sha256": "99238846dc874aa5c6553956e23c500995854f46c7f4c046bc294050e910c12d",
+    "bytes": 9151
+  },
+  {
+    "removed": "assets/UI/Tiga status tangki air horizontal 2.png",
+    "retained": "public/images/dashboard/tank-warning.png",
+    "sha256": "b1f6036b02c6cc56db08084a39c6e833ba3e4c2ef94af44ab4a3cc0be18e8723",
+    "bytes": 9021
+  },
+  {
+    "removed": "assets/UI/UI/Tiga status tangki air horizontal 2.png",
+    "retained": "public/images/dashboard/tank-warning.png",
+    "sha256": "b1f6036b02c6cc56db08084a39c6e833ba3e4c2ef94af44ab4a3cc0be18e8723",
+    "bytes": 9021
+  },
+  {
+    "removed": "assets/UI/akar-icons_arrow-right.svg",
+    "retained": "public/images/login-arrow-left.svg",
+    "sha256": "a353bc432ee1ea3b5dce1acbd212aa044097c364556fe4b9e49b16f1b4b51a40",
+    "bytes": 271
+  },
+  {
+    "removed": "assets/UI/Mockup Ponsel Dashboard Tangki Air UGM 2.png",
+    "retained": "public/images/login-dashboard-phone-large.png",
+    "sha256": "cc2f694c02dc94a9366fb77dfa078654610d4599d0a0a84cd92b788a246af4c0",
+    "bytes": 365283
+  },
+  {
+    "removed": "assets/UI/Dasbor Pemantauan Tangki Air Modern 2.png",
+    "retained": "public/images/login-dashboard-phone.png",
+    "sha256": "fd60422a0887eed04ef49d9809165475215044671c5a1e02bf87e7b5197dffce",
+    "bytes": 197613
+  },
+  {
+    "removed": "assets/UI/dashicons_email.svg",
+    "retained": "public/images/login-email-icon.svg",
+    "sha256": "6c0f1d3a7f102707f77fc07279fe01b37df45ea883adbece379b00c483206693",
+    "bytes": 648
+  },
+  {
+    "removed": "assets/UI/eyes.svg",
+    "retained": "public/images/login-eye-icon.svg",
+    "sha256": "2d9d5cc4f28d1e8e30174c515268c0f2ae53aa16ab1bf4c4489147f440222f46",
+    "bytes": 708,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/devicon_google-wordmark.svg",
+    "retained": "public/images/login-google-logo.svg",
+    "sha256": "7ef2211d8fd5cae2b9f88f6f839b213f5a2badde1756b3d213444225dcae3fb9",
+    "bytes": 5739,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/bg.png",
+    "retained": "public/images/login-illustration-background.png",
+    "sha256": "d7d2b2557e70a151546ebedc770adf7ac0ff9116154522087047902263e8d99c",
+    "bytes": 801936
+  },
+  {
+    "removed": "assets/UI/Group 7.svg",
+    "retained": "public/images/login-password-icon.svg",
+    "sha256": "e8e819b33a5632740d15b567121f7735a8930d9c6649afd5f356d6c4528ca256",
+    "bytes": 2138,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Logo RSA UGM 9 1.png",
+    "retained": "public/images/login-rsa-logo.png",
+    "sha256": "22fcd1ccbeacace5c03035c6ae0ab55ff6072bce4ebe99d98526bcbb8466b246",
+    "bytes": 6700
+  },
+  {
+    "removed": "assets/UI/Latar Minimalis dengan Siluet Tangki Industri 1.png",
+    "retained": "public/images/login-tank-background.png",
+    "sha256": "60b9d53ea1d5e0d8ce2ce7a19f6a6c7a4fe5f08e4eb01bcfb86abc7494bdfc89",
+    "bytes": 1233480
+  },
+  {
+    "removed": "assets/UI/Lambang UGM 1.png",
+    "retained": "public/images/login-ugm-mark.png",
+    "sha256": "55ed9f2d182f162b686cf0a48b551b53060019fe1ef47aeb385b283e5f1bd013",
+    "bytes": 5782
+  },
+  {
+    "removed": "assets/UI/contact (1) 1.png",
+    "retained": "public/images/login-username-icon.png",
+    "sha256": "cc479effbdf49c97f16bd9a5747594afc61d1cf3da19c33670bf044fcf78ec50",
+    "bytes": 625,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/source/Lambang UGM.png",
+    "retained": "public/images/sidebar/ugm-logo.png",
+    "sha256": "f8a7602e9cef4f637b96a671dfe7419567b0ae0d923ea12dd1de891f241c971d",
+    "bytes": 1231395
+  },
+  {
+    "removed": "assets/UI/Ellipse 8.svg",
+    "retained": "public/images/tanks/status-critical.svg",
+    "sha256": "4c78b722c9ee3732bcdedb98ece875ce708f04fa06e6c72f7ef3dd9922905035",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Ellipse 8.svg",
+    "retained": "public/images/tanks/status-critical.svg",
+    "sha256": "4c78b722c9ee3732bcdedb98ece875ce708f04fa06e6c72f7ef3dd9922905035",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 8-1.svg",
+    "retained": "public/images/tanks/status-normal.svg",
+    "sha256": "9948c6eedfb99b35008e970deb11bf4bec71231e56198eefebef056a36df7aea",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Ellipse 8-1.svg",
+    "retained": "public/images/tanks/status-normal.svg",
+    "sha256": "9948c6eedfb99b35008e970deb11bf4bec71231e56198eefebef056a36df7aea",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Ellipse 8-2.svg",
+    "retained": "public/images/tanks/status-warning.svg",
+    "sha256": "3add288908289a7d4e06e612f0a2517a6a30a691849cd523eb6bdbe93a6fbca5",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Ellipse 8-2.svg",
+    "retained": "public/images/tanks/status-warning.svg",
+    "sha256": "3add288908289a7d4e06e612f0a2517a6a30a691849cd523eb6bdbe93a6fbca5",
+    "bytes": 151,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/Vector.svg",
+    "retained": "public/images/tanks/vector.svg",
+    "sha256": "fa22211924038d218d5a6a9c5ea8c4e5ca1ef3ced1245f7ec328d832cfde2cc5",
+    "bytes": 2052
+  },
+  {
+    "removed": "assets/UI/upload.svg",
+    "retained": "public/images/ui-upload.svg",
+    "sha256": "38476709c0c76904f235dc270430af2651ab9fd3c34b26d29c1e3c0562acf8ca",
+    "bytes": 1059
+  },
+  {
+    "removed": "assets/UI/source/Tiga status tangki air horizontal.png",
+    "retained": "assets/images/tiga-status-tangki-air-horizontal.png",
+    "sha256": "1cc014e236bac9af958da37ae9af88d2333788e334c7e4414cf452a91f39a54a",
+    "bytes": 659333,
+    "retainedBeforeMove": "assets/source/Tiga status tangki air horizontal.png"
+  },
+  {
+    "removed": "assets/UI/UI/basicNode-1.svg",
+    "retained": "assets/design/basicnode-1.svg",
+    "sha256": "7691483f89a2c53e871db6fe28239bba78162c3832b3a555cbe50043b90f389c",
+    "bytes": 174,
+    "retainedBeforeMove": "assets/UI/basicNode-1.svg"
+  },
+  {
+    "removed": "assets/UI/UI/basicNode.svg",
+    "retained": "assets/design/basicnode.svg",
+    "sha256": "ec59ce41a98e58bf806c2f96fcc21d74947ef5e1be57949a57a46eb474b6c351",
+    "bytes": 176,
+    "retainedBeforeMove": "assets/UI/basicNode.svg"
+  },
+  {
+    "removed": "assets/UI/UI/Ellipse 6.svg",
+    "retained": "assets/design/ellipse-6.svg",
+    "sha256": "1ec8fbfae1062f98628fab2173795a5ae37f656b2e1a00bf12ab176182ff1cd7",
+    "bytes": 144,
+    "retainedBeforeMove": "assets/UI/Ellipse 6.svg"
+  },
+  {
+    "removed": "assets/UI/UI/Ellipse 7.svg",
+    "retained": "assets/design/ellipse-7.svg",
+    "sha256": "860d2a741a5b89ac61167b365c129a0b3e0cc76aa820acb7c4a0b2ee3016ed1b",
+    "bytes": 3736236,
+    "retainedBeforeMove": "assets/UI/Ellipse 7.svg"
+  },
+  {
+    "removed": "assets/UI/UI/eva_download-outline.svg",
+    "retained": "assets/UI/eva_download-outline.svg",
+    "sha256": "0dc5b8a3093cdb11f214e6fb2af8b396ba64e4e8f8834b873872ec516e53fe86",
+    "bytes": 1521,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Group 1.svg",
+    "retained": "assets/design/group-1.svg",
+    "sha256": "fbc7b07775a29e8507f06c2ecac408effc8fee7d8821c5f4c0da1cf6cd60b5f6",
+    "bytes": 822,
+    "retainedBeforeMove": "assets/UI/Group 1.svg"
+  },
+  {
+    "removed": "assets/UI/UI/Group 2147220687.svg",
+    "retained": "assets/design/group-2147220687.svg",
+    "sha256": "675d1a47f03b500467edd2c95a346033d4753a2592a6e35e5781c5aa8c150bd2",
+    "bytes": 636,
+    "retainedBeforeMove": "assets/UI/Group 2147220687.svg"
+  },
+  {
+    "removed": "assets/UI/UI/Group.svg",
+    "retained": "assets/design/group.svg",
+    "sha256": "02b97253d8c35f6b99e95a77aac67026713b60079b135611a871af6099469afe",
+    "bytes": 2464,
+    "retainedBeforeMove": "assets/UI/Group.svg"
+  },
+  {
+    "removed": "assets/UI/UI/ic_baseline-update.svg",
+    "retained": "assets/UI/ic_baseline-update.svg",
+    "sha256": "b8088cdb0e3993911f2deaeb74158c92e076451453c3ba1a7ff4703de1adf473",
+    "bytes": 636,
+    "supersededBy": "React Icons / CSS; see icon-migration.json"
+  },
+  {
+    "removed": "assets/UI/UI/Line 4.svg",
+    "retained": "assets/design/line-4.svg",
+    "sha256": "5b749ab15bd3131857c5d3f08f69065ad175c8ae4d0f2a56ba3823c36337f4a4",
+    "bytes": 189,
+    "retainedBeforeMove": "assets/UI/Line 4.svg"
+  },
+  {
+    "removed": "assets/UI/UI/SVG-1.svg",
+    "retained": "assets/design/svg-1.svg",
+    "sha256": "deac7dfe281fd2c1d284f6175403e1f3cedd88472f91d265a776d0db3824ef64",
+    "bytes": 350,
+    "retainedBeforeMove": "assets/UI/SVG-1.svg"
+  },
+  {
+    "removed": "assets/UI/UI/SVG-2.svg",
+    "retained": "assets/design/svg-2.svg",
+    "sha256": "276fd763a9103e3372d1228ed8cc008686aad6dd6e76e88958929b41f158f8ce",
+    "bytes": 687,
+    "retainedBeforeMove": "assets/UI/SVG-2.svg"
+  },
+  {
+    "removed": "assets/UI/UI/SVG-3.svg",
+    "retained": "assets/design/svg-3.svg",
+    "sha256": "7d0fe7894598153dac200b8c4decf7cc4677fe82efe12586c141bc6a9b9318ae",
+    "bytes": 667,
+    "retainedBeforeMove": "assets/UI/SVG-3.svg"
+  },
+  {
+    "removed": "assets/UI/UI/SVG-4.svg",
+    "retained": "assets/design/svg-4.svg",
+    "sha256": "e1075709a8cb61fe61cd2c481fe9302fc3a4e7f9a7a9c1eb9d20e95c99747f00",
+    "bytes": 1021,
+    "retainedBeforeMove": "assets/UI/SVG-4.svg"
+  },
+  {
+    "removed": "assets/UI/UI/SVG.svg",
+    "retained": "assets/design/svg.svg",
+    "sha256": "d1fbed17de7dd0d73df8f73c642f190e5dc63ea16d5880855a069325c267a4bd",
+    "bytes": 426,
+    "retainedBeforeMove": "assets/UI/SVG.svg"
+  },
+  {
+    "removed": "assets/UI/UI/Menu/Line 5.svg",
+    "retained": "assets/design/line-2.svg",
+    "sha256": "64ae91664e16961d11a3a342193e978b766421df1e31bcd11359845d6f07e548",
+    "bytes": 203,
+    "retainedBeforeMove": "assets/UI/UI/Menu/Line 2.svg"
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _Audit logs_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _Audit logs_.svg",
+    "sha256": "018dad11b6961cc2c886abd13b9ba09db3e7be8df22beb0bf9922a6a139eb80b",
+    "bytes": 3198
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _comments-alt_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _comments-alt_.svg",
+    "sha256": "d291ff6d2b53bc97eaaf052c5789b6599da4db8e90df22ae77cd4e5d507753b4",
+    "bytes": 652
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _dashboard_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _dashboard_.svg",
+    "sha256": "0688e1a4a2a826e7824f782c667192709f77637dd9cd6dea4371dcb74b592a01",
+    "bytes": 5735
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _Reports_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _Reports_.svg",
+    "sha256": "e2a6779ca4ee0a79e0f5f66a2b3930085a47bd979469f1b2974908565c23110c",
+    "bytes": 1806
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _settings account more_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _settings account more_.svg",
+    "sha256": "394963b5be8373965f415d3adbba2c8da464da3df3a98b8c2c53fa8b16c3ec82",
+    "bytes": 2469
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _tanks_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _tanks_.svg",
+    "sha256": "8fb8c254dbe4cae8ad3db558a10acdcbfbe6ef64af71dd6ea1ebaed5b81e7caa",
+    "bytes": 746
+  },
+  {
+    "removed": "assets/UI/UI/ðŸ¦† icon _tool_.svg",
+    "retained": "assets/UI/ðŸ¦† icon _tool_.svg",
+    "sha256": "b225d09c4daae63ca0440f5624dcb42c0a75cfd68864d8c9ed8f0838e86d3315",
+    "bytes": 1325
+  }
+]

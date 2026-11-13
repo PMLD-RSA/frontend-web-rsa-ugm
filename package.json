@@ -6,18 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "assets:audit": "node scripts/maintain-assets.mjs",
+    "assets:dedupe": "node scripts/maintain-assets.mjs --apply"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
     "@types/leaflet": "^1.9.22",
     "exceljs": "^4.4.0",
     "leaflet": "^1.9.4",
-    "lucide-react": "^1.47.0",
     "next": "16.3.6",
     "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-icons": "^5.7.0",
     "recharts": "^3.10.1",
     "zustand": "^5.0.15"
   },

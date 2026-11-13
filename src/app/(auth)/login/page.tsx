@@ -1,10 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { LuUserRound, LuLockKeyhole, LuEye } from 'react-icons/lu';
+import { FcGoogle } from 'react-icons/fc';
 import localFont from 'next/font/local';
 import { FormEvent, Suspense, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { AlertCircle, EyeOff, Loader2 } from 'lucide-react';
+import { LuCircleAlert as AlertCircle, LuEyeOff as EyeOff, LuLoaderCircle as Loader2 } from "react-icons/lu";
 import { useAuthStore } from '@/stores/authStore';
 import styles from './login.module.css';
 
@@ -118,7 +120,7 @@ function LoginForm() {
               <div className={styles.field}>
                 <label htmlFor="username">Username</label>
                 <div className={`${styles.inputWrap} ${usernameError ? styles.invalidInput : ''}`}>
-                  <Image src="/images/login-username-icon.png" alt="" width={23} height={23} />
+                  <LuUserRound size={23} aria-hidden="true" />
                   <input ref={usernameRef} id="username" name="username" type="text" autoCapitalize="none" spellCheck={false} autoComplete="username" autoFocus required placeholder="Masukkan username" value={username}
                     aria-invalid={!!usernameError} aria-describedby={usernameError ? 'username-error' : focusedField === 'username' ? 'username-hint' : undefined}
                     onFocus={() => setFocusedField('username')}
@@ -131,14 +133,14 @@ function LoginForm() {
               <div className={`${styles.field} ${styles.passwordField}`}>
                 <label htmlFor="password">Password</label>
                 <div className={`${styles.inputWrap} ${passwordError ? styles.invalidInput : ''}`}>
-                  <Image src="/images/login-password-icon.svg" alt="" width={18} height={22} />
+                  <LuLockKeyhole size={22} aria-hidden="true" />
                   <input ref={passwordRef} id="password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" required placeholder="Masukkan password" value={password}
                     aria-invalid={!!passwordError} aria-describedby={passwordError ? 'password-error' : focusedField === 'password' ? 'password-hint' : undefined}
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => { setFocusedField(null); setTouched((fields) => ({ ...fields, password: true })); }}
                     onChange={(event) => { setPassword(event.target.value); clearError(); }} />
                   <button className={styles.visibilityButton} type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'} aria-pressed={showPassword}>
-                    {showPassword ? <EyeOff size={22} /> : <Image src="/images/login-eye-icon.svg" alt="" width={24} height={24} />}
+                    {showPassword ? <EyeOff size={22} /> : <LuEye size={24} aria-hidden="true" />}
                   </button>
                 </div>
                 {passwordError ? <p id="password-error" className={styles.fieldError} role="alert">{passwordError}</p> : focusedField === 'password' && <p id="password-hint" className={styles.fieldHint}>Masukkan password akun Anda.</p>}
@@ -174,7 +176,7 @@ function LoginForm() {
                   type="button"
                   onClick={() => setInteractionNotice('Google Sign-In belum dikonfigurasi untuk aplikasi ini.')}
                 >
-                  <Image src="/images/login-google-logo.svg" alt="Google" width={76} height={76} />
+                  <FcGoogle size={24} aria-hidden="true" />
                 </button>
               </div>
 

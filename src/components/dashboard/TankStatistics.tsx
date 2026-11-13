@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
+import { DashboardIcon } from './DashboardIcon';
 import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { LuRefreshCw as RefreshCw } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { numeric, readingTime } from './TankLevel';
 import styles from './TankDashboard.module.css';
@@ -12,9 +12,9 @@ export const referenceTanks: Tank[] = ['A', 'B'].map(name => ({
   capacityLiters: '', minThresholdPercent: '', maxThresholdPercent: '',
 }));
 const categories = [
-  { label: 'Normal', color: '#52c93f', icon: 'stat-normal.svg', range: '>70%' },
-  { label: 'Warning', color: '#fecb28', icon: 'stat-warning.svg', range: '30–70%' },
-  { label: 'Critical', color: '#ff2727', icon: 'stat-critical.svg', range: '<30%' },
+  { label: 'Normal', color: '#52c93f', icon: 'stat-normal', range: '>70%' },
+  { label: 'Warning', color: '#fecb28', icon: 'stat-warning', range: '30–70%' },
+  { label: 'Critical', color: '#ff2727', icon: 'stat-critical', range: '<30%' },
 ];
 
 function TankFill({ tank, unavailable, loading, onDetail }: { tank: Tank; unavailable: boolean; loading: boolean; onDetail: () => void }) {
@@ -31,7 +31,7 @@ function TankFill({ tank, unavailable, loading, onDetail }: { tank: Tank; unavai
       <span><strong>{percentage}</strong><small style={{ color: category?.color }}>{status}</small></span>
     </div>
     <dl className={styles.statLegend}>{categories.map(item => <div key={item.label}>
-      <dt><Image src={`/images/dashboard/${item.icon}`} alt="" width={16} height={16} unoptimized />{item.label}</dt><dd>{item.range}</dd>
+      <dt><DashboardIcon name={item.icon} width={16} />{item.label}</dt><dd>{item.range}</dd>
     </div>)}</dl>
     <p className={styles.statHint}>{level == null ? (loading ? 'Loading water level…' : 'Water level unavailable') : `Last reading: ${readingTime(tank.latestReading?.recordedAt)}`}</p>
   </article>;

@@ -233,7 +233,7 @@
   box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.18);
 }
 
-.inputWrap > img {
+.inputWrap > :is(img, svg) {
   display: block;
   flex: 0 0 auto;
   object-fit: contain;
@@ -388,7 +388,7 @@
   background: #cecece;
 }
 
-.googleButton img {
+.googleButton :is(img, svg) {
   object-fit: contain;
 }
 

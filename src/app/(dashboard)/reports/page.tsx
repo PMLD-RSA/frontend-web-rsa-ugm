@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart2, ArrowRight, BookOpen } from 'lucide-react';
+import { LuChartNoAxesColumn as BarChart2, LuArrowRight as ArrowRight, LuBookOpen as BookOpen } from "react-icons/lu";
 
 export const metadata = {
   title: 'Laporan | RSA UGM Water Monitor',

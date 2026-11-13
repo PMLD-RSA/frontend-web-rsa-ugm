@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BellRing, ArrowRight, BookOpen } from 'lucide-react';
+import { LuBellRing as BellRing, LuArrowRight as ArrowRight, LuBookOpen as BookOpen } from "react-icons/lu";
 
 export const metadata = {
   title: 'Pusat Peringatan | RSA UGM Water Monitor',

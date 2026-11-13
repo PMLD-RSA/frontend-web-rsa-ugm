@@ -1,0 +1,277 @@
+[
+  {
+    "from": "assets/source/Tiga status tangki air horizontal.png",
+    "to": "assets/images/tiga-status-tangki-air-horizontal.png",
+    "sha256": "1cc014e236bac9af958da37ae9af88d2333788e334c7e4414cf452a91f39a54a"
+  },
+  {
+    "from": "assets/UI/basicNode-1.svg",
+    "to": "assets/design/basicnode-1.svg",
+    "sha256": "7691483f89a2c53e871db6fe28239bba78162c3832b3a555cbe50043b90f389c"
+  },
+  {
+    "from": "assets/UI/basicNode.svg",
+    "to": "assets/design/basicnode.svg",
+    "sha256": "ec59ce41a98e58bf806c2f96fcc21d74947ef5e1be57949a57a46eb474b6c351"
+  },
+  {
+    "from": "assets/UI/Component 23/carbon_close-1.svg",
+    "to": "assets/design/carbon-close-1.svg",
+    "sha256": "419f03881ff780ac30f38ff037c5345856cc5cd97edcc648fd6d94c3d52fed4f"
+  },
+  {
+    "from": "assets/UI/Component 23/carbon_close.svg",
+    "to": "assets/design/carbon-close.svg",
+    "sha256": "2085a19e468eed2ff38fa3151329f19d66c1b718a25fbf0416219b6a49b6390b"
+  },
+  {
+    "from": "assets/UI/Component 23/Ellipse 1.svg",
+    "to": "assets/design/ellipse-1.svg",
+    "sha256": "711cda2b6abefec7801aab32a6d251dba4581519c0e8ba5251e28434f34548af"
+  },
+  {
+    "from": "assets/UI/Component 23/Ellipse 2.svg",
+    "to": "assets/design/ellipse-2.svg",
+    "sha256": "143a0b9fdb392d1bb0d97e0eb650b11b54d8657ae49fd3bb2c8707d4498cd4dc"
+  },
+  {
+    "from": "assets/UI/contact (1) 1-1.png",
+    "to": "assets/images/contact-1-1-1.png",
+    "sha256": "60c75b2d4d8285c592dcff4fd8605cfea0f22ecf6d54577861c63b8351e19e8e"
+  },
+  {
+    "from": "assets/UI/correct/un.svg",
+    "to": "assets/design/un.svg",
+    "sha256": "db572b1e6eca540733a9cc29568ec20d13a71c34be6efc0d149ebb2a1df7dd46"
+  },
+  {
+    "from": "assets/UI/Ellipse 6.svg",
+    "to": "assets/design/ellipse-6.svg",
+    "sha256": "1ec8fbfae1062f98628fab2173795a5ae37f656b2e1a00bf12ab176182ff1cd7"
+  },
+  {
+    "from": "assets/UI/Ellipse 7.svg",
+    "to": "assets/design/ellipse-7.svg",
+    "sha256": "860d2a741a5b89ac61167b365c129a0b3e0cc76aa820acb7c4a0b2ee3016ed1b"
+  },
+  {
+    "from": "assets/UI/Group 1.svg",
+    "to": "assets/design/group-1.svg",
+    "sha256": "fbc7b07775a29e8507f06c2ecac408effc8fee7d8821c5f4c0da1cf6cd60b5f6"
+  },
+  {
+    "from": "assets/UI/Group 2147220687.svg",
+    "to": "assets/design/group-2147220687.svg",
+    "sha256": "675d1a47f03b500467edd2c95a346033d4753a2592a6e35e5781c5aa8c150bd2"
+  },
+  {
+    "from": "assets/UI/Group 7-1.svg",
+    "to": "assets/design/group-7-1.svg",
+    "sha256": "eabd788a60375ff18a5fcc44a9ce79d6273f2c54db6b2107025411603f1b9ad1"
+  },
+  {
+    "from": "assets/UI/Group 7-2.svg",
+    "to": "assets/design/group-7-2.svg",
+    "sha256": "079aa966225614939c023b2b2afce1b233bf00cf20844b9b35e48144721cfc16"
+  },
+  {
+    "from": "assets/UI/Group.svg",
+    "to": "assets/design/group.svg",
+    "sha256": "02b97253d8c35f6b99e95a77aac67026713b60079b135611a871af6099469afe"
+  },
+  {
+    "from": "assets/UI/image 1.png",
+    "to": "assets/images/image-1.png",
+    "sha256": "5ccf07ce8df180409af4d3b1a96b4b93ca63ad9d8e217d0e02b81367bf001841"
+  },
+  {
+    "from": "assets/UI/Line 39.svg",
+    "to": "assets/design/line-39.svg",
+    "sha256": "30ccfc5c82fccd90d1215e4b5167660fdb9397c9edced8df7053345e3fc6b2ef"
+  },
+  {
+    "from": "assets/UI/Line 4.svg",
+    "to": "assets/design/line-4.svg",
+    "sha256": "5b749ab15bd3131857c5d3f08f69065ad175c8ae4d0f2a56ba3823c36337f4a4"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/OFL.txt",
+    "to": "assets/fonts/plus-jakarta-sans/OFL.txt",
+    "sha256": "e305459e0dab960db8295955f5abc813efb09d4fea89138572b593bee53d015c"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/PlusJakartaSans-Italic-VariableFont_wght.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/PlusJakartaSans-Italic-VariableFont_wght.ttf",
+    "sha256": "84e8f03ee07cee2f6a5c24963c15eef8210bdcb355e4592ab7256e9cbe45d8e9"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/PlusJakartaSans-VariableFont_wght.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/PlusJakartaSans-VariableFont_wght.ttf",
+    "sha256": "4c5552ecc1230e6dfdf6e8755d24436fca395ad9f4ecb25287ab3e9ff7a9e68d"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/README.txt",
+    "to": "assets/fonts/plus-jakarta-sans/README.txt",
+    "sha256": "c4ed1072b6c896914ba9c23b9069d08091557d4ecf79ba8f0a34bab39eecc9a8"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-Bold.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-Bold.ttf",
+    "sha256": "71af7a0aac7db1b7e30cd389d7aabdabb44b5b5553d470ddd5aa25c0537c8108"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-BoldItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-BoldItalic.ttf",
+    "sha256": "d3551a045ea97f5dacc477876ad60ca739f7c2678a40c2ee7050b6aacc80def2"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraBold.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-ExtraBold.ttf",
+    "sha256": "f95af252acb2a09e79452366d05346975e7fda7e0a5831ff671effcb2568504c"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraBoldItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-ExtraBoldItalic.ttf",
+    "sha256": "92fc37fed9e1e89afc9f54015d5791704a54a0a8cce291c543f31bd29bc736d2"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraLight.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-ExtraLight.ttf",
+    "sha256": "08caac023b501a6179ff16cbcf7a574a3a26dfa5071e65d4b8ee467169e81911"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-ExtraLightItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-ExtraLightItalic.ttf",
+    "sha256": "8aee12b1a4bb5109dab146b3e4e0c7aa2f9b787c7d7871c54e6c20b48fa87e1b"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-Italic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-Italic.ttf",
+    "sha256": "7e1e7b651a58037bcfcc2cde3e71fb66a4e51c984e57838806b4ffce6af4bb94"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-Light.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-Light.ttf",
+    "sha256": "e505e56b66a672aa9e513470c42e52bdc32950299de5b75132f9219f482a0179"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-LightItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-LightItalic.ttf",
+    "sha256": "789707fda0f482e2a14a2b4c07e84107bbd74c7db37c62bfc56988a4e6d16734"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-Medium.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-Medium.ttf",
+    "sha256": "00ec347136c7f6d904fa8c54decba898cc2c74c17388e62fa4388433de8be226"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-MediumItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-MediumItalic.ttf",
+    "sha256": "c139da073762d1da0426208888074096fa56dda61f04f2e7b7d67f5183d75d06"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-Regular.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-Regular.ttf",
+    "sha256": "ca6ef907028d1d1808870967d7b7ddcf68c0f33552d15d7f0c6c7d6ae97e7571"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBold.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-SemiBold.ttf",
+    "sha256": "bbaa1d21ce4839070547b1cc06d5db2a56f520abe90278d971665b3f6dca6851"
+  },
+  {
+    "from": "assets/UI/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBoldItalic.ttf",
+    "to": "assets/fonts/plus-jakarta-sans/static/PlusJakartaSans-SemiBoldItalic.ttf",
+    "sha256": "9bb653d863c3f53a3928c9f155f5fa5542cfdc8ee94e528553473469eb2bdeee"
+  },
+  {
+    "from": "assets/UI/source/taylor-8Vt2haq8NSQ-unsplash.jpg",
+    "to": "assets/images/taylor-8vt2haq8nsq-unsplash.jpg",
+    "sha256": "622799cc7db2117ac0a06a397447783ddd06154e051521533501f394c5091902"
+  },
+  {
+    "from": "assets/UI/source/UI/ChatGPT Image 21 Sep 2026, 22.55.21 1.png",
+    "to": "assets/images/chatgpt-image-21-sep-2026-22-55-21-1.png",
+    "sha256": "97562a7212acff958b0311b4a56b8eddf0c72cee51497a9bdc23a5e88285633b"
+  },
+  {
+    "from": "assets/UI/SVG-1.svg",
+    "to": "assets/design/svg-1.svg",
+    "sha256": "deac7dfe281fd2c1d284f6175403e1f3cedd88472f91d265a776d0db3824ef64"
+  },
+  {
+    "from": "assets/UI/SVG-2.svg",
+    "to": "assets/design/svg-2.svg",
+    "sha256": "276fd763a9103e3372d1228ed8cc008686aad6dd6e76e88958929b41f158f8ce"
+  },
+  {
+    "from": "assets/UI/SVG-3.svg",
+    "to": "assets/design/svg-3.svg",
+    "sha256": "7d0fe7894598153dac200b8c4decf7cc4677fe82efe12586c141bc6a9b9318ae"
+  },
+  {
+    "from": "assets/UI/SVG-4.svg",
+    "to": "assets/design/svg-4.svg",
+    "sha256": "e1075709a8cb61fe61cd2c481fe9302fc3a4e7f9a7a9c1eb9d20e95c99747f00"
+  },
+  {
+    "from": "assets/UI/SVG.svg",
+    "to": "assets/design/svg.svg",
+    "sha256": "d1fbed17de7dd0d73df8f73c642f190e5dc63ea16d5880855a069325c267a4bd"
+  },
+  {
+    "from": "assets/UI/UI/ci_search-magnifying-glass.svg",
+    "to": "assets/design/ci-search-magnifying-glass.svg",
+    "sha256": "7e46bce9ef407f0e1f9926f6e11dc99d93c045ba1cf7d863d37acd939a63647a"
+  },
+  {
+    "from": "assets/UI/UI/Ellipse 7.png",
+    "to": "assets/images/ellipse-7.png",
+    "sha256": "2aee605afb89d0ea50b1c9ab27f27f4ec92f4beafffa58bffa7ac1e3aef68f7b"
+  },
+  {
+    "from": "assets/UI/UI/eyes.svg",
+    "to": "assets/design/eyes.svg",
+    "sha256": "a212d176f9f254c32362955e6a815bdb7b52cda0ae068b4e753235805ac054a5"
+  },
+  {
+    "from": "assets/UI/UI/Group-1.svg",
+    "to": "assets/design/group-1-9ea62139.svg",
+    "sha256": "b697ad53fc9f89ed91e43ec37d7bf6702fa2701d3c503485b9b2c5f13fadffb6"
+  },
+  {
+    "from": "assets/UI/UI/Lambang UGM 3.png",
+    "to": "assets/images/lambang-ugm-3.png",
+    "sha256": "ebd4d11e902469884defaef2a3b890e1e12834e78ef31555f10624d657d60358"
+  },
+  {
+    "from": "assets/UI/UI/Menu/Frame-1.svg",
+    "to": "assets/design/frame-1.svg",
+    "sha256": "2e3aa0a98f778a6f5ea4224f6b4ede76760d6595b22ae55f5c240d40da85167e"
+  },
+  {
+    "from": "assets/UI/UI/Menu/Frame.svg",
+    "to": "assets/design/frame.svg",
+    "sha256": "43184225610c1da07a13769d5b26ec0a155ff94e38fc932baabe31b8d490ee98"
+  },
+  {
+    "from": "assets/UI/UI/Menu/Line 2.svg",
+    "to": "assets/design/line-2.svg",
+    "sha256": "64ae91664e16961d11a3a342193e978b766421df1e31bcd11359845d6f07e548"
+  },
+  {
+    "from": "assets/UI/UI/Menu/Menu control panel/Frame-2.svg",
+    "to": "assets/design/frame-2.svg",
+    "sha256": "3f2b4b4b81d734838047492506962deb965b2f145e10432468c879cec0d3045f"
+  },
+  {
+    "from": "assets/UI/UI/Menu/Vector.svg",
+    "to": "assets/design/vector.svg",
+    "sha256": "50e9050b0862c18b33fe34efe3b7f4b6c76d5c6dc22826487374fda6a02eca15"
+  },
+  {
+    "from": "assets/UI/UI/vuesax/linear/notification-bing.svg",
+    "to": "assets/design/notification-bing.svg",
+    "sha256": "4491cf228182b13bb725f1790d5e8a4c063ba0a8a76c3675c91394ebc6a32973"
+  }
+]
