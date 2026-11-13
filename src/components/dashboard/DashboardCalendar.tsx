@@ -67,22 +67,22 @@ export function DashboardCalendar({ value, mode = 'range', onChange }: { value: 
 
   return <div className={styles.calendar}>
     <div className={styles.calendarHeader}>
-      <button type="button" aria-label="Bulan sebelumnya" onClick={() => navigate(new Date(year, monthIndex - 1, 1))}><Icon name="calendar-left" width={16} /></button>
+      <button type="button" aria-label="Previous month" onClick={() => navigate(new Date(year, monthIndex - 1, 1))}><Icon name="calendar-left" width={16} /></button>
       <div className={styles.calendarSelectors}>
         <div className={styles.calendarSelect}>
-          <select aria-label="Bulan kalender" value={monthIndex} onChange={(event) => navigate(new Date(year, Number(event.target.value), 1))}>
+          <select aria-label="Calendar month" value={monthIndex} onChange={(event) => navigate(new Date(year, Number(event.target.value), 1))}>
             {months.map((name, index) => <option key={name} value={index}>{name}</option>)}
           </select>
           <Icon name="calendar-down" width={12} />
         </div>
         <div className={styles.calendarSelect}>
-          <select aria-label="Tahun kalender" value={year} onChange={(event) => navigate(new Date(Number(event.target.value), monthIndex, 1))}>
+          <select aria-label="Calendar year" value={year} onChange={(event) => navigate(new Date(Number(event.target.value), monthIndex, 1))}>
             {Array.from({ length: yearEnd - yearStart + 1 }, (_, i) => yearStart + i).map((value) => <option key={value} value={value}>{value}</option>)}
           </select>
           <Icon name="calendar-down" width={12} />
         </div>
       </div>
-      <button type="button" aria-label="Bulan berikutnya" onClick={() => navigate(new Date(year, monthIndex + 1, 1))}><Icon name="calendar-right" width={16} /></button>
+      <button type="button" aria-label="Next month" onClick={() => navigate(new Date(year, monthIndex + 1, 1))}><Icon name="calendar-right" width={16} /></button>
     </div>
     <div className={styles.weekdays} aria-hidden="true">{weekdays.map(day => <span key={day}>{day}</span>)}</div>
     <div ref={grid} className={styles.calendarGrid} role="group" aria-label={`${months[monthIndex]} ${year}`} onMouseLeave={() => setHovered('')}>
@@ -93,11 +93,11 @@ export function DashboardCalendar({ value, mode = 'range', onChange }: { value: 
         const selected = date === range[0] || date === range[1];
         const between = Boolean(range[0] && range[1] && date > range[0] && date < range[1]);
         return <button key={date} type="button" disabled={outside} data-date={date} data-selected={selected} data-in-range={mode === 'range' && between} data-today={date === today} data-popup-focus={date === focusDate ? '' : undefined}
-          aria-label={day.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} aria-pressed={selected} aria-current={date === today ? 'date' : undefined}
+          aria-label={day.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })} aria-pressed={selected} aria-current={date === today ? 'date' : undefined}
           tabIndex={!outside && date === focusDate ? 0 : -1} onFocus={() => setFocusDate(date)} onMouseEnter={() => setHovered(date)} onClick={() => select(date)} onKeyDown={(event) => onDayKey(event, date)}>{day.getDate()}</button>;
       })}
     </div>
-    <span className={styles.srOnly} role="status">{mode === 'range' ? pending ? 'Pilih tanggal akhir.' : 'Pilih tanggal mulai, kemudian tanggal akhir.' : 'Pilih tanggal.'}</span>
+    <span className={styles.srOnly} role="status">{mode === 'range' ? pending ? 'Select an end date.' : 'Select a start date, then an end date.' : 'Select date.'}</span>
   </div>;
 }
 

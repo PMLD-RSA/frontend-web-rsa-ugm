@@ -8,7 +8,7 @@ import { DashboardIcon as Icon } from './DashboardIcon';
 import styles from './DashboardPanels.module.css';
 
 function dateLabel(value: string) {
-  return value ? new Date(`${value}T12:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Pilih tanggal';
+  return value ? new Date(`${value}T12:00:00`).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Select date';
 }
 
 export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[]; filters: DashboardFilters; onClose: () => void }) {
@@ -35,12 +35,12 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
     if (busy) return;
     setError('');
     if (startDate && endDate && startDate > endDate) {
-      setError('Tanggal akhir harus sama dengan atau setelah tanggal mulai.');
+      setError('The end date must be on or after the start date.');
       return;
     }
     const selectedTanks = filterDashboardTanks(tanks, '', { ...filters, tankId, statuses: [], startDate, endDate });
     if (!selectedTanks.length) {
-      setError('Tidak ada pembacaan tangki pada periode ini. Pilih tangki atau periode lain.');
+      setError('No tank readings in this period. Select another tank or period.');
       return;
     }
     const controller = new AbortController();
@@ -49,7 +49,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
     try {
       const response = await fetch('/api/alerts', { signal: controller.signal });
       const result = await response.json();
-      if (!response.ok || !result.success || !Array.isArray(result.data)) throw new Error('Riwayat peringatan belum dapat dimuat. Silakan coba lagi.');
+      if (!response.ok || !result.success || !Array.isArray(result.data)) throw new Error('Alert history could not be loaded. Please try again.');
       const { createTankReport } = await import('@/lib/dashboardReport');
       const file = await createTankReport({ tanks: selectedTanks, alerts: result.data as Alert[], startDate, endDate, format });
       if (controller.signal.aborted) return;
@@ -63,7 +63,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       close();
     } catch (error) {
-      if (!controller.signal.aborted) setError(error instanceof Error ? error.message : 'Laporan gagal diunduh. Silakan coba lagi.');
+      if (!controller.signal.aborted) setError(error instanceof Error ? error.message : 'Report download failed. Please try again.');
     } finally {
       if (!controller.signal.aborted) setBusy(false);
     }
@@ -76,81 +76,81 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
   }}>
     <form onSubmit={download} aria-busy={busy}>
       <header className={styles.downloadHeader}>
-        <h2 id={titleId}>Unduh Laporan</h2>
-        <button type="button" className={styles.closeButton} aria-label="Tutup unduh laporan" onClick={close}><Icon name="close-download" width={25} /></button>
+        <h2 id={titleId}>Download Report</h2>
+        <button type="button" className={styles.closeButton} aria-label="Close report download" onClick={close}><Icon name="close-download" width={25} /></button>
         <p>Laporan monitoring dengan tabel pemeriksaan dan area tanda tangan</p>
       </header>
       <div className={styles.downloadBody}>
-        <label className={`${styles.reportLabel} ${styles.reportPeriod}`}>Periode laporan
+        <label className={`${styles.reportLabel} ${styles.reportPeriod}`}>Report period
           <span className={`${styles.selectField} ${styles.selectWithIcon}`}>
             <Icon name="report-calendar" width={28} />
-            <select aria-label="Periode laporan" value={period} disabled={busy} onChange={(event) => {
+            <select aria-label="Report period" value={period} disabled={busy} onChange={(event) => {
               const next = event.target.value as typeof period;
               setPeriod(next);
               if (next === 'Custom') return;
               const range = next === 'Dashboard' ? filters : periodRange(next);
               setStartDate(range.startDate); setEndDate(range.endDate);
             }}>
-              <option value="Dashboard">Periode dashboard</option>
-              <option value="Daily">Hari ini</option>
-              <option value="Weekly">7 hari terakhir</option>
-              <option value="Monthly">Bulan ini</option>
-              <option value="All">Semua tanggal</option>
-              <option value="Custom">Pilih periode sendiri</option>
+              <option value="Dashboard">Dashboard period</option>
+              <option value="Daily">Today</option>
+              <option value="Weekly">Last 7 days</option>
+              <option value="Monthly">This month</option>
+              <option value="All">All dates</option>
+              <option value="Custom">Custom period</option>
             </select>
             <Icon name="select-chevron" width={20} />
           </span>
         </label>
         <div className={styles.reportDates}>
-          <div className={styles.reportDate}><span>Tanggal mulai</span>
-            <DashboardDatePicker disabled={busy} mode="single" label="Pilih tanggal mulai laporan" triggerClassName={styles.dateField} value={{ startDate, endDate: startDate }} onChange={(value) => { setStartDate(value.startDate); setPeriod('Custom'); }}>
+          <div className={styles.reportDate}><span>Start date</span>
+            <DashboardDatePicker disabled={busy} mode="single" label="Select report start date" triggerClassName={styles.dateField} value={{ startDate, endDate: startDate }} onChange={(value) => { setStartDate(value.startDate); setPeriod('Custom'); }}>
               <Icon name="report-date" width={23} height={25} /><span>{dateLabel(startDate)}</span><Icon name="select-chevron" width={20} />
             </DashboardDatePicker>
           </div>
-          <div className={styles.reportDate}><span>Tanggal akhir</span>
-            <DashboardDatePicker disabled={busy} mode="single" label="Pilih tanggal akhir laporan" triggerClassName={styles.dateField} value={{ startDate: endDate, endDate }} onChange={(value) => { setEndDate(value.endDate); setPeriod('Custom'); }}>
+          <div className={styles.reportDate}><span>End date</span>
+            <DashboardDatePicker disabled={busy} mode="single" label="Select report end date" triggerClassName={styles.dateField} value={{ startDate: endDate, endDate }} onChange={(value) => { setEndDate(value.endDate); setPeriod('Custom'); }}>
               <Icon name="report-date" width={23} height={25} /><span>{dateLabel(endDate)}</span><Icon name="select-chevron" width={20} />
             </DashboardDatePicker>
           </div>
         </div>
         <p className={styles.reportHint}>{period === 'Dashboard' ? 'Mengikuti periode yang dipilih di dashboard' : 'Menggunakan periode laporan yang Anda pilih'}</p>
-        <label className={styles.reportLabel}>Tangki
+        <label className={styles.reportLabel}>Tank 
           <span className={`${styles.selectField} ${styles.selectWithIcon}`}>
             <Icon name="report-tank" width={28} height={35} />
-            <select aria-label="Pilih tangki untuk laporan" value={tankId} disabled={busy} onChange={(event) => setTankId(event.target.value)}>
-              <option value="">Semua tangki</option>
+            <select aria-label="Select report tank" value={tankId} disabled={busy} onChange={(event) => setTankId(event.target.value)}>
+              <option value="">All tanks</option>
               {tanks.map(tank => <option key={tank.id} value={tank.id}>{tank.name}</option>)}
             </select>
             <Icon name="report-tank-chevron" width={14} height={8} />
           </span>
         </label>
         <fieldset className={styles.reportFormat} disabled={busy}>
-          <legend>Format file</legend>
+          <legend>File format</legend>
           <div className={styles.formatOptions}>
-            {([{ value: 'pdf', label: 'PDF', description: 'Laporan siap cetak', image: 'file-pdf', size: 44 }, { value: 'xlsx', label: 'Excel', description: 'Laporan dan data tabel', image: 'file-excel', size: 40 }] as const).map(option => <label key={option.value} className={styles.formatOption}>
+            {([{ value: 'pdf', label: 'PDF', description: 'Print-ready report', image: 'file-pdf', size: 44 }, { value: 'xlsx', label: 'Excel', description: 'Report and tabular data', image: 'file-excel', size: 40 }] as const).map(option => <label key={option.value} className={styles.formatOption}>
               <input type="radio" name="reportFormat" value={option.value} checked={format === option.value} onChange={() => setFormat(option.value)} aria-label={option.label} />
               <span className={styles.radio}><Icon name="format-radio" width={21} /></span>
               <span className={styles.formatDescription}><Icon name={option.image} width={option.size} /><span><strong>{option.label}</strong><small>{option.description}</small></span></span>
             </label>)}
           </div>
         </fieldset>
-        <section className={styles.reportContents} aria-label="Isi laporan">
-          <h3>Isi laporan</h3>
+        <section className={styles.reportContents} aria-label="Report contents">
+          <h3>Report contents</h3>
           <ul>
-            <li><Icon name="report-tick" width={18} /><span>Laporan per tangki, grafik level terakhir, dan area tanda tangan</span></li>
-            <li data-unavailable="true"><Icon name="report-tick" width={18} /><span>Data air masuk dan keluar</span><small>Belum tersedia</small></li>
-            <li><Icon name="report-tick" width={18} /><span>Riwayat peringatan dan kondisi kritis</span></li>
+            <li><Icon name="report-tick" width={18} /><span>Tank reports, latest level charts, and signature fields</span></li>
+            <li data-unavailable="true"><Icon name="report-tick" width={18} /><span>Water inflow and outflow data</span><small>Unavailable</small></li>
+            <li><Icon name="report-tick" width={18} /><span>Warning and critical alert history</span></li>
           </ul>
         </section>
         {error && <p className={styles.reportError} role="alert">{error}</p>}
-        {busy && <p className={styles.reportBusy} role="status">Menyiapkan laporan…</p>}
+        {busy && <p className={styles.reportBusy} role="status">Preparing report…</p>}
       </div>
       <footer className={styles.downloadFooter}>
         <div className={styles.divider}><Icon name="report-divider" width={584} height={3} /></div>
         <div className={styles.downloadActions}>
-          <p>File akan diunduh ke perangkat Anda</p>
-          <button type="button" className={styles.cancelButton} onClick={close}>Batal</button>
-          <button type="submit" className={styles.primaryButton} disabled={busy}><Icon name="download" width={24} /><span>{busy ? 'Menyiapkan…' : 'Download All'}</span></button>
+          <p>The file will be downloaded to your device</p>
+          <button type="button" className={styles.cancelButton} onClick={close}>Cancel</button>
+          <button type="submit" className={styles.primaryButton} disabled={busy}><Icon name="download" width={24} /><span>{busy ? 'Preparing…' : 'Download All'}</span></button>
         </div>
       </footer>
     </form>

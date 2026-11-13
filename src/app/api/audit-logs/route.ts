@@ -23,7 +23,8 @@ export async function GET(request: NextRequest) {
     : '/api/audit-logs';
 
   // Forward Authorization header agar Mobile App bisa akses
-  const authHeader = request.headers.get('Authorization');
+  const token = request.cookies.get('auth_token')?.value;
+  const authHeader = request.headers.get('Authorization') || (token ? `Bearer ${token}` : null);
   const extraHeaders: Record<string, string> = {};
   if (authHeader) {
     extraHeaders['Authorization'] = authHeader;

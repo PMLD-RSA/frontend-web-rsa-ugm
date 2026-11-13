@@ -115,6 +115,9 @@ export interface AuditLog {
   id: number;
   userId?: string | null;
   username?: string | null;
+  role?: UserRole | null;
+  email?: string | null;
+  user?: { username?: string | null; role?: UserRole | null; email?: string | null } | null;
   action: string; // "LOGIN" | "UPDATE_TANK" | "RESOLVE_ALERT"
   entity?: string | null;
   entityId?: string | null;

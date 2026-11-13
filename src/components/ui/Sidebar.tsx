@@ -30,14 +30,14 @@ const DASHBOARD: MenuItem = {
 
 const MENU_GROUPS: MenuItem[][] = [
   [
-    { icon: { name: 'tanks', width: 18, height: 18 }, label: 'Tangki', href: '/tanks' },
-    { icon: { name: 'reports', width: 18, height: 24 }, label: 'Laporan', href: '/reports' },
-    { icon: { name: 'alerts', width: 18, height: 20 }, label: 'Peringatan', href: '/alerts', badge: true },
+    { icon: { name: 'tanks', width: 18, height: 18 }, label: 'Tanks', href: '/tanks' },
+    { icon: { name: 'reports', width: 18, height: 24 }, label: 'Reports', href: '/reports' },
+    { icon: { name: 'alerts', width: 18, height: 20 }, label: 'Alerts', href: '/alerts', badge: true },
   ],
   [
     { icon: { name: 'logs', width: 17.5245, height: 21.6019 }, label: 'Audit Log', href: '/logs' },
-    { icon: { name: 'users', width: 20, height: 16 }, label: 'Pengguna', href: '/users', adminOnly: true },
-    { icon: { name: 'devices', width: 18.84, height: 18.84 }, label: 'Perangkat', href: '/devices' },
+    { icon: { name: 'users', width: 20, height: 16 }, label: 'Users', href: '/users', adminOnly: true },
+    { icon: { name: 'devices', width: 18.84, height: 18.84 }, label: 'Devices', href: '/devices' },
   ],
 ];
 
