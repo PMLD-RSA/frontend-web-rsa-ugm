@@ -10,14 +10,19 @@ import styles from './TankDashboard.module.css';
 
 type Position = { x: number; y: number };
 type Positions = Record<string, Position>;
-const storageKey = 'rsa-site-plan-positions-v1';
+const storageKey = 'rsa-site-plan-figma-positions-v2';
 
-// Unconfirmed markers are explicitly labelled; geographic coordinates cannot be
-// projected onto this uncalibrated floor plan.
-function initialPosition(id: string): Position {
-  let hash = 0;
-  for (const character of id) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  return { x: 42 + (hash % 4) * 10, y: 33 + (Math.floor(hash / 4) % 4) * 8 };
+// Titik sementara berada di atas bangunan; denah belum dikalibrasi ke GPS.
+const buildingPositions: Position[] = [
+  { x: 45, y: 35 }, { x: 80, y: 35 },
+  { x: 45, y: 42 }, { x: 80, y: 42 },
+  { x: 45, y: 49 }, { x: 80, y: 49 },
+  { x: 45, y: 56 }, { x: 80, y: 56 },
+];
+
+function initialPosition(id: string, tanks: Tank[]): Position {
+  const index = [...tanks].map(tank => tank.id).sort().indexOf(id);
+  return buildingPositions[Math.max(0, index) % buildingPositions.length];
 }
 
 export function TankMap({ tanks, loading, unavailable, onDetail }: { tanks: Tank[]; loading: boolean; unavailable: boolean; onDetail: (tank: Tank) => void }) {
@@ -69,8 +74,8 @@ export function TankMap({ tanks, loading, unavailable, onDetail }: { tanks: Tank
       <div className={styles.zoomControls}><button aria-label="Zoom masuk" disabled={zoom >= 3} onClick={() => setZoom(Math.min(3, zoom + .5))}><Plus size={18} /></button><button aria-label="Zoom keluar" disabled={zoom <= 1} onClick={() => setZoom(Math.max(1, zoom - .5))}><Minus size={18} /></button><button aria-label="Reset zoom" onClick={() => setZoom(1)}><RotateCcw size={15} /></button></div>
       <div className={styles.mapScroll}>
         <div className={styles.mapCanvas} style={{ width: `${zoom * 100}%` }}>
-          <Image src="/images/dashboard/rsa-site-plan.jpg" alt="Denah Rumah Sakit Akademik Universitas Gadjah Mada" width={1824} height={1361} unoptimized className={styles.mapImage} />
-          {visible.map(tank => <button key={tank.id} className={styles.marker} data-unconfirmed={!positions[tank.id]} title={`${tank.name}${!positions[tank.id] ? ' — posisi sementara' : ''}`} data-status={getTankStatus(tank) ?? 'UNKNOWN'} style={{ left: `${(positions[tank.id] ?? initialPosition(tank.id)).x}%`, top: `${(positions[tank.id] ?? initialPosition(tank.id)).y}%` }} aria-label={`Lihat ${tank.name}`} aria-expanded={selected === tank.id} aria-controls={current ? 'map-tank-preview' : undefined}
+          <Image src="/images/dashboard/rsa-site-plan-figma.png" alt="Denah Rumah Sakit Universitas Gadjah Mada Yogyakarta" width={1443} height={1090} unoptimized className={styles.mapImage} />
+          {visible.map(tank => <button key={tank.id} className={styles.marker} data-unconfirmed={!positions[tank.id]} title={`${tank.name}${!positions[tank.id] ? ' — posisi sementara' : ''}`} data-status={getTankStatus(tank) ?? 'UNKNOWN'} style={{ left: `${(positions[tank.id] ?? initialPosition(tank.id, tanks)).x}%`, top: `${(positions[tank.id] ?? initialPosition(tank.id, tanks)).y}%` }} aria-label={`Lihat ${tank.name}`} aria-expanded={selected === tank.id} aria-controls={current ? 'map-tank-preview' : undefined}
             onClick={event => { lastTrigger.current = event.currentTarget; setSelected(selected === tank.id ? null : tank.id); }}><MapPin size={30} fill="currentColor" /><span className={styles.markerDot} /></button>)}
         </div>
       </div>
