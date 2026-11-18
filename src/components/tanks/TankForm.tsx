@@ -13,6 +13,8 @@ type TankUpdate = {
   capacityLiters: number;
   minThresholdPercent: number;
   maxThresholdPercent: number;
+  minDistanceCm: number;
+  maxDistanceCm: number;
 };
 
 export function TankForm({
@@ -76,6 +78,8 @@ export function TankForm({
     const capacityLiters = Number(capacity);
     const minThresholdPercent = Number(data.get("minThresholdPercent"));
     const maxThresholdPercent = Number(data.get("maxThresholdPercent"));
+    const minDistanceCm = Number(data.get("minDistanceCm") || tank.minDistanceCm || 30);
+    const maxDistanceCm = Number(data.get("maxDistanceCm") || tank.maxDistanceCm || 350);
     if (
       !name.trim() ||
       !Number.isFinite(capacityLiters) ||
@@ -84,10 +88,12 @@ export function TankForm({
       !Number.isFinite(maxThresholdPercent) ||
       minThresholdPercent < 0 ||
       maxThresholdPercent > 100 ||
-      minThresholdPercent >= maxThresholdPercent
+      minThresholdPercent >= maxThresholdPercent ||
+      minDistanceCm >= maxDistanceCm ||
+      minDistanceCm < 0
     ) {
       setError(
-        "Periksa nama, kapasitas, dan batas minimum serta maksimum toren.",
+        "Periksa nama, kapasitas, batas level air, dan kalibrasi jarak toren.",
       );
       return;
     }
@@ -98,6 +104,8 @@ export function TankForm({
       capacityLiters,
       minThresholdPercent,
       maxThresholdPercent,
+      minDistanceCm,
+      maxDistanceCm,
     });
   }
 
@@ -135,6 +143,10 @@ export function TankForm({
           "batas minimum",
         pending.maxThresholdPercent !== Number(tank.maxThresholdPercent) &&
           "batas maksimum",
+        pending.minDistanceCm !== Number(tank.minDistanceCm) &&
+          "jarak saat penuh",
+        pending.maxDistanceCm !== Number(tank.maxDistanceCm) &&
+          "jarak saat kosong",
       ].filter(Boolean)
     : [];
 
@@ -317,16 +329,26 @@ export function TankForm({
               />
             </label>
             <label>
-              Tinggi Toren (Cm)
+              Jarak Saat Penuh / Min (cm) <span>*</span>
               <input
+                name="minDistanceCm"
                 type="number"
-                placeholder="Belum tersedia"
-                disabled
-                aria-describedby="edit-height-help"
+                min="0"
+                step="any"
+                defaultValue={tank.minDistanceCm ?? 30}
+                required
               />
-              <small id="edit-height-help">
-                Tinggi toren belum didukung sistem.
-              </small>
+            </label>
+            <label>
+              Jarak Saat Kosong / Max (cm) <span>*</span>
+              <input
+                name="maxDistanceCm"
+                type="number"
+                min="1"
+                step="any"
+                defaultValue={tank.maxDistanceCm ?? 350}
+                required
+              />
             </label>
           </div>
           <details className={editStyles.thresholds}>

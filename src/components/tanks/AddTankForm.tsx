@@ -15,6 +15,7 @@ export function AddTankForm({
   const dialog = useRef<HTMLDialogElement>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
   useEffect(() => {
     dialog.current?.showModal();
   }, []);
@@ -25,6 +26,9 @@ export function AddTankForm({
     const name = String(data.get("name") ?? "").trim();
     const location = String(data.get("location") ?? "").trim();
     const capacityLiters = Number(data.get("capacityLiters"));
+    const minDistanceCm = Number(data.get("minDistanceCm") || 30);
+    const maxDistanceCm = Number(data.get("maxDistanceCm") || 350);
+
     if (
       !name ||
       !location ||
@@ -34,8 +38,15 @@ export function AddTankForm({
       setError("Lengkapi nama, gedung, dan kapasitas toren yang valid.");
       return;
     }
+
+    if (minDistanceCm >= maxDistanceCm || minDistanceCm < 0) {
+      setError("Jarak sensor saat penuh harus lebih kecil dari jarak saat kosong.");
+      return;
+    }
+
     setSaving(true);
     setError("");
+
     try {
       const response = await fetch("/api/tanks", {
         method: "POST",
@@ -46,6 +57,8 @@ export function AddTankForm({
           capacityLiters,
           minThresholdPercent: 30,
           maxThresholdPercent: 90,
+          minDistanceCm,
+          maxDistanceCm,
         }),
       });
       const result: ApiResponse = await response.json();
@@ -108,15 +121,6 @@ export function AddTankForm({
             />
           </label>
           <label>
-            Kode toren
-            <input
-              placeholder="Belum tersedia"
-              disabled
-              aria-describedby="code-help"
-            />
-            <small id="code-help">Kode toren belum didukung sistem.</small>
-          </label>
-          <label>
             Gedung <span>*</span>
             <input
               name="location"
@@ -126,7 +130,7 @@ export function AddTankForm({
             />
           </label>
         </div>
-        <h3 className={styles.capacityTitle}>Kapasitas</h3>
+        <h3 className={styles.capacityTitle}>Kapasitas & Kalibrasi Jarak Sensor</h3>
         <div className={styles.capacity}>
           <label>
             Kapasitas total (L) <span>*</span>
@@ -135,19 +139,33 @@ export function AddTankForm({
               type="number"
               min="0.01"
               step="any"
-              placeholder="Masukkan kapasitas toren"
+              placeholder="Contoh: 10000"
               required
             />
           </label>
           <label>
-            Tinggi Toren (Cm)
+            Jarak Saat Penuh / Min (cm) <span>*</span>
             <input
+              name="minDistanceCm"
               type="number"
-              placeholder="Belum tersedia"
-              disabled
-              aria-describedby="height-help"
+              min="0"
+              step="any"
+              defaultValue="30"
+              placeholder="Default: 30 cm"
+              required
             />
-            <small id="height-help">Tinggi toren belum didukung sistem.</small>
+          </label>
+          <label>
+            Jarak Saat Kosong / Max (cm) <span>*</span>
+            <input
+              name="maxDistanceCm"
+              type="number"
+              min="1"
+              step="any"
+              defaultValue="350"
+              placeholder="Default: 350 cm"
+              required
+            />
           </label>
         </div>
         {error && (
@@ -169,7 +187,7 @@ export function AddTankForm({
               Batal
             </button>
             <button type="submit" className={styles.save} disabled={saving}>
-              {saving ? "Menyimpan…" : "Simpan Toren"}
+              {saving ? "Menyimpan..." : "Simpan Toren"}
             </button>
           </div>
         </footer>

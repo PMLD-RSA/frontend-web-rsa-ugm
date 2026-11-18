@@ -1,0 +1,25 @@
+.page { padding: 16px 0; min-height: calc(100vh - 64px); color: #101010; }
+.heading, .actions, .meta { display: flex; align-items: center; gap: 16px; }
+.heading { justify-content: space-between; border-bottom: 1px solid #bcbcbc; padding-bottom: 14px; }
+.page h1 { border: 0; padding: 0; font-size: 22px; color: #111; font-weight: 700; }
+.meta { justify-content: space-between; margin: 12px 0 24px; color: #929292; font-size: 12px; }
+.meta button { display: inline-flex; gap: 5px; align-items: center; text-decoration: underline; background: none; border: 0; cursor: pointer; color: inherit; }
+.sectionTitle { font-size: 18px; font-weight: 700; margin: 24px 0 16px; color: #0f172a; }
+.gatewayGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.gatewayCard { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05); }
+.gatewayHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.gatewayHeader h3 { font-size: 16px; font-weight: 700; color: #0f172a; }
+.gatewayHeader p { font-size: 12px; color: #64748b; margin-top: 2px; }
+.badgeOnline { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 600; }
+.badgeOffline { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; background: #fee2e2; color: #b91c1c; font-size: 11px; font-weight: 600; }
+.gatewayDetails { display: grid; gap: 8px; font-size: 13px; border-top: 1px solid #f1f5f9; padding-top: 14px; }
+.gatewayDetails div { display: flex; justify-content: space-between; color: #475569; }
+.gatewayDetails strong { color: #0f172a; }
+.tableWrap { border: 1px solid #ddd; overflow-x: auto; background: white; border-radius: 8px; }
+.tableWrap table { width: 100%; border-collapse: collapse; text-align: left; }
+.tableWrap th, .tableWrap td { padding: 12px 18px; font-size: 13px; border-bottom: 1px solid #eee; white-space: nowrap; }
+.tableWrap th { background: #f8fafc; color: #64748b; font-weight: 600; position: sticky; inset-block-start: 0; z-index: 1; }
+.signalBar { display: inline-flex; align-items: center; gap: 8px; }
+.signalStrength { display: flex; gap: 2px; align-items: flex-end; height: 14px; }
+.signalBarItem { width: 3px; border-radius: 1px; }
+.emptyMessage { padding: 48px; text-align: center; color: #64748b; font-size: 14px; }

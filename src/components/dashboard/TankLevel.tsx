@@ -35,7 +35,7 @@ export function TankLevel({ tank, compact = false, flat = false }: { tank: Tank;
         {!flat && level < 100 && <>{[false, true].map(back => <svg key={String(back)} className={`${styles.wave} ${back ? styles.waveBack : ''}`} viewBox="0 0 400 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10 Q25 0 50 10 T100 10 T150 10 T200 10 T250 10 T300 10 T350 10 T400 10 V20 H0Z" /></svg>)}</>}
       </div>}
       <div className={styles.gridLines} aria-hidden="true">{[100, 80, 60, 40, 20, 0].map(value => <span key={value} />)}</div>
-      <strong className={styles.levelLabel} style={flat && level != null ? level >= 15 ? { top: `${100 - level / 2}%` } : { color: '#0a3f5c', textShadow: 'none' } : undefined}>{level == null ? '—' : `${Math.round(level)}%`}</strong>
+      <strong className={styles.levelLabel} style={flat && level != null ? level >= 15 ? { top: `${100 - level / 2}%` } : { color: '#0a3f5c', textShadow: 'none' } : undefined}>{level == null ? '-' : `${Math.round(level)}%`}</strong>
     </div>
   </div>;
 }
@@ -51,6 +51,7 @@ export function TankDetails({ tank }: { tank: Tank }) {
       <div><dt>Water volume</dt><dd>{measurement(tank.latestReading?.volumeLiters, ' L')}</dd></div>
       <div><dt>Capacity</dt><dd>{measurement(tank.capacityLiters, ' L')}</dd></div>
       <div><dt>Sensor</dt><dd>{tank.nodes?.[0]?.deviceCode || 'Unavailable'}</dd></div>
+      <div><dt>Sensor distance</dt><dd>{measurement(tank.latestReading?.rawValue ?? tank.latestReading?.distanceCm, ' cm')}</dd></div>
       <div><dt>Signal</dt><dd>{measurement(tank.latestReading?.rssi, ' dBm')}</dd></div>
       <div><dt>Last updated</dt><dd>{readingTime(tank.latestReading?.recordedAt)}</dd></div>
     </dl>

@@ -19,7 +19,7 @@ export async function forwardToBackend<T>(
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000); // 2 detik timeout
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 detik timeout
 
     const fetchHeaders = new Headers(options.headers);
     if (options.body !== undefined && !fetchHeaders.has("Content-Type")) {

@@ -1,0 +1,47 @@
+.page { padding: 16px 0; min-height: calc(100vh - 64px); color: #101010; }
+.heading, .actions, .meta, .footer { display: flex; align-items: center; gap: 16px; }
+.heading { justify-content: space-between; border-bottom: 1px solid #bcbcbc; padding-bottom: 14px; }
+.page h1 { border: 0; padding: 0; font-size: 22px; color: #111; font-weight: 700; }
+.actions { gap: 12px; flex-wrap: wrap; }
+.download, .filter { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 5px; padding: 8px 14px; font-size: 14px; font-weight: 500; }
+.download { background: #fecb28; min-height: 40px; border: 0; cursor: pointer; color: #111; }
+.filter { border: 1.5px solid #a1a1a1; background: white; cursor: pointer; }
+.meta { justify-content: space-between; margin: 12px 0 24px; color: #929292; font-size: 12px; }
+.meta button { display: inline-flex; gap: 5px; align-items: center; text-decoration: underline; background: none; border: 0; cursor: pointer; color: inherit; }
+.toolbar { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.toolbar h2 { font-size: 18px; font-weight: 700; }
+.search { display: flex; align-items: center; gap: 8px; border: 1.5px solid #a1a1a1; border-radius: 10px; padding: 6px 12px; }
+.search input { border: 0; padding: 0; width: 230px; min-width: 0; outline: none; }
+.filterOptions { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.filterOptions select { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; }
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px; border: 1px solid #ddd; }
+.summary div { padding: 18px 24px; display: grid; gap: 4px; border-right: 1px solid #ddd; }
+.summary div:last-child { border-right: 0; }
+.summary span { font-weight: 600; font-size: 13px; color: #666; }
+.summary strong { font-size: 26px; line-height: 1.1; margin-top: 6px; }
+.summary small { font-size: 11px; color: #999; }
+.tableWrap { border: 1px solid #ddd; overflow-x: auto; background: white; }
+.tableWrap table { width: 100%; border-collapse: collapse; text-align: left; }
+.tableWrap th, .tableWrap td { padding: 12px 18px; font-size: 13px; border-bottom: 1px solid #eee; white-space: nowrap; }
+.tableWrap th { background: #f8fafc; color: #64748b; font-weight: 600; position: sticky; inset-block-start: 0; z-index: 1; }
+.badgeCritical { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: #fee2e2; color: #b91c1c; font-weight: 600; font-size: 11px; }
+.badgeWarning { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: #fef3c7; color: #b45309; font-weight: 600; font-size: 11px; }
+.statusActive { display: inline-flex; align-items: center; gap: 6px; color: #dc2626; font-weight: 600; }
+.statusResolved { display: inline-flex; align-items: center; gap: 6px; color: #16a34a; font-weight: 500; }
+.resolveBtn { padding: 6px 12px; border-radius: 6px; background: #0a354c; color: white; border: 0; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.resolveBtn:hover { background: #072636; }
+.resolveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.footer { padding: 16px; color: #64748b; font-size: 13px; justify-content: space-between; flex-wrap: wrap; }
+.pagination { display: flex; gap: 8px; align-items: center; }
+.pagination button { padding: 6px 12px; border-radius: 5px; background: #f1f5f9; border: 1px solid #e2e8f0; font-size: 12px; cursor: pointer; }
+.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination button[aria-current="page"] { background: #0a354c; color: white; border-color: #0a354c; }
+.emptyMessage { padding: 48px; text-align: center; color: #64748b; font-size: 14px; }
+.dialog { border: 0; border-radius: 12px; padding: 24px; max-width: 440px; width: 90vw; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); overscroll-behavior: contain; }
+.dialog::backdrop { background: rgb(0 0 0 / 0.45); backdrop-filter: blur(2px); overflow: hidden; overscroll-behavior: contain; }
+.dialog h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+.dialog p { font-size: 14px; color: #475569; margin-bottom: 20px; line-height: 1.5; }
+.dialogActions { display: flex; justify-content: flex-end; gap: 12px; }
+.dialogActions button { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.dialogCancel { background: white; border: 1px solid #cbd5e1; color: #475569; }
+.dialogConfirm { background: #0a354c; border: 0; color: white; }
