@@ -63,13 +63,37 @@ export default function ReportsPage() {
   }, [selectedTankId, period]);
 
   const chartData = useMemo(() => {
-    return readings
-      .map((r) => ({
-        time: new Date(r.recordedAt).getTime(),
-        level: Number(r.levelPercent),
-        volume: Number(r.volumeLiters),
+    if (!readings.length) return [];
+
+    // Mengelompokkan pembacaan berdasarkan detik untuk mencegah tick duplikat pada Recharts
+    const timeMap = new Map<number, { sumLevel: number; sumVolume: number; count: number }>();
+    for (const r of readings) {
+      const rawTime = new Date(r.recordedAt).getTime();
+      const level = Number(r.levelPercent);
+      const volume = Number(r.volumeLiters);
+      if (Number.isFinite(rawTime) && Number.isFinite(level)) {
+        const roundedTime = Math.floor(rawTime / 1000) * 1000;
+        const existing = timeMap.get(roundedTime);
+        if (existing) {
+          existing.sumLevel += level;
+          existing.sumVolume += Number.isFinite(volume) ? volume : 0;
+          existing.count += 1;
+        } else {
+          timeMap.set(roundedTime, {
+            sumLevel: level,
+            sumVolume: Number.isFinite(volume) ? volume : 0,
+            count: 1,
+          });
+        }
+      }
+    }
+
+    return Array.from(timeMap.entries())
+      .map(([time, data]) => ({
+        time,
+        level: Number((data.sumLevel / data.count).toFixed(1)),
+        volume: Math.round(data.sumVolume / data.count),
       }))
-      .filter((p) => Number.isFinite(p.time) && Number.isFinite(p.level))
       .sort((a, b) => a.time - b.time);
   }, [readings]);
 
@@ -235,6 +259,8 @@ export default function ReportsPage() {
                   type="number"
                   scale="time"
                   domain={["dataMin", "dataMax"]}
+                  minTickGap={40}
+                  interval="preserveStartEnd"
                   tickFormatter={(t) =>
                     new Date(t).toLocaleTimeString("id-ID", {
                       hour: "2-digit",
