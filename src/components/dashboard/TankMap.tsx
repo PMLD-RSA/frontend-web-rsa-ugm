@@ -6,11 +6,14 @@ import 'leaflet/dist/leaflet.css';
 import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
+import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
 import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
-// Titik tengah atap RSA UGM sesuai permintaan pengguna
-const center: [number, number] = [-7.743049516506874, 110.35034767567262];
+const center: [number, number] = [
+  (VOKASI_LOCATIONS[0].latitude + VOKASI_LOCATIONS[2].latitude) / 2,
+  (VOKASI_LOCATIONS[0].longitude + VOKASI_LOCATIONS[2].longitude) / 2,
+];
 
 const colors: Record<string, string> = {
   NORMAL: '#16a34a',
@@ -20,6 +23,10 @@ const colors: Record<string, string> = {
 };
 
 function coordinates(tank: Tank): [number, number] | null {
+  const labels = `${tank.name} ${tank.location ?? ''}`.toUpperCase().split(/[^A-Z0-9]+/);
+  const site = VOKASI_LOCATIONS.find(({ name }) => labels.includes(name));
+  if (site) return [site.latitude, site.longitude];
+
   if (
     tank.latitude == null ||
     tank.longitude == null ||
@@ -71,7 +78,11 @@ export function TankMap({
     let cancelled = false;
     void import('leaflet').then(L => {
       if (cancelled || !mapElement.current) return;
-      const instance = L.map(mapElement.current, { maxZoom: 20 }).setView(center, 19);
+      const siteBounds = L.latLngBounds(VOKASI_LOCATIONS.map(({ latitude, longitude }) => [latitude, longitude]));
+      const instance = L.map(mapElement.current, { maxZoom: 20 }).fitBounds(siteBounds, {
+        padding: [40, 40],
+        maxZoom: 19,
+      });
       L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {
@@ -181,7 +192,7 @@ export function TankMap({
       </header>
 
       <div className={styles.mapFrame}>
-        <div ref={mapElement} className={styles.satelliteMap} aria-label="Peta satelit RSA UGM" />
+        <div ref={mapElement} className={styles.satelliteMap} aria-label="Peta satelit Sekolah Vokasi UGM" />
 
         {current && (
           <div

@@ -43,7 +43,7 @@ export default function Dashboard() {
       {unavailable && (
         <p role="status" className={styles.notice}>
           <Info size={18} />
-          Pemantauan tidak tersedia: server toren tidak dapat dijangkau. Gunakan Muat Ulang untuk mencoba kembali.
+          Pemantauan tidak tersedia: {error} Gunakan Muat Ulang untuk mencoba kembali.
         </p>
       )}
       <TankDashboard
