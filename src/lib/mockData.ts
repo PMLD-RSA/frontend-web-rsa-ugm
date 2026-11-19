@@ -1,4 +1,5 @@
 import { Tank, Alert, Gateway, SensorNode, User, AuditLog } from "@/types";
+import { VOKASI_LOCATIONS } from "@/lib/vokasiLocations";
 
 export const MOCK_GATEWAY: Gateway = {
   id: "11111111-2222-3333-4444-555555555555",
@@ -45,7 +46,7 @@ export const MOCK_ALERTS: Alert[] = [
   {
     id: 101,
     tankId: "b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    tankName: "Tangki Gedung Rawat Inap",
+    tankName: "Tangki DTK",
     level: "WARNING",
     message: "Level air mendekati ambang batas: 42.0% (Ambang batas minimum 30.0%)",
     status: "active",
@@ -55,7 +56,7 @@ export const MOCK_ALERTS: Alert[] = [
   {
     id: 98,
     tankId: "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-    tankName: "Tangki Atap Gedung Utama",
+    tankName: "Tangki DTEDI",
     level: "CRITICAL",
     message: "Level air kritis: 28.5% (di bawah batas 30.0%)",
     status: "resolved",
@@ -67,13 +68,13 @@ export const MOCK_ALERTS: Alert[] = [
 export const MOCK_TANKS: Tank[] = [
   {
     id: "e0a7e584-6091-4560-b6aa-cf4a852875a1",
-    name: "Tangki Atap Gedung Utama",
-    location: "Atap Gedung A (Utama), Lantai 5",
+    name: "Tangki DTEDI",
+    location: "Gedung DTEDI, Sekolah Vokasi UGM",
     capacityLiters: "10000.00",
     minThresholdPercent: "30.00",
     maxThresholdPercent: "90.00",
-    latitude: "-7.7428450",
-    longitude: "110.3511200",
+    latitude: String(VOKASI_LOCATIONS[0].latitude),
+    longitude: String(VOKASI_LOCATIONS[0].longitude),
     createdAt: "2026-09-14T06:02:15.123Z",
     updatedAt: "2026-09-14T06:02:15.123Z",
     latestReading: {
@@ -90,13 +91,13 @@ export const MOCK_TANKS: Tank[] = [
   },
   {
     id: "b1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
-    name: "Tangki Gedung Rawat Inap",
-    location: "Atap Gedung B (Rawat Inap), Lantai 4",
+    name: "Tangki DTK",
+    location: "Gedung DTK, Sekolah Vokasi UGM",
     capacityLiters: "8000.00",
     minThresholdPercent: "30.00",
     maxThresholdPercent: "90.00",
-    latitude: "-7.7431200",
-    longitude: "110.3515400",
+    latitude: String(VOKASI_LOCATIONS[1].latitude),
+    longitude: String(VOKASI_LOCATIONS[1].longitude),
     createdAt: "2026-09-15T08:14:00.000Z",
     updatedAt: "2026-09-15T08:14:00.000Z",
     latestReading: {
@@ -113,13 +114,13 @@ export const MOCK_TANKS: Tank[] = [
   },
   {
     id: "c2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-    name: "Tangki Instalasi Bedah Sentral",
-    location: "Gedung Bedah Lantai 4",
+    name: "Tangki DLIKES",
+    location: "Gedung DLIKES, Sekolah Vokasi UGM",
     capacityLiters: "5000.00",
     minThresholdPercent: "35.00",
     maxThresholdPercent: "95.00",
-    latitude: "-7.7425100",
-    longitude: "110.3518900",
+    latitude: String(VOKASI_LOCATIONS[2].latitude),
+    longitude: String(VOKASI_LOCATIONS[2].longitude),
     createdAt: "2026-09-16T09:30:00.000Z",
     updatedAt: "2026-09-16T09:30:00.000Z",
     latestReading: {
@@ -179,7 +180,7 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
     action: "RESOLVE_ALERT",
     entity: "alerts",
     entityId: "98",
-    detail: "Operator menyelesaikan peringatan kritis Tangki Atap Gedung Utama",
+    detail: "Operator menyelesaikan peringatan kritis Tangki DTEDI",
     ipAddress: "192.168.1.45",
     createdAt: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
   },
