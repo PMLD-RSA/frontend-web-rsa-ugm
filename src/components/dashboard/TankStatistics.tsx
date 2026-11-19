@@ -5,11 +5,13 @@ import { useState } from 'react';
 import { LuRefreshCw as RefreshCw } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
+import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
 import { numeric, readingTime } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
-export const referenceTanks: Tank[] = ['A', 'B'].map(name => ({
-  id: `reference-${name}`, name: `Tank ${name}`, location: 'Location unconfirmed',
+export const referenceTanks: Tank[] = VOKASI_LOCATIONS.map(({ name, latitude, longitude }) => ({
+  id: `reference-${name}`, name: `Tangki ${name}`, location: `Gedung ${name}, Sekolah Vokasi UGM`,
+  latitude: String(latitude), longitude: String(longitude),
   capacityLiters: '', minThresholdPercent: '', maxThresholdPercent: '',
 }));
 const categories: Record<string, { label: string; color: string; icon: string; range: string }> = {
@@ -52,6 +54,6 @@ export function TankStatistics({ tanks, loading, unavailable, onDetail, onRefres
     {!list.length && <p className={styles.helper}>No tanks match the selected filters.</p>}
     {list.length > 2 && <div className={styles.statPagination}><button disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button><span>{currentPage + 1} / {Math.ceil(list.length / 2)}</span><button disabled={(currentPage + 1) * 2 >= list.length} onClick={() => setPage(currentPage + 1)}>Next</button></div>}
     {explain && <p className={styles.helper}>The arc shows the latest tank fill percentage: Normal &gt;60% (green), Warning 30-60% (yellow), and Critical &lt;30% (red). Gray indicates remaining capacity. Click a tank name for details.</p>}
-    {unavailable && <p className={styles.helper}>Water level data is unavailable. Tanks A/B are temporary placeholders.</p>}
+    {unavailable && <p className={styles.helper}>Water level data is unavailable. DTEDI, DTK, and DLIKES are location placeholders.</p>}
   </section>;
 }

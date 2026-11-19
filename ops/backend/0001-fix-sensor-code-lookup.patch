@@ -1,0 +1,25 @@
+diff --git a/src/services/tank-calculator.ts b/src/services/tank-calculator.ts
+index 82af060..5026c23 100644
+--- a/src/services/tank-calculator.ts
++++ b/src/services/tank-calculator.ts
+@@ -50,6 +50,11 @@ export class TankCalculatorService {
+       return cached.data;
+     }
+ 
++    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(nodeIdentifier);
++    const nodeFilter = isUuid
++      ? or(eq(sensorNodes.id, nodeIdentifier), eq(sensorNodes.deviceCode, nodeIdentifier))
++      : eq(sensorNodes.deviceCode, nodeIdentifier);
++
+     const [record] = await db
+       .select({
+         sensorNodeId: sensorNodes.id,
+@@ -63,7 +68,7 @@ export class TankCalculatorService {
+       })
+       .from(sensorNodes)
+       .innerJoin(tanks, eq(sensorNodes.tankId, tanks.id))
+-      .where(or(eq(sensorNodes.id, nodeIdentifier), eq(sensorNodes.deviceCode, nodeIdentifier)))
++      .where(nodeFilter)
+       .limit(1);
+ 
+     if (!record) {
