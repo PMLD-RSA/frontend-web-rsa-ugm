@@ -88,26 +88,27 @@ src/
 │   ├── api/                          # LAPISAN BACKEND-FOR-FRONTEND (BFF)
 │   │   ├── auth/
 │   │   │   ├── login/route.ts        # POST: Login & Set Cookie HTTP-Only
-│   │   │   ├── me/route.ts           # GET: Profil user dari cookie
+│   │   │   ├── me/route.ts           # GET: Profil user dari cookie/Bearer
+│   │   │   ├── token/route.ts        # GET: Ambil JWT untuk WebSocket browser
 │   │   │   └── logout/route.ts       # POST: Hapus cookie auth
 │   │   ├── tanks/
 │   │   │   ├── route.ts              # GET (list) & POST (tambah tangki)
 │   │   │   └── [id]/
-│   │   │       ├── route.ts          # GET (detail), PUT/PATCH (edit), DELETE
-│   │   │       └── readings/route.ts # GET: Time-series log tangki spesifik
+│   │   │       ├── route.ts          # GET (detail), PATCH/PUT (edit), DELETE
+│   │   │       └── readings/route.ts # GET: Time-series log tangki spesifik (?hours=&limit=)
 │   │   ├── readings/
 │   │   │   ├── latest/route.ts       # GET: Fallback polling level air
-│   │   │   └── history/route.ts      # GET: Agregasi 24 jam multi-tangki
+│   │   │   └── history/route.ts      # GET: Riwayat pembacaan multi-tangki (?hours=)
 │   │   ├── alerts/
-│   │   │   ├── route.ts              # GET: Daftar alert aktif / riwayat
+│   │   │   ├── route.ts              # GET: Daftar alert aktif / riwayat (?status=)
 │   │   │   └── [id]/
 │   │   │       └── resolve/route.ts  # PATCH/PUT: Selesaikan alert manual
 │   │   ├── gateways/route.ts         # GET: Status Raspberry Pi Hub
 │   │   ├── nodes/route.ts            # GET: Status modul sensor STM32
 │   │   ├── users/
 │   │   │   ├── route.ts              # GET & POST (CRUD User Admin)
-│   │   │   └── [id]/route.ts         # PATCH & DELETE User
-│   │   ├── audit-logs/route.ts       # GET: Rekaman audit aktivitas
+│   │   │   └── [id]/route.ts         # PATCH/PUT & DELETE User
+│   │   ├── audit-logs/route.ts       # GET: Rekaman audit aktivitas (?page=&limit=&entity=)
 │   │   ├── reports/
 │   │   │   ├── readings/export/route.ts # GET: Proksi download CSV readings
 │   │   │   └── alerts/export/route.ts   # GET: Proksi download CSV alerts
@@ -126,7 +127,7 @@ src/
 │   │   ├── Badge.tsx                 # Indikator status (Normal, Warning, Critical)
 │   │   └── Table.tsx                 # Tabel data generik dengan pagination & filter
 ├── hooks/
-│   ├── useWebSocket.ts               # Hook koneksi WebSocket ke ws://...:8000/ws
+│   ├── useRealtimeSocket.ts          # Hook koneksi WebSocket ke ws://...:8000/ws?token=
 │   └── useBFF.ts                     # Fetcher wrapper dengan proteksi error handling
 ├── stores/
 │   ├── tankStore.ts                  # Zustand state tangki air
@@ -227,24 +228,24 @@ src/
 ---
 
 ### 4.7 Manajemen Pengguna & Hak Akses (`/users` — Khusus Admin)
-* **Tujuan:** Mengatur akun petugas yang berhak mengakses sistem.
+* **Tujuan:** Mengatur akun petugas yang berhak mengakses sistem (menu dan route hanya untuk role `admin`).
 * **Elemen UI:**
   * Tabel Pengguna: `Username`, `Role` (`admin`, `operator`, `viewer`), `Status Aktif`, `Tanggal Dibuat`.
-  * Tombol *"Tambah Pengguna"*: Input username, password awal, dan pemilihan peran.
-  * Aksi Edit: Ubah peran (misal dari viewer menjadi operator) atau Reset Password.
-  * Aksi Nonaktifkan: Mengubah `isActive` menjadi `false` untuk mencabut akses sementara.
+  * Tombol *"Tambah Pengguna"* (`POST /api/users`): Input username, password awal, dan pemilihan peran.
+  * Aksi Edit (`PATCH /api/users/[id]`): Ubah peran (`role`), status aktif (`isActive`), atau Reset Password.
+  * Aksi Hapus (`DELETE /api/users/[id]`): Menghapus akun pengguna dari sistem.
 
 ---
 
 ### 4.8 Jejak Audit & Ekspor Dokumen (`/logs` & `/reports`)
-* **Halaman Audit Trail (`/logs`):**
-  * Tabel linimasa seluruh aksi penting: Waktu, Pengguna, Jenis Aksi (`LOGIN`, `RESOLVE_ALERT`, `UPDATE_TANK`), Entitas Terkait, Alamat IP Pengakses.
+* **Halaman Audit Trail (`/logs` — Khusus Admin):**
+  * Tabel linimasa seluruh aksi penting (`GET /api/audit-logs?page=1&limit=50&entity=...`): Waktu (`createdAt`), ID Pengguna (`userId`), Jenis Aksi (`LOGIN`, `RESOLVE_ALERT`, `UPDATE_TANK`, dll), Entitas Terkait (`entity`), Rincian (`detail`), Alamat IP (`ipAddress`).
 * **Halaman Ekspor Laporan (`/reports`):**
-  * Filter rentang tanggal: Tanggal Mulai (*From*) s.d. Tanggal Selesai (*To*).
-  * Filter Tangki Tertentu atau Seluruh Tangki.
+  * Filter rentang tanggal: `startDate` s.d. `endDate` (ISO 8601).
+  * Filter Tangki Tertentu (`tankId` wajib diisi untuk ekspor CSV sensor sesuai kontrak Core BE) dan filter tingkat keparahan alert (`level`: `WARNING` | `CRITICAL`).
   * Tombol Unduh:
-    * *"Download CSV Pembacaan Sensor"* (memanggil `GET /api/reports/readings/export`).
-    * *"Download CSV Riwayat Peringatan"* (memanggil `GET /api/reports/alerts/export`).
+    * *"Download CSV Pembacaan Sensor"* (memanggil `GET /api/reports/readings/export?tankId=...&startDate=...&endDate=...`).
+    * *"Download CSV Riwayat Peringatan"* (memanggil `GET /api/reports/alerts/export?level=...&startDate=...&endDate=...`).
 
 ---
 
@@ -290,13 +291,13 @@ export async function POST(request: Request) {
   const token = data.data.token;
   const cookieStore = await cookies();
   
-  // Pasang cookie HTTP-Only untuk browser web
+  // Pasang cookie HTTP-Only untuk browser web (selaras JWT_EXPIRES_IN=1d Core BE)
   cookieStore.set("auth_token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24, // 1 hari
+    maxAge: 60 * 60 * 24, // 1 hari (selaras JWT_EXPIRES_IN=1d)
   });
 
   // Tetap kembalikan data user & token (token untuk kebutuhan mobile Axios)
@@ -356,56 +357,70 @@ export async function GET(request: Request) {
 
 Komponen dashboard web tidak melakukan polling HTTP berulang kali, melainkan mendengarkan event streaming secara langsung dari Core Backend menggunakan custom hook `useWebSocket`:
 
-### Implementasi Hook `src/hooks/useWebSocket.ts`
+### Implementasi Hook `src/hooks/useRealtimeSocket.ts`
 ```typescript
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useTankStore } from "@/stores/tankStore";
 import { useAlertStore } from "@/stores/alertStore";
-import { useDeviceStore } from "@/stores/deviceStore";
+import { useAuthStore } from "@/stores/authStore";
 
-export function useWebSocket() {
+export function useRealtimeSocket() {
   const [isConnected, setIsConnected] = useState(false);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const updateTankLevel = useTankStore((state) => state.updateTankLevel);
-  const addActiveAlert = useAlertStore((state) => state.addActiveAlert);
-  const removeActiveAlert = useAlertStore((state) => state.removeActiveAlert);
-  const updateNodeStatus = useDeviceStore((state) => state.updateNodeStatus);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+    const wsToken = token || (typeof window !== "undefined" ? sessionStorage.getItem("ws_token") : null);
+    if (!wsToken) return;
+
+    const baseUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+    const separator = baseUrl.includes("?") ? "&" : "?";
+    const wsUrl = `${baseUrl}${separator}token=${encodeURIComponent(wsToken)}`;
     let socket: WebSocket | null = null;
+    let isDisposed = false;
 
     function connect() {
       socket = new WebSocket(wsUrl);
 
       socket.onopen = () => {
         setIsConnected(true);
-        console.log("[WebSocket] Terhubung ke Fastify Realtime Core");
       };
 
       socket.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data);
-          switch (payload.event) {
-            case "LEVEL_UPDATE":
-              updateTankLevel(
-                payload.data.tankId,
-                payload.data.levelPercent,
-                payload.data.volumeLiters,
-                payload.data.rssi
-              );
+          const eventType = payload.type || payload.event;
+          const data = payload.data || {};
+
+          switch (eventType) {
+            case "LEVEL_UPDATE": {
+              const tankId = data.tank_id || data.tankId;
+              if (!tankId) break;
+              useTankStore.getState().updateTankFromWs({
+                tankId,
+                sensorNodeId: data.sensor_node_id || data.sensorNodeId,
+                levelPercent: Number(data.level_percent ?? data.levelPercent ?? 0),
+                volumeLiters: Number(data.volume_liters ?? data.volumeLiters ?? 0),
+                rawValue: data.raw_value ?? data.distance_cm,
+                rssi: data.rssi,
+                recordedAt: data.timestamp || data.recordedAt || new Date().toISOString(),
+              });
               break;
+            }
             case "ALERT_TRIGGERED":
-              addActiveAlert(payload.data);
+              if (data.id) {
+                useAlertStore.getState().addAlertFromWs(data);
+              }
               break;
             case "ALERT_RESOLVED":
-              removeActiveAlert(payload.data.id);
+              if (data.id) {
+                useAlertStore.getState().resolveAlertFromWs(data.id, data.resolvedAt || payload.timestamp);
+              }
               break;
             case "NODE_STATUS":
-              updateNodeStatus(payload.data.nodeId, payload.data.status, payload.data.lastRssi);
+              // Pemetaan status node STM32 (data.sensor_node_id, data.status)
               break;
           }
         } catch (err) {
@@ -413,14 +428,15 @@ export function useWebSocket() {
         }
       };
 
-      socket.onclose = () => {
+      socket.onclose = (event) => {
         setIsConnected(false);
-        console.warn("[WebSocket] Terputus. Menjadwalkan reconnect dalam 5 detik...");
-        reconnectTimeoutRef.current = setTimeout(connect, 5000);
+        // Jangan reconnect jika token ditolak / invalid (Close Code 1008)
+        if (!isDisposed && event.code !== 1008) {
+          reconnectTimeoutRef.current = setTimeout(connect, 3000);
+        }
       };
 
-      socket.onerror = (err) => {
-        console.error("[WebSocket] Error:", err);
+      socket.onerror = () => {
         socket?.close();
       };
     }
@@ -428,10 +444,11 @@ export function useWebSocket() {
     connect();
 
     return () => {
+      isDisposed = true;
       if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
       socket?.close();
     };
-  }, [updateTankLevel, addActiveAlert, removeActiveAlert, updateNodeStatus]);
+  }, [token]);
 
   return { isConnected };
 }
@@ -442,24 +459,24 @@ export function useWebSocket() {
 ## 7. Design System & Panduan Visual Ultrawide
 
 ### 7.1 Token Warna Status & CSS Variables
-Sistem menggunakan Tailwind CSS v4 dengan variabel semantik di `globals.css`:
+Sistem menggunakan Tailwind CSS v4 dengan tema **Hospital Clean Light Theme** (selaras dengan `PRD-MFE.md` dan Mobile App) di `globals.css`:
 
 ```css
 :root {
   --color-brand-primary: #0a354c;
   --color-brand-teal: #0f766e;
-  
-  /* Status Level Air */
-  --color-level-normal: #10b981;  /* Hijau: > 60% */
-  --color-level-warning: #f59e0b; /* Kuning: 30% - 60% */
-  --color-level-critical: #ef4444;/* Merah: < 30% */
 
-  /* Surface */
-  --bg-dashboard: #0b132b;
-  --bg-card: #1c2541;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-card: #3a506b;
+  /* Status Level Air */
+  --color-level-normal: #10b981;   /* Hijau: > 60% */
+  --color-level-warning: #f59e0b;  /* Kuning: 30% - 60% */
+  --color-level-critical: #ef4444; /* Merah: < 30% */
+
+  /* Surface (Hospital Clean Light Theme) */
+  --bg-dashboard: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-card: #e2e8f0;
 }
 ```
 

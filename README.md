@@ -21,7 +21,9 @@ Sistem ini memantau ketinggian air pada tangki-tangki penyediaan di RSA UGM seca
 | Dokumen | Keterangan |
 |---|---|
 | [`docs/PRD-Web.md`](docs/PRD-Web.md) | Product Requirements Document — Web Dashboard & BFF |
-| [`docs/PRD-MFE.md`](docs/PRD-MFE.md) | Product Requirements Document — Mobile Frontend (Expo) |
+| [`docs/PRD-MFE.md`](docs/PRD-MFE.md) | Master Frontend PRD — arsitektur BFF, pemetaan fitur F-01–F-08 (Web & Mobile), kontrak rute BFF, WebSocket, dan RBAC |
+
+> Dokumen di atas sudah disinkronkan dengan kontrak **Core Backend** (`backend-rsa-ugm`) dan menjadi acuan target untuk implementasi kode. Sumber utama dokumentasi ada di repo `frontend-documentation-rsa-ugm`.
 
 ---
 
@@ -57,7 +59,7 @@ Login dan pemeriksaan sesi harus terhubung ke Core Backend. Jika backend tidak t
 - Frontend di laptop, backend di VPS melalui jaringan UGM/VPN: `CORE_BACKEND_URL=http://10.33.102.140:8000`.
 - Frontend dan backend berjalan pada VPS yang sama: `CORE_BACKEND_URL=http://127.0.0.1:8000`.
 
-`127.0.0.1` selalu menunjuk ke mesin yang menjalankan proses Next.js. Setelah mengubah `.env.local`, mulai ulang frontend. `NEXT_PUBLIC_WS_URL` ditujukan ke browser dan harus dapat diakses dari perangkat pengguna; integrasi WebSocket pada dashboard masih belum diimplementasikan.
+`127.0.0.1` selalu menunjuk ke mesin yang menjalankan proses Next.js. Setelah mengubah `.env.local`, mulai ulang frontend. `NEXT_PUBLIC_WS_URL` ditujukan ke browser dan harus dapat diakses dari perangkat pengguna. Koneksi WebSocket ke Core Backend **wajib** menyertakan token JWT (`ws://<host>:8000/ws?token=<jwt>`); tanpa token valid server menutup koneksi dengan kode `1008`. Browser mengambil token melalui `GET /api/auth/token` (BFF).
 
 Pada akses HTTP internal saat ini, cookie login dipasang sesuai protokol HTTP. Untuk akses HTTPS, terminasi TLS dan header `X-Forwarded-Proto` perlu dikonfigurasi pada reverse proxy agar cookie diberi atribut `Secure`. `NODE_ENV` mengikuti perintah Next.js dan tidak perlu disetel ke `development` untuk menjalankan aplikasi melalui HTTP.
 
@@ -102,7 +104,7 @@ Pada akses HTTP internal saat ini, cookie login dipasang sesuai protokol HTTP. U
 
 1. Pastikan laptop (menjalankan Web) dan HP (menjalankan Expo) berada di **jaringan Wi-Fi yang sama**.
 2. Cari IP lokal laptop Anda (contoh: `192.168.1.5`).
-3. Di proyek Mobile, atur `BFF_BASE_URL=http://192.168.1.5:3000`.
+3. Di proyek Mobile, atur `EXPO_PUBLIC_BFF_URL=http://192.168.1.5:3000` (dan `EXPO_PUBLIC_WS_URL=ws://<IP_BACKEND>:8000/ws`).
 4. HP kini langsung membaca data sensor dari laptop via BFF.
 
 ---
@@ -122,21 +124,25 @@ Pada akses HTTP internal saat ini, cookie login dipasang sesuai protokol HTTP. U
 |------|-------|--------|
 | **Fase 1** | TypeScript types, BFF proxy, 10 API routes, mock data, Layout (Sidebar + Header) | ✅ Selesai |
 | **Fase 2** | Auth/session (login, me, logout), Zustand store, route protection (`proxy.ts`), Login page | ✅ Selesai |
-| **Fase 3** | WebSocket real-time (LEVEL_UPDATE, ALERT_TRIGGERED, NODE_STATUS) | 🔜 Perlu diimplementasi |
-| **Fase 4** | Halaman lengkap (Tanks detail, Alerts manage, Devices config, Reports, Logs, Users) | 🔜 Perlu diimplementasi |
+| **Fase 3** | WebSocket real-time (`LEVEL_UPDATE`, `ALERT_TRIGGERED`, `ALERT_RESOLVED`; `NODE_STATUS` belum ditangani) | 🟡 Sebagian — lihat target di `docs/PRD-Web.md` |
+| **Fase 4** | Halaman lengkap (Tanks, Alerts, Devices, Reports, Logs, Users) | 🟡 Sebagian — sinkronisasi dengan PRD & Core BE sedang berjalan |
 | **Fase 5** | CI/CD GitHub Actions (`.github/workflows/ci.yml`) | ✅ Selesai |
+
+> **Target sinkronisasi dengan PRD terbaru (belum selesai di kode):** rute BFF `POST /api/users`, `PATCH|PUT|DELETE /api/users/[id]`, dan `PUT /api/tanks/[id]`; CRUD user di halaman `/users`; pembatasan `/users` & `/logs` khusus `admin`; penanganan `NODE_STATUS`; serta penghapusan data/aksi simulasi pada UI (mis. aktivasi pompa). Detail lengkap ada di `docs/PRD-Web.md` dan `docs/PRD-MFE.md`.
 
 ---
 
 ### 🗝️ Kredensial Development
 
+Seed Core Backend (`npm run db:init` di `backend-rsa-ugm`) hanya membuat satu akun bawaan:
+
 | Username | Password | Role |
 |----------|----------|------|
 | `admin` | `admin123` | Admin — akses penuh |
-| `operator` | `op123` | Operator — lihat & resolve alert |
-| `viewer` | `view123` | Viewer — baca saja |
 
-> **Catatan:** Login tanpa Core Backend tetap bisa bekerja. BFF otomatis fallback ke mock data.
+Akun `operator` dan `viewer` dibuat oleh Admin melalui `POST /api/users` (menu Users).
+
+> **Catatan:** Login membutuhkan Core Backend yang aktif. Beberapa endpoint data masih memiliki fallback data contoh (`source: "mock"`), dan dashboard menolak hasil yang ditandai sebagai data contoh.
 
 ---
 
@@ -174,24 +180,36 @@ src/
 
 ### 🔌 BFF API yang Tersedia
 
-Semua response menggunakan envelope: `{ success: boolean, data: T }`.
+Semua response menggunakan envelope: `{ success: boolean, data: T }`. Rute BFF memproksikan endpoint Core Backend; kontrak lengkap (parameter & response) ada di `docs/PRD-MFE.md` §5.1.
 
-| Method | Endpoint | Keterangan |
-|--------|----------|------------|
-| GET | `/api/tanks` | Daftar semua tangki |
-| GET | `/api/tanks/:id` | Detail 1 tangki |
-| GET | `/api/tanks/:id/readings` | Riwayat pembacaan sensor tangki |
-| GET | `/api/alerts` | Daftar alert aktif |
-| POST | `/api/alerts/:id/resolve` | Resolve alert |
-| GET | `/api/gateways` | Daftar gateway IoT |
-| GET | `/api/nodes` | Daftar sensor node STM32 |
-| GET | `/api/readings/latest` | Pembacaan terbaru semua tangki |
-| GET | `/api/readings/history` | Riwayat historis (24 jam) |
-| GET | `/api/audit-logs` | Log aktivitas sistem (`?limit=&page=`) |
-| POST | `/api/auth/login` | Login → set cookie + return JWT |
-| GET | `/api/auth/me` | Info user dari cookie/token |
-| POST | `/api/auth/logout` | Hapus cookie |
-| GET | `/api/health` | Health check BFF |
+| Method | Endpoint BFF | Min. Role | Keterangan |
+|--------|--------------|-----------|------------|
+| GET | `/api/health` | Public | Health check BFF & Core BE |
+| POST | `/api/auth/login` | Public | Login → set cookie `auth_token` + return JWT |
+| GET | `/api/auth/me` | Viewer | Profil user dari cookie/token |
+| GET | `/api/auth/token` | Viewer | Ambil JWT dari cookie untuk koneksi WebSocket browser |
+| POST | `/api/auth/logout` | Viewer | Hapus cookie |
+| GET | `/api/tanks` | Viewer | Daftar tangki (`latestReading`, `activeAlert`, `nodes`) |
+| POST | `/api/tanks` | Admin | Tambah tangki |
+| GET | `/api/tanks/:id` | Viewer | Detail tangki (`recentReadings`, `recentAlerts`) |
+| PATCH / PUT | `/api/tanks/:id` | Admin | Ubah data / kalibrasi / threshold tangki |
+| DELETE | `/api/tanks/:id` | Admin | Hapus tangki |
+| GET | `/api/tanks/:id/readings` | Viewer | Riwayat sensor (`?hours=&limit=`) |
+| GET | `/api/readings/latest` | Viewer | Pembacaan terbaru semua tangki |
+| GET | `/api/readings/history` | Viewer | Riwayat multi-tangki (`?hours=`) |
+| GET | `/api/alerts` | Viewer | Daftar alert (`?status=active\|resolved`) |
+| PATCH / PUT | `/api/alerts/:id/resolve` | Operator | Resolve alert |
+| GET | `/api/gateways` | Viewer | Daftar gateway IoT |
+| GET | `/api/nodes` | Viewer | Daftar sensor node STM32 |
+| GET | `/api/users` | Admin | Daftar pengguna |
+| POST | `/api/users` | Admin | Tambah pengguna |
+| PATCH / PUT | `/api/users/:id` | Admin | Ubah role / status aktif / reset password |
+| DELETE | `/api/users/:id` | Admin | Hapus pengguna |
+| GET | `/api/audit-logs` | Admin | Audit log (`?page=&limit=&entity=`) |
+| GET | `/api/reports/readings/export` | Viewer | CSV pembacaan (`?tankId=&startDate=&endDate=`) |
+| GET | `/api/reports/alerts/export` | Viewer | CSV alert (`?level=&startDate=&endDate=`) |
+
+> **Status implementasi:** rute `POST /api/users`, `PATCH|PUT|DELETE /api/users/:id`, dan `PUT /api/tanks/:id` masih dalam target sinkronisasi (belum ada di kode saat ini).
 
 ---
 
@@ -201,12 +219,12 @@ Semua response menggunakan envelope: `{ success: boolean, data: T }`.
    - [`docs/PRD-Web.md`](docs/PRD-Web.md) — spesifikasi lengkap semua halaman
    - [`docs/PRD-MFE.md`](docs/PRD-MFE.md) — kontrak API yang digunakan Mobile
 
-2. **Implementasi Fase 3 — WebSocket Real-time** (PRD-Web § 3.3):
-   - Buat `src/hooks/useWaterLevelWS.ts` — subscribe ke `ws://localhost:8000/ws/tanks`
-   - Event: `LEVEL_UPDATE`, `ALERT_TRIGGERED`, `ALERT_RESOLVED`, `NODE_STATUS`
+2. **WebSocket Real-time** (PRD-Web § 6):
+   - Hook `src/hooks/useRealtimeSocket.ts` terhubung ke `ws://<host>:8000/ws?token=<jwt>`
+   - Event (discriminator `type`): `CONNECTED`, `LEVEL_UPDATE` (`snake_case`), `ALERT_TRIGGERED`, `ALERT_RESOLVED`, `NODE_STATUS`
 
-3. **Implementasi Fase 4 — Halaman Lengkap** (sesuai stub di `src/app/(dashboard)/*/page.tsx`):
-   - Ganti placeholder dengan implementasi sebenarnya
+3. **Sinkronisasi halaman & BFF dengan PRD**:
+   - Lengkapi rute BFF & UI yang belum ada (lihat catatan "Target sinkronisasi" di atas)
    - Gunakan tipe dari `src/types/index.ts` dan auth dari `src/stores/authStore.ts`
 
 4. **Alur kerja Git:**
@@ -215,7 +233,7 @@ Semua response menggunakan envelope: `{ success: boolean, data: T }`.
    git pull upstream dev
    git checkout -b feat/<nama-fitur>
    # ... kode ...
-   git push origin feat/<nama-fitur>
+   git push upstream feat/<nama-fitur>
    # Buka PR ke dev — CI otomatis jalan
    ```
 
