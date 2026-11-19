@@ -155,24 +155,29 @@ src/
 ---
 
 ### 4.2 Dashboard Overview (`/`) — Layar Utama Ultrawide
-* **Tujuan:** Tampilan monitoring utama yang dipajang di layar besar ruang kontrol.
+* **Tujuan:** Tampilan monitoring utama terpadu yang dipajang di layar besar ruang kontrol maupun perangkat desktop operator.
 * **Komponen & Tata Letak:**
-  * **Header Alert Bar (`AlertBanner.tsx`):**
-    * Jika ada alert berstatus `CRITICAL` ($<30\%$) atau `WARNING` ($30-60\%$), banner merah menyala muncul di posisi teratas dengan suara peringatan/animasi *pulse*.
-    * Menampilkan pesan: *"PERINGATAN: [Nama Tangki] berada pada level [X]% — Segera lakukan inspeksi!"* beserta tombol cepat *"Lihat Detail"*.
-  * **Ringkasan Kartu Metrik Cepat (Quick Stat Cards):**
-    * Total Tangki Dipantau, Total Kapasitas Air (Liter), Tangki Kondisi Aman, Tangki Kondisi Kritis.
-  * **Grid Multi-Tangki (`LiquidLevelGauge.tsx` + `Card.tsx`):**
-    * Grid 3 kolom (standar) atau 4 kolom (ultrawide).
-    * Setiap kartu memuat:
-      * Nama Tangki (contoh: *Tangki Atap Gedung Utama*), Lokasi (*Lantai 5 Gedung A*).
-      * Gauge Silinder Ketinggian Air interaktif dengan animasi pengisian.
-      * Angka Persentase Ketinggian (contoh: `72.4%`) dan Estimasi Volume (contoh: `7.240 / 10.000 Liter`).
-      * Badge Status: **NORMAL** (Hijau), **WARNING** (Kuning), atau **CRITICAL** (Merah).
-      * Status Node LoRa: Indikator dot hijau dan kekuatan sinyal RSSI (`-74 dBm`).
-      * Tombol *"Detail Tangki"* untuk membuka histori analitik.
-  * **Grafik Agregasi Multi-Tangki 24 Jam (`TimeSeriesChart.tsx`):**
-    * Visualisasi perbandingan fluktuasi level air seluruh tangki dalam 24 jam terakhir berbasis data dari `GET /api/readings/history`.
+  * **Header Alert Bar & Notifikasi Popover (`AlertBanner.tsx` / `NotificationPopover.tsx`):**
+    * Peringatan darurat otomatis menyala jika ada alert aktif berstatus `CRITICAL` ($<30\%$) atau `WARNING` ($30-60\%$) dengan animasi badge menyala.
+    * Lonceng notifikasi dengan counter badge dan popover ringkasan insiden aktif secara realtime.
+  * **Ringkasan Kartu Metrik Cepat & Kontrol Filter Tanggal (`DashboardOverview.tsx`):**
+    * Total Tangki Dipantau, Total Kapasitas Air (Liter), Tangki Kondisi Aman, Tangki Peringatan/Kritis.
+    * Pemilih rentang tanggal kalender interaktif (`DashboardDatePicker` popover) dan pencarian filter tangki.
+  * **Peta Satelit Interaktif Leaflet (`TankMap.tsx`):**
+    * Peta satelit berbasis citra ArcGIS World Imagery dengan titik koordinat sensor lokasi pilot nyata di lingkungan **Sekolah Vokasi UGM** (titik gedung **DTEDI**, **DTK**, dan **DLIKES**).
+    * Marker dinamis berwarna sesuai status tangki (Hijau: Normal, Biru: Peringatan, Merah: Kritis) dengan popup detail instan saat diklik.
+    * Fitur kontrol: Zoom in/out/reset, filter status tangki, filter area tangki, dan mode layar penuh (*Maximize / Minimize*).
+  * **Visualisasi Level Air Bejana Dinamis (`TankLevel.tsx`):**
+    * Gauge bejana silinder air dengan skala persentase ($0\%$ s.d. $100\%$) dan animasi gelombang air (*SVG wave animation*).
+    * Informasi metrik terperinci: level air (%), volume liter terkini, kapasitas total, kode perangkat sensor (node), sinyal radio RSSI (dBm), dan timestamp pembaruan.
+  * **Statistik Distribusi Persentase Tangki (`TankStatistics.tsx`):**
+    * Visualisasi donat chart persentase sampel waktu (Normal, Warning, Critical) per tangki.
+    * Pilihan rentang periode: **Day (24 Jam)**, **Week (7 Hari)**, **Month (30 Hari)**, dan **Custom (Rentang Kalender)**.
+    * Navigasi pagination jika terdapat lebih dari 2 tangki terdaftar.
+  * **Grafik Agregasi Multi-Tangki 24 Jam (`VolumeHistory` / `TankDashboard.tsx`):**
+    * Visualisasi Recharts bar chart yang menampilkan fluktuasi rata-rata volume air per jam (Liter) untuk masing-masing tangki selama 24 jam terakhir berbasis data dari `GET /api/readings/history`.
+  * **Ringkasan Riwayat Login Terkini (`RecentLogins`):**
+    * Tabel audit singkat menampilkan 6 aktivitas login terakhir pengguna dari `/api/audit-logs` lengkap dengan avatar, username, dan waktu login.
 
 ---
 
@@ -188,19 +193,28 @@ src/
 ---
 
 ### 4.4 Panel Peringatan & Penyelesaian Alert (`/alerts`)
-* **Tujuan:** Pusat komando penanganan kondisi darurat level air.
-* **Elemen UI:**
-  * Tab Filter: **Alert Aktif** vs **Semua Riwayat Alert**.
-  * Tabel Data Alert:
-    * Tingkat Bahaya (`CRITICAL` dengan badge merah, `WARNING` dengan badge kuning).
-    * Nama Tangki Terkena Dampak & Waktu Kejadian.
-    * Pesan Deteksi Otomatis dari Warning Engine.
-    * Status: `active` atau `resolved`.
-    * **Aksi "Resolve Alert" (Khusus Role `admin` & `operator`):**
-      * Menampilkan tombol *"Selesaikan"* pada alert yang berstatus `active`.
-      * Membuka modal konfirmasi penyelesaian.
-      * Mengirim request ke `PATCH /api/alerts/[id]/resolve`.
-      * Seketika status berubah menjadi `resolved`, banner darurat tertutup, dan tercatat di audit log.
+* **Tujuan:** Pusat komando penanganan kondisi darurat level air dan insiden sensor lapangan.
+* **Elemen UI & Fitur:**
+  * **Kartu Ringkasan Metrik Alert:** Tiga kartu statistik teratas: **Critical** (Merah), **Warning** (Kuning), dan **Pending** (Biru/Abu).
+  * **Bilah Pencarian & Filter:**
+    * Input pencarian cepat berdasarkan nama tangki, unit/device code, ID insiden, atau isi pesan alert.
+    * Tab filter status: **Active** (khusus alert aktif), **All** (seluruh riwayat), dan **History** (khusus alert yang sudah diselesaikan).
+    * Dropdown pemilihan tangki spesifik.
+  * **Daftar Kartu Alert Interaktif:**
+    * Badge tingkat keparahan (`CRITICAL` / `WARNING`), status badge (`Resolved`), dan nama tangki terdampak.
+    * Waktu kejadian, ID insiden (`ALM-xxx`), dan kode unit sensor (`deviceCode`).
+    * Kotak pesan peringatan otomatis beserta badge persentase level air pemicu insiden.
+    * **Aksi Penanganan Terpadu:**
+      * Tombol *"View Sensor"*: Membuka modal ringkasan pembacaan sensor (water level %, volume L, status, last update).
+      * Tombol *"Activate Backup Pump"*: Menampilkan dialog informatif bahwa kontrol pompa belum didukung oleh backend (one-way monitoring).
+      * Tombol *"Resolve Alert"* / *"Mark as Resolved"* (Khusus Role `admin` & `operator`):
+        * Role `viewer` tidak dapat menyelesaikan alert (tombol dinonaktifkan).
+        * Pada alert `CRITICAL`, operator wajib mengisi formulir catatan tindakan (*Action Notes*) sebelum konfirmasi penyelesaian.
+        * Mengirim request ke `PATCH /api/alerts/[id]/resolve`, mencatat ke audit log, dan menghentikan status aktif alert.
+  * **Panel Panduan SOP (`Panduan Penanganan Alert`):**
+    * Kartu panduan standar operasional dinamis yang menyarankan langkah mitigasi langsung sesuai alert berprioritas tertinggi yang sedang aktif.
+  * **Sidebar Linimasa Riwayat Insiden (`Latest Event History`):**
+    * Menampilkan riwayat aksi penyelesaian alert dan pembaruan tangki terakhir dari database audit log.
 
 ---
 
@@ -219,11 +233,17 @@ src/
 ---
 
 ### 4.6 Pengaturan Master Tangki (`/tanks` — Khusus Admin)
-* **Tujuan:** Pengelolaan data fisik tangki air di lingkungan rumah sakit.
+* **Tujuan:** Pengelolaan data fisik tangki air dan kalibrasi sensor ultrasonik di lingkungan fasilitas.
 * **Elemen UI:**
-  * Tombol *"Tambah Tangki Baru"*: Membuka modal formulir (Nama Tangki, Lokasi Gedung, Kapasitas Liter, Batas Ambang Bawah/Min %, Batas Ambang Atas/Max %).
-  * Aksi Edit pada Baris Tangki: Memperbarui kapasitas atau batas peringatan jika ada penggantian pelampung/sensor.
-  * Aksi Hapus Tangki: Dengan modal konfirmasi peringatan keamanan.
+  * **Tabel Master Tangki:** Menampilkan daftar seluruh tangki terdaftar beserta kapasitas, lokasi, batas threshold, dan status sensor terkait.
+  * **Formulir Tambah / Edit Tangki (`TankForm.tsx`):**
+    * Parameter Fisik Tangki: Nama Tangki, Lokasi Gedung/Area, Kapasitas Total (Liter).
+    * Batas Ambang Peringatan: Batas Minimum / Ambang Bawah (`minThresholdPercent`, default 30%) dan Batas Maksimum / Ambang Atas (`maxThresholdPercent`, default 90%).
+    * Parameter Kalibrasi Sensor Ultrasonik (Core BE):
+      * `min_distance_cm` (Jarak pantul saat tangki penuh / level 100%, default 30.00 cm).
+      * `max_distance_cm` (Jarak pantul saat tangki kosong / level 0%, default 350.00 cm).
+    * Koordinat Geografis: `latitude` dan `longitude` untuk penempatan titik tangki pada peta satelit.
+  * **Aksi Hapus Tangki (`DeleteTankDialog.tsx`):** Dialog konfirmasi proteksi sebelum menghapus rekaman tangki dari database.
 
 ---
 
@@ -350,6 +370,13 @@ export async function GET(request: Request) {
   return NextResponse.json(data, { status: beRes.status });
 }
 ```
+
+#### 5.4 Penyelarasan Skema Database Core Backend (`ops/backend/`)
+Untuk memastikan server backend (`backend-rsa-ugm`) di VPS kompatibel dengan antarmuka frontend web:
+1. **Migrasi Kolom Tangki (`ops/backend/20261119_add_tank_columns.sql`):**
+   Jika endpoint `GET /api/tanks` di backend gagal dengan error PostgreSQL `column "min_distance_cm" does not exist`, jalankan file SQL ini pada database backend untuk menambahkan kolom `min_distance_cm`, `max_distance_cm`, `latitude`, dan `longitude`.
+2. **Patch Lookup Sensor Code (`ops/backend/0001-fix-sensor-code-lookup.patch`):**
+   Patch pada `TankCalculatorService` backend untuk memperbaiki bug pencarian `device_code` non-UUID agar tidak crash saat dibandingkan dengan kolom UUID `sensor_nodes.id`.
 
 ---
 

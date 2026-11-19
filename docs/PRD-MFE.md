@@ -128,14 +128,14 @@ Berdasarkan 8 fitur inti yang disediakan Backend (`F-01` s.d. `F-08`), berikut p
 
 | Kode Fitur | Nama Fitur | Dukungan Web | Dukungan Mobile | Role Akses Minimum | Keterangan Tampilan UI |
 | :--- | :--- | :---: | :---: | :---: | :--- |
-| **F-01** | **Live Monitoring Level Air** | ✅ | ✅ | `viewer` | **Web:** Grid kartu ultrawide & gauge silinder interaktif.<br>**Mobile:** Vertical scroll glance cards dengan auto-severity sort & badge status. |
-| **F-02** | **Histori & Grafik 24 Jam** | ✅ | ✅ *(Sederhana)* | `viewer` | **Web:** Grafik Recharts time-series interaktif multi-tangki.<br>**Mobile:** Grafik tren garis tunggal / sparkline ringkas per tangki. |
-| **F-03** | **Sistem Deteksi Peringatan** | ✅ | ✅ | `viewer` | **Web:** Floating emergency banner di header & halaman alert.<br>**Mobile:** Banner darurat merah & modal alert popup responsif. |
-| **F-04** | **Penyelesaian Alert (Resolve)** | ✅ | ✅ | `operator` | **Web:** Tombol "Resolve" pada tabel & panel alert.<br>**Mobile:** Tombol "Selesaikan" di kartu alert / modal saat inspeksi. |
+| **F-01** | **Live Monitoring Level Air** | ✅ | ✅ | `viewer` | **Web:** Peta satelit Leaflet (lokasi pilot Vokasi UGM: DTEDI, DTK, DLIKES), bejana animasi gelombang air, kartu metrik, & donat statistik persentase.<br>**Mobile:** Vertical scroll glance cards dengan auto-severity sort & badge status. |
+| **F-02** | **Histori & Grafik 24 Jam** | ✅ | ✅ *(Sederhana)* | `viewer` | **Web:** Grafik Recharts bar chart rata-rata volume air 24 jam & fluktuasi multi-tangki.<br>**Mobile:** Grafik tren garis tunggal / sparkline ringkas per tangki. |
+| **F-03** | **Sistem Deteksi Peringatan** | ✅ | ✅ | `viewer` | **Web:** Lonceng notifikasi popover, kartu ringkasan (Critical, Warning, Pending), & panduan SOP mitigasi.<br>**Mobile:** Banner darurat merah & modal alert popup responsif. |
+| **F-04** | **Penyelesaian Alert (Resolve)** | ✅ | ✅ | `operator` | **Web:** Modal View Sensor, modal konfirmasi dengan Action Notes (wajib untuk Critical), tombol diblokir untuk role `viewer`.<br>**Mobile:** Tombol "Selesaikan" di kartu alert / modal saat inspeksi. |
 | **F-05** | **Status Konektivitas Perangkat**| ✅ | ✅ *(Ringkas)* | `viewer` | **Web:** Halaman tabel status RPi & STM32 (RSSI & Heartbeat).<br>**Mobile:** Indikator dot status online/offline di header kartu tangki. |
-| **F-06** | **Manajemen Master Tangki** | ✅ | ✅ *(Ringkas - Admin)* | `admin` | **Web:** Tabel master data CRUD lengkap dengan form modal.<br>**Mobile:** Bottom sheet edit threshold (min/max %) cepat saat inspeksi lapangan. |
+| **F-06** | **Manajemen Master Tangki** | ✅ | ✅ *(Ringkas - Admin)* | `admin` | **Web:** Tabel master data CRUD lengkap, form modal kalibrasi ultrasonik (`min_distance_cm`, `max_distance_cm`), threshold, & koordinat GPS.<br>**Mobile:** Bottom sheet edit threshold (min/max %) cepat saat inspeksi lapangan. |
 | **F-07** | **Manajemen Pengguna (User)** | ✅ | ✅ *(Ringkas - Admin)* | `admin` | **Web:** Tabel user lengkap, form tambah, ubah role & reset password.<br>**Mobile:** List kartu operator ringkas dengan toggle aktif/nonaktif & reset cepat. |
-| **F-08** | **Audit Trail & Ekspor Laporan** | ✅ | ✅ *(Ringkas - Admin)* | `admin` (Audit) / `viewer` (Export) | **Web:** Data table log aktivitas sistem (`admin`) & unduh berkas CSV.<br>**Mobile:** Timeline feed aktivitas terbaru (10-20 aksi, `admin`). |
+| **F-08** | **Audit Trail & Ekspor Laporan** | ✅ | ✅ *(Ringkas - Admin)* | `admin` (Audit) / `viewer` (Export) | **Web:** Data table log aktivitas sistem (`admin`), linimasa insiden di alerts, & unduh berkas CSV/PDF/Excel.<br>**Mobile:** Timeline feed aktivitas terbaru (10-20 aksi, `admin`). |
 
 ---
 
