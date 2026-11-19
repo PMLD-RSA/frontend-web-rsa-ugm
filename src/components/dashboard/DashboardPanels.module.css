@@ -11,7 +11,7 @@
 
 .anchored { position: fixed; inset: auto; margin: 0; padding: 0; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); overflow: auto; border: 0; border-radius: 8px; box-shadow: 0 10px 30px rgb(0 0 0 / 16%); }
 .anchored::backdrop { background: transparent; }
-.anchored img, .downloadDialog img { flex-shrink: 0; max-width: none; }
+.anchored :is(img, svg), .downloadDialog :is(img, svg) { flex-shrink: 0; max-width: none; }
 .anchored button, .downloadDialog button, .anchored select, .downloadDialog select { cursor: pointer; }
 .anchored button:disabled, .downloadDialog button:disabled { cursor: not-allowed; }
 .anchored :is(button, input, select):focus-visible, .downloadDialog :is(button, input, select):focus-visible { outline: 2px solid #016da6; outline-offset: 3px; }
@@ -27,8 +27,8 @@
 .cancelButton:hover { background: #f8f8f8; }
 .selectField { display: flex; align-items: center; position: relative; width: 100%; min-width: 0; height: 45px; border: 2px solid var(--panel-border); border-radius: 8px; color: #484f58; background: white; }
 .selectField select { appearance: none; width: 100%; height: 100%; min-width: 0; padding: 0 44px 0 20px; background: transparent; font-size: 14px; font-weight: 500; line-height: 30px; letter-spacing: -0.42px; text-overflow: ellipsis; }
-.selectField > img:last-child { position: absolute; right: 12px; pointer-events: none; }
-.selectWithIcon > img:first-child { position: absolute; left: 12px; pointer-events: none; }
+.selectField > :is(img, svg):last-child { position: absolute; right: 12px; pointer-events: none; }
+.selectWithIcon > :is(img, svg):first-child { position: absolute; left: 12px; pointer-events: none; }
 .selectWithIcon select { padding-left: 48px; }
 
 /* Filter: Figma frame 1014:18048, 414 × 529. */
@@ -61,7 +61,7 @@
 .calendarSelect { display: flex; align-items: center; position: relative; height: 32px; border: 1px solid #e2e8f0; border-radius: 8px; }
 .calendarSelect select { appearance: none; width: 55px; height: 100%; padding: 0 16px 0 7px; background: transparent; font-size: 13px; font-weight: 500; }
 .calendarSelect:last-child select { width: 64px; }
-.calendarSelect img { position: absolute; right: 4px; pointer-events: none; }
+.calendarSelect :is(img, svg) { position: absolute; right: 4px; pointer-events: none; }
 .weekdays { display: grid; grid-template-columns: repeat(7, 32px); margin-top: 16px; height: 21px; color: #64748b; font-size: 11px; line-height: 21px; text-align: center; }
 .calendarGrid { display: grid; grid-template-columns: repeat(7, 32px); grid-auto-rows: 40px; }
 .calendarGrid button { display: grid; place-items: center; width: 32px; height: 32px; margin-top: 8px; border-radius: 8px; font-size: 13px; line-height: 20px; }
@@ -103,7 +103,7 @@
 .reportContents h3 { font-size: 15px; font-weight: 600; line-height: 28px; letter-spacing: -0.6px; }
 .reportContents ul { list-style: none; padding: 0; margin: 0; }
 .reportContents li { display: flex; align-items: center; gap: 12px; min-height: 28px; color: var(--panel-muted); font-size: 14px; font-weight: 500; line-height: 20px; letter-spacing: -0.42px; }
-.reportContents li[data-unavailable='true'] img { opacity: 0.35; }
+.reportContents li[data-unavailable='true'] :is(img, svg) { opacity: 0.35; }
 .reportContents small { margin-left: auto; font-size: 10px; white-space: nowrap; }
 .downloadFooter { margin-top: 24px; }
 .downloadFooter > .divider { height: 1px; }

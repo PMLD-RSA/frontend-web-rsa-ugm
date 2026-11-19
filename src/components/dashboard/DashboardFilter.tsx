@@ -9,8 +9,8 @@ import styles from './DashboardPanels.module.css';
 
 const statuses = [
   { value: 'NORMAL', label: 'Normal', image: 'filter-normal' },
-  { value: 'WARNING', label: 'Peringatan', image: 'filter-warning' },
-  { value: 'CRITICAL', label: 'Kritis', image: 'filter-critical' },
+  { value: 'WARNING', label: 'Warning', image: 'filter-warning' },
+  { value: 'CRITICAL', label: 'Critical', image: 'filter-critical' },
 ] as const;
 
 export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: { tanks: Tank[]; filters: DashboardFilters; onChange: (filters: DashboardFilters) => void; triggerClassName: string }) {
@@ -21,21 +21,21 @@ export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: 
     {(close) => <form onSubmit={(event) => { event.preventDefault(); onChange({ ...filters, tankId, statuses: selected }); close(); }}>
       <div className={styles.filterHeader}>
         <h2>Filter Dashboard</h2>
-        <button type="button" className={styles.closeButton} onClick={close} aria-label="Tutup filter"><Icon name="close-filter" width={19} /></button>
-        <p>Tampilkan tangki sesuai kondisi yang dipilih</p>
+        <button type="button" className={styles.closeButton} onClick={close} aria-label="Close filter"><Icon name="close-filter" width={19} /></button>
+        <p>Show tanks matching the selected conditions</p>
       </div>
       <div className={styles.divider}><Icon name="filter-divider" width={361} height={1} /></div>
-      <label className={styles.filterTank}>Tangki
+      <label className={styles.filterTank}>Tank 
         <span className={styles.selectField}>
-          <select data-popup-focus aria-label="Pilih tangki untuk filter" name="tankId" value={tankId} onChange={(event) => setTankId(event.target.value)}>
-            <option value="">Pilih Tangki</option>
+          <select data-popup-focus aria-label="Select filter tank" name="tankId" value={tankId} onChange={(event) => setTankId(event.target.value)}>
+            <option value="">Select Tank</option>
             {tanks.map(tank => <option key={tank.id} value={tank.id}>{tank.name}</option>)}
           </select>
           <Icon name="select-chevron" width={20} />
         </span>
       </label>
       <fieldset className={styles.statusField}>
-        <legend>Status tangki</legend>
+        <legend>Tank status</legend>
         <p>Bisa pilih lebih dari satu</p>
         <div className={styles.checkboxes}>
           {statuses.map(status => <label key={status.value}>
@@ -45,11 +45,11 @@ export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: 
           </label>)}
         </div>
       </fieldset>
-      <p className={styles.filterNotice}>Filter diterapkan pada denah dan data tangki.</p>
+      <p className={styles.filterNotice}>Filters apply to the map and tank data.</p>
       <div className={styles.divider}><Icon name="filter-divider" width={361} height={1} /></div>
       <div className={styles.filterFooter}>
         <button type="button" className={styles.resetButton} onClick={() => { setTankId(''); setSelected([]); }}>Reset</button>
-        <button type="submit" className={styles.primaryButton}>Terapkan Filter</button>
+        <button type="submit" className={styles.primaryButton}>Apply Filter</button>
       </div>
     </form>}
   </AnchoredPopover>;

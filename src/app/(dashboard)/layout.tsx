@@ -4,28 +4,32 @@ import { useEffect } from 'react';
 import { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/ui/Sidebar';
-import { Header } from '@/components/ui/Header';
 import { useAuthStore } from '@/stores/authStore';
+import { useAlertStore } from '@/stores/alertStore';
+import { useRealtimeSocket } from '@/hooks/useRealtimeSocket';
 
 /**
  * Dashboard Route Group Layout
  *
  * Membungkus seluruh halaman dalam grup (dashboard) secara otomatis.
- * Memanggil fetchMe() saat mount untuk restore sesi dari cookie.
- *
- * Halaman yang tercakup:
- *  - / (Dashboard Overview)
- *  - /tanks, /tanks/[id]
- *  - /alerts, /devices, /users, /logs, /reports
+ * Memanggil fetchMe() dan fetchAlerts() saat mount.
+ * Mengaktifkan useRealtimeSocket secara global untuk pembaruan realtime toren & alert.
+ * Sesuai desain Figma, navbar topbar tidak digunakan pada halaman dashboard.
  */
 export default function DashboardRouteLayout({ children }: { children: ReactNode }) {
   const { fetchMe, isLoading } = useAuthStore();
-  const isOverview = usePathname() === '/';
+  const fetchAlerts = useAlertStore((state) => state.fetchAlerts);
+  const pathname = usePathname();
+  const isOverview = pathname === '/';
 
-  // Restore sesi user dari cookie saat pertama kali layout dimuat
+  // Restore sesi user dan muat data alert awal
   useEffect(() => {
     fetchMe();
-  }, [fetchMe]);
+    fetchAlerts();
+  }, [fetchMe, fetchAlerts]);
+
+  // WebSocket realtime aktif global
+  useRealtimeSocket();
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -34,11 +38,14 @@ export default function DashboardRouteLayout({ children }: { children: ReactNode
 
       {/* Konten Utama */}
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
-        {/* Header Topbar */}
-        {!isOverview && <Header />}
-
         {/* Dynamic Content Viewport */}
-        <main className={isOverview ? 'flex-1 overflow-auto bg-white px-4 pb-8 md:pl-[15px] md:pr-[34px]' : 'flex-1 overflow-auto p-6 md:p-8'}>
+        <main
+          className={
+            isOverview
+              ? 'flex-1 overflow-auto bg-white px-4 pb-8 md:pl-[15px] md:pr-[34px]'
+              : 'flex-1 overflow-auto bg-[#ecf4f9] px-4 pb-8 md:pl-[15px] md:pr-[34px] pt-4'
+          }
+        >
           {isLoading ? (
             /* Skeleton saat sesi sedang di-restore dari cookie */
             <div className="animate-pulse space-y-6">

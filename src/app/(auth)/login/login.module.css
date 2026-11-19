@@ -72,7 +72,7 @@
 .passwordField { width: 401px; gap: clamp(6px, .87890625dvh, 9px); }
 .field label { font-size: var(--body-size); line-height: clamp(18px, 2.1484375dvh, 22px); font-weight: 700; }
 .inputWrap { display: flex; align-items: center; gap: 12px; box-sizing: border-box; height: var(--field-height); padding: 0 9.5px; border: 1.5px solid transparent; border-radius: 8px; background: #d9e0e4; }
-.inputWrap > img { flex-shrink: 0; object-fit: contain; }
+.inputWrap > :is(img, svg) { flex-shrink: 0; object-fit: contain; }
 .inputWrap input { width: 100%; min-width: 0; height: 100%; padding: 0; border: 0; outline: 0; color: #1b1919; background: transparent; font: inherit; font-size: var(--body-size); }
 .inputWrap:focus-within { outline: 2px solid #0077b6; outline-offset: 2px; }
 .inputWrap input::placeholder { color: #827c7c; opacity: 1; }
@@ -94,7 +94,7 @@
 .separator { display: flex; align-items: center; gap: 10px; width: calc(100% - 41px); min-height: clamp(30px, 4.296875dvh, 44px); color: #ccc6c6; font-size: var(--body-size); font-weight: 700; white-space: nowrap; }
 .separator span { flex: 1; border-top: 1px dashed #ccc6c6; }
 .googleButton { display: grid; place-items: center; width: 400px; max-width: calc(100% - 26px); height: var(--field-height); margin-top: clamp(4px, .5859375dvh, 6px); padding: 0; border: 0; border-radius: 8px; background: #d9d9d9; cursor: pointer; }
-.googleButton img { width: 76px; height: 76px; margin-top: calc((var(--field-height) - 76px) / 2); }
+.googleButton svg { display: block; margin: 0; }
 .googleButton:hover { background: #cecece; }
 .signup { margin: clamp(14px, 1.5625dvh, 16px) 0 0; color: #827c7c; font-size: var(--body-size); font-weight: 700; line-height: 18px; text-align: center; }
 .signup button { padding: 0; border: 0; color: inherit; background: transparent; font: inherit; text-decoration: none; cursor: pointer; }

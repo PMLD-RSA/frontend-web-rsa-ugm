@@ -1,88 +1,235 @@
 'use client';
 
-import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import { MapPin, Maximize, Minimize, Minus, Plus, RotateCcw, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Map as LeafletMap, LayerGroup } from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
 import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
-type Position = { x: number; y: number };
-type Positions = Record<string, Position>;
-const storageKey = 'rsa-site-plan-positions-v1';
+// Titik tengah atap RSA UGM sesuai permintaan pengguna
+const center: [number, number] = [-7.743049516506874, 110.35034767567262];
 
-// Unconfirmed markers are explicitly labelled; geographic coordinates cannot be
-// projected onto this uncalibrated floor plan.
-function initialPosition(id: string): Position {
-  let hash = 0;
-  for (const character of id) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  return { x: 42 + (hash % 4) * 10, y: 33 + (Math.floor(hash / 4) % 4) * 8 };
+const colors: Record<string, string> = {
+  NORMAL: '#16a34a',
+  WARNING: '#f59e0b',
+  CRITICAL: '#e4002b',
+  UNKNOWN: '#64748b',
+};
+
+function coordinates(tank: Tank): [number, number] | null {
+  if (
+    tank.latitude == null ||
+    tank.longitude == null ||
+    String(tank.latitude).trim() === '' ||
+    String(tank.longitude).trim() === ''
+  ) {
+    return null;
+  }
+  const lat = Number(tank.latitude);
+  const lng = Number(tank.longitude);
+  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+    ? [lat, lng]
+    : null;
 }
 
-export function TankMap({ tanks, loading, unavailable, onDetail }: { tanks: Tank[]; loading: boolean; unavailable: boolean; onDetail: (tank: Tank) => void }) {
-  const [positions, setPositions] = useState<Positions>({});
+export function TankMap({
+  tanks,
+  loading,
+  unavailable,
+  onDetail,
+}: {
+  tanks: Tank[];
+  loading: boolean;
+  unavailable: boolean;
+  onDetail: (tank: Tank) => void;
+}) {
+  const mapElement = useRef<HTMLDivElement>(null);
+  const map = useRef<LeafletMap | null>(null);
+  const markers = useRef<LayerGroup | null>(null);
+  const [ready, setReady] = useState(false);
   const [status, setStatus] = useState('ALL');
   const [area, setArea] = useState('ALL');
   const [selected, setSelected] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
   const [expanded, setExpanded] = useState(false);
-  const [notice, setNotice] = useState('');
-  const section = useRef<HTMLElement>(null);
-  const lastTrigger = useRef<HTMLButtonElement | null>(null);
+
+  const visible = useMemo(
+    () =>
+      tanks.filter(
+        tank =>
+          (status === 'ALL' || (getTankStatus(tank) ?? 'UNKNOWN') === status) &&
+          (area === 'ALL' || tank.id === area)
+      ),
+    [tanks, status, area]
+  );
+
+  const current = visible.find(tank => tank.id === selected);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        const stored: unknown = JSON.parse(localStorage.getItem(storageKey) || '{}');
-        const valid: Positions = {};
-        if (stored && typeof stored === 'object') for (const [id, point] of Object.entries(stored)) {
-          if (point && typeof point === 'object' && typeof point.x === 'number' && typeof point.y === 'number' && point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100) valid[id] = point;
+    let cancelled = false;
+    void import('leaflet').then(L => {
+      if (cancelled || !mapElement.current) return;
+      const instance = L.map(mapElement.current, { maxZoom: 20 }).setView(center, 19);
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 20,
+          maxNativeZoom: 19,
+          attribution: 'Tiles &copy; Esri - Esri, Maxar, Earthstar Geographics, and GIS User Community',
         }
-        setPositions(valid);
-      } catch { setNotice('Posisi tersimpan tidak dapat dibaca. Titik sementara ditampilkan.'); }
-    }, 0);
-    return () => clearTimeout(timer);
+      ).addTo(instance);
+      map.current = instance;
+      markers.current = L.layerGroup().addTo(instance);
+      setReady(true);
+    });
+    return () => {
+      cancelled = true;
+      map.current?.remove();
+      map.current = null;
+      markers.current = null;
+    };
   }, []);
 
-  const visible = tanks.filter(tank => (status === 'ALL' || (getTankStatus(tank) ?? 'UNKNOWN') === status) && (area === 'ALL' || tank.id === area));
-  const current = visible.find(tank => tank.id === selected);
-  function dismiss() { setSelected(null); }
-  function closeAndFocus() {
-    dismiss();
-    lastTrigger.current?.focus({ preventScroll: true });
-  }
+  useEffect(() => {
+    if (!ready || !markers.current) return;
+    let cancelled = false;
+    void import('leaflet').then(L => {
+      if (cancelled || !markers.current) return;
+      markers.current.clearLayers();
+      for (const tank of visible) {
+        const actual = coordinates(tank);
+        const position = actual ?? center;
+        const color = colors[getTankStatus(tank) ?? 'UNKNOWN'];
+        const icon = L.divIcon({
+          className: '',
+          iconSize: [32, 40],
+          iconAnchor: [16, 39],
+          html: `<svg width="32" height="40" viewBox="0 0 32 40" aria-hidden="true"><path d="M16 39C12 33 2 24 2 16a14 14 0 0 1 28 0c0 8-10 17-14 23Z" fill="${color}" stroke="white" stroke-width="2" ${actual ? '' : 'stroke-dasharray="3 2"'}/><circle cx="16" cy="16" r="5" fill="white"/></svg>`,
+        });
+        L.marker(position, {
+          icon,
+          title: tank.name,
+          keyboard: true,
+        })
+          .on('click', () => setSelected(tank.id))
+          .addTo(markers.current);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, visible]);
 
-  return <section ref={section} className={`${styles.panel} ${styles.mapPanel} ${expanded ? styles.expandedMap : ''}`} aria-label="Peta lokasi tangki" onKeyDown={event => {
-    if (event.key === 'Escape') { closeAndFocus(); setExpanded(false); }
-  }}>
-    <header className={styles.panelHeader}><h2>Peta Lokasi Tangki</h2><div className={styles.mapFilters}>
-      <select aria-label="Status tangki pada denah" value={status} onChange={event => { setStatus(event.target.value); dismiss(); }}>
-        <option value="ALL">Semua Status</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-      </select>
-      <select aria-label="Area tangki pada denah" value={area} onChange={event => { setArea(event.target.value); dismiss(); }}>
-        <option value="ALL">Semua Area</option>{tanks.map(tank => <option key={tank.id} value={tank.id}>{tank.name}</option>)}
-      </select>
-      <button aria-label={expanded ? 'Kecilkan denah' : 'Perbesar denah'} onClick={() => setExpanded(!expanded)}>{expanded ? <Minimize size={16} /> : <Maximize size={16} />}</button>
-    </div></header>
-    <div className={styles.mapFrame}>
-      <div className={styles.zoomControls}><button aria-label="Zoom masuk" disabled={zoom >= 3} onClick={() => setZoom(Math.min(3, zoom + .5))}><Plus size={18} /></button><button aria-label="Zoom keluar" disabled={zoom <= 1} onClick={() => setZoom(Math.max(1, zoom - .5))}><Minus size={18} /></button><button aria-label="Reset zoom" onClick={() => setZoom(1)}><RotateCcw size={15} /></button></div>
-      <div className={styles.mapScroll}>
-        <div className={styles.mapCanvas} style={{ width: `${zoom * 100}%` }}>
-          <Image src="/images/dashboard/rsa-site-plan.jpg" alt="Denah Rumah Sakit Akademik Universitas Gadjah Mada" width={1824} height={1361} unoptimized className={styles.mapImage} />
-          {visible.map(tank => <button key={tank.id} className={styles.marker} data-unconfirmed={!positions[tank.id]} title={`${tank.name}${!positions[tank.id] ? ' — posisi sementara' : ''}`} data-status={getTankStatus(tank) ?? 'UNKNOWN'} style={{ left: `${(positions[tank.id] ?? initialPosition(tank.id)).x}%`, top: `${(positions[tank.id] ?? initialPosition(tank.id)).y}%` }} aria-label={`Lihat ${tank.name}`} aria-expanded={selected === tank.id} aria-controls={current ? 'map-tank-preview' : undefined}
-            onClick={event => { lastTrigger.current = event.currentTarget; setSelected(selected === tank.id ? null : tank.id); }}><MapPin size={30} fill="currentColor" /><span className={styles.markerDot} /></button>)}
+  useEffect(() => {
+    map.current?.invalidateSize();
+  }, [expanded]);
+
+  return (
+    <section
+      className={`${styles.panel} ${styles.mapPanel} ${expanded ? styles.expandedMap : ''}`}
+      aria-label="Tank location map"
+      onKeyDown={event => {
+        if (event.key === 'Escape') {
+          setSelected(null);
+          setExpanded(false);
+        }
+      }}
+    >
+      <header className={styles.panelHeader}>
+        <h2>Tank Location Map</h2>
+        <div className={styles.mapFilters}>
+          <select
+            aria-label="Tank status on map"
+            value={status}
+            onChange={event => {
+              setStatus(event.target.value);
+              setSelected(null);
+            }}
+          >
+            <option value="ALL">All Statuses</option>
+            {Object.entries(statusLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Tank area on map"
+            value={area}
+            onChange={event => {
+              setArea(event.target.value);
+              setSelected(null);
+            }}
+          >
+            <option value="ALL">All Areas</option>
+            {tanks.map(tank => (
+              <option key={tank.id} value={tank.id}>
+                {tank.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            aria-label={expanded ? 'Collapse map' : 'Expand map'}
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? <Minimize size={16} /> : <Maximize size={16} />}
+          </button>
         </div>
+      </header>
+
+      <div className={styles.mapFrame}>
+        <div ref={mapElement} className={styles.satelliteMap} aria-label="Peta satelit RSA UGM" />
+
+        {current && (
+          <div
+            className={styles.mapPopup}
+            role="region"
+            aria-label={`Ringkasan ${current.name}`}
+          >
+            <button
+              type="button"
+              className={styles.popupCloseButton}
+              aria-label="Tutup detail tangki"
+              onClick={() => setSelected(null)}
+            >
+              <X size={15} />
+            </button>
+
+            <TankDetails tank={current} showSignal={false} />
+
+            <footer className={styles.popupFooter}>
+              <button
+                type="button"
+                className={styles.popupDetailButton}
+                onClick={() => onDetail(current)}
+              >
+                View details
+              </button>
+            </footer>
+          </div>
+        )}
       </div>
-      {current && <div id="map-tank-preview" className={styles.mapPopup} role="region" aria-label={`Ringkasan ${current.name}`}>
-        <TankDetails tank={current} />
-        {!positions[current.id] && <p className={styles.helper}>Posisi titik sementara, belum dikonfirmasi.</p>}
-        <footer className={styles.popupFooter}><button onClick={() => onDetail(current)}>Lihat Detail</button><button aria-label="Tutup detail tangki" onClick={closeAndFocus}><X size={18} /></button></footer>
-      </div>}
-    </div>
-    <div className={styles.legend}>{Object.entries(statusLabels).map(([value, label]) => <span key={value} data-status={value}><i />{label} ({visible.filter(tank => (getTankStatus(tank) ?? 'UNKNOWN') === value).length})</span>)}</div>
-    <p className={styles.helper}>{loading ? 'Memuat lokasi tangki…' : unavailable ? 'Titik contoh Tangki A/B ditampilkan sementara. Data dan lokasi sebenarnya belum tersedia dari server.' : !visible.length ? 'Tidak ada tangki yang sesuai dengan filter.' : 'Klik titik untuk melihat detail tangki.'}</p>
-    {!unavailable && visible.some(tank => !positions[tank.id]) && <p className={styles.helper}>Titik dengan lingkaran putus-putus memakai posisi sementara yang belum dikonfirmasi.</p>}
-    {notice && <p className={styles.helper} role="status">{notice}</p>}
-  </section>;
+
+      <div className={styles.legend}>
+        {Object.entries(statusLabels).map(([value, label]) => (
+          <span key={value} data-status={value}>
+            <i />
+            {label} ({visible.filter(tank => (getTankStatus(tank) ?? 'UNKNOWN') === value).length})
+          </span>
+        ))}
+      </div>
+      {(loading || unavailable || !visible.length) && (
+        <p className={styles.helper}>
+          {loading
+            ? 'Memuat lokasi tangki...'
+            : unavailable
+            ? 'Data tangki saat ini tidak tersedia.'
+            : 'Tidak ada tangki yang sesuai dengan filter yang dipilih.'}
+        </p>
+      )}
+    </section>
+  );
 }

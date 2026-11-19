@@ -10,6 +10,7 @@
 }
 
 .navItem {
+  --sidebar-icon-color: #ffcc00;
   isolation: isolate;
 }
 
