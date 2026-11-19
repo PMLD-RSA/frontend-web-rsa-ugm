@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   LuArrowUpRight as ArrowUpRight,
-  LuBell as Bell,
   LuDatabase as Database,
   LuDownload as Download,
   LuDroplets as Droplets,
@@ -24,6 +23,7 @@ import styles from "./TanksPage.module.css";
 import { TankForm } from "./TankForm";
 import { AddTankForm } from "./AddTankForm";
 import { DeleteTankDialog } from "./DeleteTankDialog";
+import { NotificationPopover } from "@/components/dashboard/NotificationPopover";
 import { isAdmin, useAuthStore } from "@/stores/authStore";
 
 const summaries = [
@@ -97,13 +97,10 @@ export function TanksPage() {
       <header className={styles.header}>
         <h1>Tanks</h1>
         <div>
-          <Link
-            href="/alerts"
+          <NotificationPopover
             className={styles.notification}
-            aria-label="Alerts"
-          >
-            <Bell size={23} />
-          </Link>
+            iconSize={23}
+          />
           <button
             className={styles.download}
             onClick={download}

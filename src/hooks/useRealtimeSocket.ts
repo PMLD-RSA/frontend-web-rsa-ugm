@@ -18,7 +18,6 @@ export function useRealtimeSocket() {
     }
 
     if (!wsToken) {
-      setIsConnected(false);
       return;
     }
 

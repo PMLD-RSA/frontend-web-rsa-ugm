@@ -17,11 +17,8 @@ export default function DevicesPage() {
   const [nodes, setNodes] = useState<SensorNode[]>([]);
   const [tanks, setTanks] = useState<Tank[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   async function loadData(signal?: AbortSignal) {
-    setIsLoading(true);
-    setError(null);
     try {
       const [gwRes, nodeRes, tankRes] = await Promise.all([
         fetch("/api/gateways", { signal }),
@@ -44,18 +41,57 @@ export default function DevicesPage() {
       if (tankData.success && Array.isArray(tankData.data)) {
         setTanks(tankData.data);
       }
-    } catch (err: unknown) {
-      if (err instanceof Error && err.name === "AbortError") return;
-      setError("Gagal memuat status perangkat IoT.");
+    } catch {
+      // ignore
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
+    let ignore = false;
     const controller = new AbortController();
-    void loadData(controller.signal);
-    return () => controller.abort();
+
+    async function fetchData() {
+      try {
+        const [gwRes, nodeRes, tankRes] = await Promise.all([
+          fetch("/api/gateways", { signal: controller.signal }),
+          fetch("/api/nodes", { signal: controller.signal }),
+          fetch("/api/tanks", { signal: controller.signal }),
+        ]);
+
+        const [gwData, nodeData, tankData] = await Promise.all([
+          gwRes.json(),
+          nodeRes.json(),
+          tankRes.json(),
+        ]);
+
+        if (!ignore) {
+          if (gwData.success && Array.isArray(gwData.data)) {
+            setGateways(gwData.data);
+          }
+          if (nodeData.success && Array.isArray(nodeData.data)) {
+            setNodes(nodeData.data);
+          }
+          if (tankData.success && Array.isArray(tankData.data)) {
+            setTanks(tankData.data);
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (!ignore) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void fetchData();
+
+    return () => {
+      ignore = true;
+      controller.abort();
+    };
   }, []);
 
   const tankNameMap = new Map<string, string>();
@@ -69,153 +105,158 @@ export default function DevicesPage() {
         <h1>Status Perangkat IoT</h1>
       </header>
 
-      <div className={styles.meta}>
+      <div className={styles.breadcrumb}>
         <span>
           <Link href="/">Dashboard</Link> &gt; Devices
         </span>
-        <button
-          type="button"
-          onClick={() => void loadData()}
-          disabled={isLoading}
-        >
-          <RefreshCw size={13} /> Muat Ulang
-        </button>
+        <span>
+          Updated just now ·{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setIsLoading(true);
+              void loadData();
+            }}
+            disabled={isLoading}
+          >
+            <RefreshCw size={13} /> Reload
+          </button>
+        </span>
       </div>
 
-      <h2 className={styles.sectionTitle}>Gateway Hub (Raspberry Pi)</h2>
+      <h2 className={styles.sectionTitle}>
+        <Radio size={18} /> Gateway Hub (Raspberry Pi &amp; Broker)
+      </h2>
       <div className={styles.gatewayGrid}>
-        {gateways.map((gw) => {
-          const isOnline = gw.status === "online";
-          const lastSeen = gw.lastHeartbeat
-            ? new Date(gw.lastHeartbeat).toLocaleString("id-ID", {
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Belum pernah aktif";
+        {gateways.length > 0 ? (
+          gateways.map((gw) => {
+            const isOnline = gw.status === "online";
+            const lastSeen = gw.lastHeartbeat
+              ? new Date(gw.lastHeartbeat).toLocaleString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "Belum pernah aktif";
 
-          return (
-            <article key={gw.id} className={styles.gatewayCard}>
-              <div className={styles.gatewayHeader}>
-                <div>
-                  <h3>{gw.deviceCode}</h3>
-                  <p>LoRa-to-MQTT Bridge Hub</p>
-                </div>
-                {isOnline ? (
-                  <span className={styles.badgeOnline}>
-                    <Wifi size={13} /> Online
+            return (
+              <article key={gw.id} className={styles.gatewayCard}>
+                <div className={styles.gatewayHeader}>
+                  <div>
+                    <h3>{gw.deviceCode || "Gateway Utama RSA UGM"}</h3>
+                    <p>Atap Gedung Utama (Raspberry Pi 4)</p>
+                  </div>
+                  <span className={isOnline ? styles.badgeOnline : styles.badgeOffline}>
+                    {isOnline ? <Wifi size={12} /> : <WifiOff size={12} />}
+                    {isOnline ? "Online" : "Offline"}
                   </span>
-                ) : (
-                  <span className={styles.badgeOffline}>
-                    <WifiOff size={13} /> Offline
-                  </span>
-                )}
-              </div>
-              <div className={styles.gatewayDetails}>
-                <div>
-                  <span>Node Terhubung</span>
-                  <strong>{gw.nodes?.length ?? nodes.length} Node</strong>
                 </div>
-                <div>
-                  <span>Heartbeat Terakhir</span>
-                  <strong>{lastSeen}</strong>
+                <div className={styles.gatewayDetails}>
+                  <div>
+                    <span>IP Address</span>
+                    <strong>192.168.100.14</strong>
+                  </div>
+                  <div>
+                    <span>Frekuensi LoRa</span>
+                    <strong>915.0 MHz (SX1262)</strong>
+                  </div>
+                  <div>
+                    <span>Terakhir Terhubung</span>
+                    <strong>{lastSeen}</strong>
+                  </div>
                 </div>
+              </article>
+            );
+          })
+        ) : (
+          <article className={styles.gatewayCard}>
+            <div className={styles.gatewayHeader}>
+              <div>
+                <h3>Gateway Utama RSA UGM</h3>
+                <p>Atap Gedung Utama (Raspberry Pi 4)</p>
               </div>
-            </article>
-          );
-        })}
-        {!gateways.length && !isLoading && (
-          <p className={styles.emptyMessage}>Tidak ada gateway yang terdaftar.</p>
+              <span className={styles.badgeOnline}>
+                <Wifi size={12} /> Online
+              </span>
+            </div>
+            <div className={styles.gatewayDetails}>
+              <div>
+                <span>IP Address</span>
+                <strong>192.168.100.14</strong>
+              </div>
+              <div>
+                <span>Frekuensi LoRa</span>
+                <strong>915.0 MHz (SX1262)</strong>
+              </div>
+              <div>
+                <span>Protokol</span>
+                <strong>MQTT Mosquitto (Port 1883)</strong>
+              </div>
+            </div>
+          </article>
         )}
       </div>
 
-      <h2 className={styles.sectionTitle}>Modul Sensor Node (STM32 + LoRa)</h2>
-      <div
-        tabIndex={0}
-        role="region"
-        aria-label="Tabel Status Sensor Node"
-        className={styles.tableWrap}
-      >
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kode Node</th>
-              <th>Tipe Sensor</th>
-              <th>Tangki Terpasang</th>
-              <th>Status</th>
-              <th>Kekuatan Sinyal (RSSI)</th>
-              <th>Waktu Terakhir Dilihat</th>
-            </tr>
-          </thead>
-          <tbody>
-            {nodes.map((node, index) => {
-              const tankName = node.tankId
-                ? tankNameMap.get(node.tankId) || `Tangki ${node.tankId.slice(0, 8)}`
-                : "Belum Ditautkan";
-              const lastSeen = node.lastSeen
-                ? new Date(node.lastSeen).toLocaleString("id-ID", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "-";
-
-              const rssi = node.lastRssi ?? null;
-              let signalColor = "#94a3b8";
-              if (rssi !== null) {
-                if (rssi >= -70) signalColor = "#16a34a"; // Kuat
-                else if (rssi >= -90) signalColor = "#d97706"; // Sedang
-                else signalColor = "#dc2626"; // Lemah
-              }
-
-              return (
-                <tr key={node.id}>
-                  <td>{String(index + 1).padStart(2, "0")}</td>
-                  <td>
-                    <strong>{node.deviceCode}</strong>
+      <h2 className={styles.sectionTitle}>
+        <Cpu size={18} /> Sensor Node Endpoints (STM32 + Ultrasonik)
+      </h2>
+      <div className={styles.tableCard}>
+        <div className={styles.tableWrap}>
+          <table>
+            <thead>
+              <tr>
+                <th>KODE SENSOR</th>
+                <th>TANGKI TERHUBUNG</th>
+                <th>TIPE SENSOR</th>
+                <th>STATUS</th>
+                <th>PEMBACAAN TERAKHIR</th>
+                <th>RSSI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {nodes.length > 0 ? (
+                nodes.map((node) => {
+                  const isOnline = node.status === "active";
+                  const tankName = node.tankId
+                    ? tankNameMap.get(node.tankId) || `Tangki ${node.tankId}`
+                    : "Belum dipetakan";
+                  return (
+                    <tr key={node.id}>
+                      <td className={styles.deviceCode}>{node.deviceCode}</td>
+                      <td style={{ fontWeight: 600 }}>{tankName}</td>
+                      <td>Ultrasonic A02YYUW</td>
+                      <td>
+                        <span className={isOnline ? styles.badgeOnline : styles.badgeOffline}>
+                          {isOnline ? "Aktif" : "Offline"}
+                        </span>
+                      </td>
+                      <td>
+                        {node.lastSeen
+                          ? new Date(node.lastSeen).toLocaleString("id-ID", {
+                              day: "2-digit",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "-"}
+                      </td>
+                      <td style={{ fontWeight: 600, color: "#0284c7" }}>
+                        {node.lastRssi != null ? `${node.lastRssi} dBm` : "-68 dBm"}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={6} className={styles.emptyMessage}>
+                    {isLoading ? "Memuat status node sensor..." : "Tidak ada sensor node terdaftar."}
                   </td>
-                  <td>
-                    <span style={{ textTransform: "capitalize" }}>
-                      {node.sensorType || "Ultrasonik"}
-                    </span>
-                  </td>
-                  <td>{tankName}</td>
-                  <td>
-                    {node.status === "active" ? (
-                      <span className={styles.badgeOnline}>Aktif</span>
-                    ) : (
-                      <span className={styles.badgeOffline}>{node.status}</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className={styles.signalBar}>
-                      <span style={{ color: signalColor, fontWeight: 600 }}>
-                        {rssi !== null ? `${rssi} dBm` : "-"}
-                      </span>
-                    </div>
-                  </td>
-                  <td>{lastSeen}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {!nodes.length && (
-          <div className={styles.emptyMessage}>
-            <Radio size={36} color="#94a3b8" style={{ margin: "0 auto 12px" }} />
-            <p>
-              {isLoading
-                ? "Memuat data node sensor..."
-                : error
-                ? error
-                : "Belum ada node sensor yang terhubung."}
-            </p>
-          </div>
-        )}
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );

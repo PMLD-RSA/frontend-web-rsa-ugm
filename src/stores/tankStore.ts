@@ -12,7 +12,7 @@ interface TankState {
   setTankActiveAlert: (tankId: string, alert: Alert | null) => void;
 }
 
-export const useTankStore = create<TankState>((set, get) => ({
+export const useTankStore = create<TankState>((set) => ({
   tanks: [],
   isLoading: false,
   error: null,

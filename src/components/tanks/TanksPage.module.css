@@ -1,7 +1,5 @@
 .page {
-  max-width: 1500px;
-  margin: auto;
-  padding: 24px 30px 48px;
+  padding: 0 0 32px;
   color: #111;
   font-family: var(--font-plus-jakarta-sans), sans-serif;
 }

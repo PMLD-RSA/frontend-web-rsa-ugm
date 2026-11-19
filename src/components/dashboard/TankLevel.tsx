@@ -40,7 +40,7 @@ export function TankLevel({ tank, compact = false, flat = false }: { tank: Tank;
   </div>;
 }
 
-export function TankDetails({ tank }: { tank: Tank }) {
+export function TankDetails({ tank, showSignal = true }: { tank: Tank; showSignal?: boolean }) {
   const status = getTankStatus(tank) ?? 'UNKNOWN';
   const level = numeric(tank.latestReading?.levelPercent);
   return <div className={styles.tankDetails} data-status={status}>
@@ -52,7 +52,7 @@ export function TankDetails({ tank }: { tank: Tank }) {
       <div><dt>Capacity</dt><dd>{measurement(tank.capacityLiters, ' L')}</dd></div>
       <div><dt>Sensor</dt><dd>{tank.nodes?.[0]?.deviceCode || 'Unavailable'}</dd></div>
       <div><dt>Sensor distance</dt><dd>{measurement(tank.latestReading?.rawValue ?? tank.latestReading?.distanceCm, ' cm')}</dd></div>
-      <div><dt>Signal</dt><dd>{measurement(tank.latestReading?.rssi, ' dBm')}</dd></div>
+      {showSignal && <div><dt>Signal</dt><dd>{measurement(tank.latestReading?.rssi, ' dBm')}</dd></div>}
       <div><dt>Last updated</dt><dd>{readingTime(tank.latestReading?.recordedAt)}</dd></div>
     </dl>
   </div>;

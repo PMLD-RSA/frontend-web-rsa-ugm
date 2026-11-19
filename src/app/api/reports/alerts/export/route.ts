@@ -1,0 +1,47 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+
+const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
+
+export async function GET(request: NextRequest) {
+  const cookieStore = await cookies();
+  const token =
+    cookieStore.get("auth_token")?.value ||
+    request.headers.get("authorization")?.replace("Bearer ", "");
+
+  const { searchParams } = new URL(request.url);
+  const targetUrl = `${CORE_BACKEND_URL}/api/reports/alerts/export?${searchParams.toString()}`;
+
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  try {
+    const res = await fetch(targetUrl, {
+      headers,
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      return NextResponse.json(
+        { success: false, message: "Gagal mengunduh CSV alert dari backend." },
+        { status: res.status }
+      );
+    }
+
+    const csvData = await res.text();
+    return new NextResponse(csvData, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition":
+          res.headers.get("content-disposition") ||
+          `attachment; filename="alert-logs-${new Date().toISOString().slice(0, 10)}.csv"`,
+      },
+    });
+  } catch {
+    return NextResponse.json(
+      { success: false, message: "Backend tidak dapat dihubungi." },
+      { status: 503 }
+    );
+  }
+}

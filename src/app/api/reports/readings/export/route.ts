@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
           `attachment; filename="sensor-readings-${new Date().toISOString().slice(0, 10)}.csv"`,
       },
     });
-  } catch (err: unknown) {
+  } catch {
     return NextResponse.json(
       { success: false, message: "Backend tidak dapat dihubungi." },
       { status: 503 }

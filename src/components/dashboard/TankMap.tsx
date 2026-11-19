@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Map as LeafletMap, LayerGroup } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { LuMapPin as MapPin, LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
+import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
-import { measurement, readingTime, statusLabels } from './TankLevel';
+import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
 // Titik tengah atap RSA UGM sesuai permintaan pengguna
@@ -66,7 +66,6 @@ export function TankMap({
   );
 
   const current = visible.find(tank => tank.id === selected);
-  const currentPosition = current ? coordinates(current) ?? center : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -196,101 +195,18 @@ export function TankMap({
               aria-label="Tutup detail tangki"
               onClick={() => setSelected(null)}
             >
-              <X size={16} />
+              <X size={15} />
             </button>
 
-            <div className={styles.mapPopupHeader}>
-              <div className={styles.mapPopupTitleWrap}>
-                <h3>{current.name}</h3>
-                <span
-                  className={styles.badge}
-                  data-status={getTankStatus(current) ?? 'UNKNOWN'}
-                >
-                  {statusLabels[getTankStatus(current) ?? 'UNKNOWN']}
-                </span>
-              </div>
-              <p className={styles.mapPopupLocation}>
-                {current.location || 'Lokasi tidak tersedia'}
-              </p>
-            </div>
-
-            <div className={styles.mapPopupLevelBar}>
-              <div className={styles.mapPopupLevelHeader}>
-                <span>Water level</span>
-                <strong>{measurement(current.latestReading?.levelPercent, '%')}</strong>
-              </div>
-              <div className={styles.progress}>
-                <span
-                  style={{
-                    width: `${Math.max(
-                      0,
-                      Math.min(100, Number(current.latestReading?.levelPercent ?? 0))
-                    )}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className={styles.mapPopupGrid}>
-              <div>
-                <span className={styles.popupLabel}>Volume Air</span>
-                <strong className={styles.popupValue}>
-                  {measurement(current.latestReading?.volumeLiters, ' L')}
-                </strong>
-              </div>
-              <div>
-                <span className={styles.popupLabel}>Kapasitas</span>
-                <strong className={styles.popupValue}>
-                  {measurement(current.capacityLiters, ' L')}
-                </strong>
-              </div>
-              <div>
-                <span className={styles.popupLabel}>Sensor Node</span>
-                <strong className={styles.popupValue}>
-                  {current.nodes?.[0]?.deviceCode || 'STM32'}
-                </strong>
-              </div>
-              <div>
-                <span className={styles.popupLabel}>Jarak Sensor</span>
-                <strong className={styles.popupValue}>
-                  {measurement(
-                    current.latestReading?.rawValue ?? current.latestReading?.distanceCm,
-                    ' cm'
-                  )}
-                </strong>
-              </div>
-              <div>
-                <span className={styles.popupLabel}>Sinyal LoRa</span>
-                <strong className={styles.popupValue}>
-                  {measurement(current.latestReading?.rssi, ' dBm')}
-                </strong>
-              </div>
-              <div>
-                <span className={styles.popupLabel}>Terakhir Update</span>
-                <strong className={styles.popupValue}>
-                  {readingTime(current.latestReading?.recordedAt)}
-                </strong>
-              </div>
-            </div>
+            <TankDetails tank={current} showSignal={false} />
 
             <footer className={styles.popupFooter}>
-              {currentPosition && (
-                <a
-                  className={styles.mapLink}
-                  href={`https://www.google.com/maps/search/?api=1&query=${currentPosition[0]},${currentPosition[1]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <MapPin size={13} aria-hidden="true" />
-                  <span>Google Maps</span>
-                </a>
-              )}
               <button
                 type="button"
                 className={styles.popupDetailButton}
                 onClick={() => onDetail(current)}
               >
-                Lihat Detail
+                View details
               </button>
             </footer>
           </div>
