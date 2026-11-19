@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useRef, useState } from 'react';
 import type { Tank } from '@/types';
 import { Card } from '@/components/ui/Card';
@@ -13,6 +12,7 @@ import { DashboardIcon as Icon } from './DashboardIcon';
 import { DashboardDatePicker } from './DashboardCalendar';
 import { DashboardFilter } from './DashboardFilter';
 import { DownloadReportDialog } from './DownloadReportDialog';
+import { NotificationPopover } from './NotificationPopover';
 import styles from './DashboardOverview.module.css';
 
 const statuses = [
@@ -63,9 +63,7 @@ export function DashboardOverview({ tanks, allTanks, loading, failed, query, onQ
           />
         </div>
         <div className={styles.toolbarActions}>
-          <Link className={styles.notification} href="/alerts" aria-label="View alert notifications" title="Alert notifications">
-            <Icon name="notification" width={26} />
-          </Link>
+          <NotificationPopover className={styles.notification} iconSize={24} />
           <button ref={downloadButton} className={styles.download} type="button" onClick={() => setDownloadOpen(true)} disabled={loading || failed || !allTanks.length} title="Download PDF or Excel report" aria-haspopup="dialog">
             <Icon name="download" width={24} />
             <span>Download All</span>

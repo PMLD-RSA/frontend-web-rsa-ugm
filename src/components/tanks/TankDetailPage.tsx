@@ -50,7 +50,7 @@ function alertStatus(status: string | null | undefined) {
 function activityDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime()))
-    return { time: "—", date: "Tidak diketahui" };
+    return { time: "-", date: "Tidak diketahui" };
   const today = new Date();
   return {
     time: date
@@ -265,8 +265,8 @@ export function TankDetailPage({ id }: { id: string }) {
                         {minimum === null
                           ? "Unavailable"
                           : minimum > 60
-                            ? "—"
-                            : `${measurement(minimum, "%")}–60%`}
+                            ? "-"
+                            : `${measurement(minimum, "%")}-60%`}
                       </dd>
                     </div>
                     <div>
@@ -317,10 +317,22 @@ export function TankDetailPage({ id }: { id: string }) {
                     />
                   </span>
                 </div>
+                <div>
+                  <Radio size={17} />
+                  <small>Jarak sensor</small>
+                  <strong>
+                    {measurement(
+                      tank.latestReading?.rawValue ??
+                        tank.latestReading?.distanceCm,
+                      " cm"
+                    )}
+                  </strong>
+                </div>
               </div>
               <div className={styles.sensor}>
                 <span>
-                  <Radio size={16} /> Sensor ultrasonik
+                  <Radio size={16} /> Sensor ultrasonik (Sinyal:{" "}
+                  {measurement(tank.latestReading?.rssi, " dBm")})
                 </span>
                 <span>
                   Updated {readingTime(tank.latestReading?.recordedAt)}
@@ -470,7 +482,7 @@ export function TankDetailPage({ id }: { id: string }) {
                             className={styles.activityLevel}
                             aria-label="Level air tidak tersedia"
                           >
-                            —
+                            -
                           </strong>
                         </div>
                       );

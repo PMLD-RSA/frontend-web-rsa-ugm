@@ -30,7 +30,8 @@ export interface WaterLevelReading {
   sensorNodeId?: string | null;
   levelPercent: string | number; // "72.40" atau 72.4
   volumeLiters: string | number; // "7240.00" atau 7240
-  rawValue?: string | number | null;
+  rawValue?: string | number | null; // Jarak fisik ultrasonik dalam centimeter
+  distanceCm?: string | number | null;
   rssi?: number | null;
   recordedAt: string; // ISO 8601 UTC
 }
@@ -86,6 +87,8 @@ export interface Tank {
   capacityLiters: string | number; // e.g. "10000.00"
   minThresholdPercent: string | number; // e.g. "30.00"
   maxThresholdPercent: string | number; // e.g. "90.00"
+  minDistanceCm?: string | number | null; // e.g. "30.00" (saat penuh 100%)
+  maxDistanceCm?: string | number | null; // e.g. "350.00" (saat kosong 0%)
   latitude?: string | null;
   longitude?: string | null;
   createdAt?: string;
@@ -149,10 +152,15 @@ export type WebSocketEventType =
 
 export interface WsLevelUpdateData {
   tankId: string;
-  tankName: string;
+  sensorNodeId?: string;
+  tankName?: string;
   levelPercent: number;
   volumeLiters: number;
+  distanceCm?: number;
+  rawValue?: number;
   rssi?: number;
+  sequence?: number;
+  isBuffered?: boolean;
   recordedAt: string;
 }
 
