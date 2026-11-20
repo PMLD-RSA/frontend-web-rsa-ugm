@@ -164,16 +164,21 @@ src/
     * Total Tangki Dipantau, Total Kapasitas Air (Liter), Tangki Kondisi Aman, Tangki Peringatan/Kritis.
     * Pemilih rentang tanggal kalender interaktif (`DashboardDatePicker` popover) dan pencarian filter tangki.
   * **Peta Satelit Interaktif Leaflet (`TankMap.tsx`):**
-    * Peta satelit berbasis citra ArcGIS World Imagery dengan titik koordinat sensor lokasi pilot nyata di lingkungan **Sekolah Vokasi UGM** (titik gedung **DTEDI**, **DTK**, dan **DLIKES**).
-    * Marker dinamis berwarna sesuai status tangki (Hijau: Normal, Biru: Peringatan, Merah: Kritis) dengan popup detail instan saat diklik.
-    * Fitur kontrol: Zoom in/out/reset, filter status tangki, filter area tangki, dan mode layar penuh (*Maximize / Minimize*).
+    * Peta satelit berbasis citra ArcGIS World Imagery dengan titik koordinat presisi pilot di lingkungan **Sekolah Vokasi UGM**:
+      * **DTEDI**: `7°46'30.42"S, 110°22'25.18"E` (terpetakan dari *Tangki Atap Gedung Utama*).
+      * **DTK**: `7°46'29.21"S, 110°22'27.76"E` (terpetakan dari *Tangki Gedung Rawat Inap*).
+      * **DLIKES**: `7°46'25.81"S, 110°22'27.85"E` (disajikan dengan marker garis putus-putus / *dashed outline* sebagai placeholder sebelum sensor terpasang).
+    * Marker pin SVG kustom dilengkapi **tooltip label permanen** di atas pin dan warna dinamis sesuai status tangki (Hijau: Normal, Kuning: Peringatan, Merah: Kritis).
+    * Modal popup ringkasan instan saat marker diklik: menampilkan level air, volume liter, koordinat derajat/menit/detik, dan tautan *"View details"*.
+    * Fitur kontrol peta: Auto-fit bounds lokasi SV UGM, filter status (*All, Normal, Warning, Critical*), filter area gedung (*All, DTEDI, DTK, DLIKES*), dan mode layar penuh (*Maximize / Minimize*).
   * **Visualisasi Level Air Bejana Dinamis (`TankLevel.tsx`):**
     * Gauge bejana silinder air dengan skala persentase ($0\%$ s.d. $100\%$) dan animasi gelombang air (*SVG wave animation*).
     * Informasi metrik terperinci: level air (%), volume liter terkini, kapasitas total, kode perangkat sensor (node), sinyal radio RSSI (dBm), dan timestamp pembaruan.
-  * **Statistik Distribusi Persentase Tangki (`TankStatistics.tsx`):**
-    * Visualisasi donat chart persentase sampel waktu (Normal, Warning, Critical) per tangki.
-    * Pilihan rentang periode: **Day (24 Jam)**, **Week (7 Hari)**, **Month (30 Hari)**, dan **Custom (Rentang Kalender)**.
-    * Navigasi pagination jika terdapat lebih dari 2 tangki terdaftar.
+  * **Tingkat Pengisian & Statistik Distribusi Tangki (`TankStatistics.tsx`):**
+    * Donat chart persentase keterisian air (*conic-gradient*) dengan indikator kategori: **Normal** ($>60\%$, `#52c93f`), **Warning** ($30-60\%$, `#fecb28`), dan **Critical** ($<30\%$, `#ff2727`).
+    * Otomatisasi aliasing nama tangki backend ke kode gedung SV UGM (`DTK`, `DTEDI`, `DLIKES`) dengan urutan terstandarisasi (DTK $\rightarrow$ DTEDI $\rightarrow$ DLIKES).
+    * Sisipan otomatis placeholder gedung `DLIKES` jika telemetri sensor belum aktif agar cakupan 3 gedung pilot tetap terpantau menyeluruh.
+    * Navigasi paginasi 2 tangki per halaman dengan kontrol aksesibel berlabel bahasa Indonesia (*Sebelumnya*, *Berikutnya*, *Halaman X/Y*).
   * **Grafik Agregasi Multi-Tangki 24 Jam (`VolumeHistory` / `TankDashboard.tsx`):**
     * Visualisasi Recharts bar chart yang menampilkan fluktuasi rata-rata volume air per jam (Liter) untuk masing-masing tangki selama 24 jam terakhir berbasis data dari `GET /api/readings/history`.
   * **Ringkasan Riwayat Login Terkini (`RecentLogins`):**
