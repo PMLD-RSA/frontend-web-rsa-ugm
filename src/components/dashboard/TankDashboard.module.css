@@ -326,7 +326,9 @@
 .statLegend dd { margin: 0; }
 .statHint { color: #8181a5; font-size: 10px; margin: 12px 0 0; }
 .statPagination { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 22px; font-size: 11px; color: #8181a5; }
-.statPagination button { padding: 6px; }
+.statPagination button { padding: 8px 12px; border: 1px solid #d0d5dd; border-radius: 8px; background: #fff; color: #0a3f5c; font-weight: 600; }
+.statPagination button:disabled { opacity: .45; cursor: not-allowed; }
+.statPagination span { color: #344054; font-weight: 600; }
 .marker[data-unconfirmed='true']::after { content: ''; position: absolute; inset: 4px; border: 1px dashed #0a3f5c; border-radius: 50%; }
 @media (max-width: 600px) {
   .statGrid { gap: 12px; }
