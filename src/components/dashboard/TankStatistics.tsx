@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { LuRefreshCw as RefreshCw } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
-import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
+import { VOKASI_LOCATIONS, vokasiTankName } from '@/lib/vokasiLocations';
 import { numeric, readingTime } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
@@ -23,10 +23,6 @@ const referenceTanks: Tank[] = ['DTK', 'DTEDI', 'DLIKES'].map(name => {
   };
 });
 
-const locationNames: Record<string, string> = {
-  'tangki gedung rawat inap': 'DTK',
-  'tangki atap gedung utama': 'DTEDI',
-};
 const locationOrder: Record<string, number> = { DTK: 0, DTEDI: 1, DLIKES: 2 };
 const categories: Record<string, { label: string; color: string; icon: string; range: string }> = {
   NORMAL: { label: 'Normal', color: '#52c93f', icon: 'stat-normal', range: '>60%' },
@@ -61,7 +57,7 @@ export function TankStatistics({ tanks, loading, unavailable, onDetail, onRefres
   const [explain, setExplain] = useState(false);
   const namedTanks = tanks.map(tank => ({
     ...tank,
-    name: locationNames[tank.name.trim().toLowerCase()] ?? tank.name,
+    name: vokasiTankName(tank.name),
   })).sort((first, second) =>
     (locationOrder[first.name] ?? 3) - (locationOrder[second.name] ?? 3)
   );

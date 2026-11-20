@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
   LuBell as Bell,
@@ -26,9 +26,13 @@ function formatAlertSummary(message: string, level: string): string {
 export function NotificationPopover({
   className,
   iconSize = 22,
+  icon,
+  panelClassName = '',
 }: {
   className?: string;
   iconSize?: number;
+  icon?: ReactNode;
+  panelClassName?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,7 +63,7 @@ export function NotificationPopover({
         title="Lihat notifikasi peringatan"
       >
         <span className="relative inline-flex items-center justify-center">
-          <Bell size={iconSize} />
+          {icon ?? <Bell size={iconSize} />}
           {count > 0 && (
             <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#ef4444] text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
               {count > 9 ? '9+' : count}
@@ -72,7 +76,7 @@ export function NotificationPopover({
         <div
           role="dialog"
           aria-label="Daftar Notifikasi Peringatan"
-          className="absolute right-0 top-full mt-2.5 w-[320px] sm:w-[410px] bg-white border border-slate-200/90 rounded-2xl shadow-2xl shadow-slate-900/10 z-50 overflow-hidden text-slate-800"
+          className={`absolute right-0 top-full mt-2.5 w-[320px] sm:w-[410px] bg-white border border-slate-200/90 rounded-2xl shadow-2xl shadow-slate-900/10 z-50 overflow-hidden text-slate-800 ${panelClassName}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 bg-white border-b border-slate-100">

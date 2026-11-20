@@ -27,16 +27,6 @@ export const MOCK_GATEWAY: Gateway = {
       lastRssi: -84,
       lastSeen: new Date().toISOString(),
     },
-    {
-      id: "e6f30945-7a94-68bc-d34a-300110cdef34",
-      tankId: "c2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-      gatewayId: "11111111-2222-3333-4444-555555555555",
-      deviceCode: "STM32-BED",
-      sensorType: "ultrasonic",
-      status: "active",
-      lastRssi: -68,
-      lastSeen: new Date().toISOString(),
-    },
   ],
 };
 
@@ -123,17 +113,9 @@ export const MOCK_TANKS: Tank[] = [
     longitude: String(VOKASI_LOCATIONS[2].longitude),
     createdAt: "2026-09-16T09:30:00.000Z",
     updatedAt: "2026-09-16T09:30:00.000Z",
-    latestReading: {
-      id: 14207,
-      tankId: "c2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-      sensorNodeId: "e6f30945-7a94-68bc-d34a-300110cdef34",
-      levelPercent: "88.20",
-      volumeLiters: "4410.00",
-      rssi: -68,
-      recordedAt: new Date().toISOString(),
-    },
+    latestReading: null,
     activeAlert: null,
-    nodes: [MOCK_NODES[2]],
+    nodes: [],
   },
 ];
 
@@ -191,7 +173,7 @@ export const MOCK_AUDIT_LOGS: AuditLog[] = [
     action: "UPDATE_TANK",
     entity: "tanks",
     entityId: "c2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
-    detail: "Admin menyetel threshold Tangki Bedah ke 35% min / 95% max",
+    detail: "Admin memperbarui konfigurasi DLIKES",
     ipAddress: "192.168.1.10",
     createdAt: new Date(Date.now() - 240 * 60 * 1000).toISOString(),
   },

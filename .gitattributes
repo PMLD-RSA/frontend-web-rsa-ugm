@@ -1,0 +1,2 @@
+# Use LF for text files; detect binary assets automatically.
+* text=auto eol=lf

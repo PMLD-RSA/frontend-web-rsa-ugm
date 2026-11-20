@@ -111,7 +111,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       merge('J14:Q15', `Status level: ${statusOf(tank)}`, true, true);
       merge('J17:Q19', 'Grafik menunjukkan pembacaan terakhir, bukan riwayat perubahan level air.');
       merge('J21:Q23', `Volume air: ${measurement(tank.latestReading?.volumeLiters, ' L')}\nKapasitas: ${measurement(tank.capacityLiters, ' L')}`);
-      merge('J25:Q29', 'Detail peringatan tersedia pada lembar Riwayat Peringatan. Data numerik tersedia pada lembar Data Tangki.');
+      merge('J25:Q29', 'Data numerik tersedia pada lembar Data Tangki.');
       for (let r = 7; r <= 29; r++) for (let c = 1; c <= 22; c++) {
         const cell = sheet.getCell(r, c);
         // Only the outside of the Uraian column is bordered, preserving chart cells.
@@ -138,10 +138,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
     const data = table('Data Tangki', ['No', 'Tangki', 'Lokasi', 'Status Level', 'Level (%)', 'Volume (L)', 'Kapasitas (L)', 'Pembacaan Terakhir'], [8, 36, 36, 20, 16, 20, 20, 32]);
     tanks.forEach((tank, index) => data.addRow([index + 1, tank.name, tank.location ?? '', statusOf(tank), levelOf(tank), numeric(tank.latestReading?.volumeLiters), numeric(tank.capacityLiters), time(tank.latestReading?.recordedAt)]));
     [5, 6, 7].forEach(column => { data.getColumn(column).numFmt = '#,##0.00'; });
-    const history = table('Riwayat Peringatan', ['Tangki', 'Level', 'Status', 'Pesan', 'Waktu', 'Diselesaikan'], [36, 18, 18, 70, 32, 32]);
-    alerts.forEach(alert => history.addRow([tanks.find(tank => tank.id === alert.tankId)?.name ?? alert.tankName ?? alert.tankId, alert.level, alert.status, alert.message, time(alert.createdAt), alert.resolvedAt ? time(alert.resolvedAt) : 'Belum diselesaikan']));
-    if (!alerts.length) history.addRow(['Tidak ada peringatan pada data periode terpilih.']);
-    [data, history].forEach(sheet => sheet.eachRow(row => { row.height = 42; row.alignment = { vertical: 'top', wrapText: true }; }));
+    data.eachRow(row => { row.height = 42; row.alignment = { vertical: 'top', wrapText: true }; });
     const bytes = await workbook.xlsx.writeBuffer();
     return { blob: new Blob([new Uint8Array(bytes)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), filename };
   }
@@ -230,7 +227,6 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       write(page, `Status level: ${statusOf(tank)}`, chartX, 588, chartWidth, 9, true);
       write(page, 'Grafik menunjukkan pembacaan terakhir, bukan riwayat perubahan level air.', chartX, 552, chartWidth);
       write(page, `Volume air\n${measurement(tank.latestReading?.volumeLiters, ' L')}\n\nKapasitas\n${measurement(tank.capacityLiters, ' L')}`, chartX, 489, chartWidth);
-      write(page, 'Detail peringatan tersedia pada lampiran laporan.', chartX, 380, chartWidth);
       if (part) write(page, `Lanjutan tangki ${index + 1} (${part + 1}/${pageCount})`, left, 244, width, 7);
       write(page, 'Yang Membuat,', left, 220, 200);
       write(page, `Yogyakarta, ${date(dateInputValue(created))}\nMengetahui,`, 370, 220, 189);
@@ -239,26 +235,6 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       write(page, 'Petugas Monitoring Tangki', left, 130, 200, 8);
       write(page, 'Penanggung Jawab', 370, 130, 189, 8);
     }
-  });
-  let appendix = newPage();
-  let y = 702;
-  function appendixLine(value: string, heavy = false) {
-    for (const row of wrap(value, 9, width, heavy)) {
-      if (y < 55) { appendix = newPage(); y = 702; }
-      appendix.drawText(row, { x: left, y, size: 9, font: heavy ? bold : regular, color: ink });
-      y -= 14;
-    }
-  }
-  appendixLine('LAMPIRAN — RIWAYAT PERINGATAN', true);
-  y -= 10;
-  if (!alerts.length) appendixLine('Tidak ada peringatan pada data periode terpilih.');
-  alerts.forEach((alert, index) => {
-    if (y < 130) { appendix = newPage(); y = 702; }
-    appendixLine(`${index + 1}. ${tanks.find(tank => tank.id === alert.tankId)?.name ?? alert.tankName ?? alert.tankId}`, true);
-    appendixLine(`${alert.level} | ${alert.status} | ${time(alert.createdAt)}`);
-    appendixLine(alert.message);
-    appendixLine(`Diselesaikan: ${alert.resolvedAt ? time(alert.resolvedAt) : 'Belum diselesaikan'}`);
-    y -= 12;
   });
   const pages = document.getPages();
   pages.forEach((page, index) => page.drawText(`RSA UGM | ${index + 1} / ${pages.length}`, { x: left, y: 28, font: regular, size: 7, color: ink }));

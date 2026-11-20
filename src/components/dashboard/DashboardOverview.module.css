@@ -94,14 +94,19 @@
 
 .headingRow h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -1.2px; line-height: 30px; }
 .controls { display: flex; align-items: center; gap: 16px; }
-.dateControl { display: flex; align-items: center; min-height: 37px; border: 0.667px solid #2e2e2e; border-radius: 8px; }
-.dateButton { display: flex; align-items: center; gap: 12px; padding: 7px 12px 7px 16px; border-radius: 8px 0 0 8px; }
+.dateControl { display: flex; align-items: center; gap: 12px; width: 280px; min-width: 280px; min-height: 39px; padding: 0 16px; border: 0.5px solid #2e2e2e; border-radius: 8px; background: #fff; }
+.dateButton { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-radius: 4px; }
 .dateButton span { min-width: 122px; text-align: left; }
-.dateButton, .period { color: var(--dashboard-ink); font-size: 13px; font-weight: 500; line-height: 21px; }
-.period { display: flex; align-items: center; position: relative; padding: 0 12px; border-left: 0.667px solid #2e2e2e; }
-.period select { appearance: none; max-width: 90px; padding-right: 17px; background: transparent; outline-offset: 0; }
-.period :is(img, svg) { position: absolute; right: 12px; pointer-events: none; }
-.filterButton { display: flex; align-items: center; gap: 15px; position: relative; height: 39px; padding: 0 16px; border: 2px solid var(--dashboard-border); border-radius: 8px; font-size: 18px; font-weight: 600; line-height: 30px; }
+.dateButton, .period { color: var(--dashboard-ink); font-size: 14px; font-weight: 500; line-height: 21px; }
+.period { display: flex; align-items: center; gap: 4px; padding: 0 0 0 12px; border-left: 0.667px solid #2e2e2e; background: transparent; white-space: nowrap; }
+.timeRangePanel { width: 192px; padding: 16px; }
+.timeRangeHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.timeRangeHeader h2 { margin: 0; color: #071551; font-size: 18px; font-weight: 600; line-height: 30px; letter-spacing: -0.72px; }
+.timeRangeHeader button { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; background: transparent; }
+.timeRangeOptions { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.timeRangeOptions button { width: 100%; padding: 8px 0; border-radius: 4px; color: #10283a; background: transparent; font-size: 14px; font-weight: 600; line-height: 13px; text-align: left; }
+.timeRangeOptions button:hover { background: #f1f5f9; }
+.filterButton { display: flex; align-items: center; justify-content: center; gap: 15px; position: relative; width: 113px; height: 39px; padding: 0 16px; border: 0.5px solid #2e2e2e; border-radius: 8px; background: #fff; color: #000; font-size: 20px; font-weight: 600; line-height: 30px; font-variation-settings: 'wdth' 100; }
 .filterButton[data-active='true'] { border-color: #016da6; }
 .filterDot { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: #016da6; }
 
@@ -156,13 +161,7 @@
   .download { padding: 10px; gap: 5px; font-size: 11px; }
   .headingRow { flex-wrap: wrap; padding: 16px 0; }
   .headingRow h1 { font-size: 22px; }
-  .controls { justify-content: space-between; width: 100%; gap: 8px; }
-  .dateControl { min-width: 0; }
-  .dateButton { gap: 6px; padding: 7px 8px; font-size: 11px; }
-  .dateButton span { min-width: 0; }
-  .period { padding: 0 8px; font-size: 11px; }
-  .period :is(img, svg) { right: 8px; }
-  .filterButton { gap: 7px; padding: 0 10px; font-size: 14px; }
+  .controls { justify-content: flex-end; flex-wrap: wrap; width: 100%; gap: 16px; }
   .summaryGrid { gap: 16px; padding: 0; }
 }
 

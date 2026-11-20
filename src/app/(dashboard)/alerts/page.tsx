@@ -3,12 +3,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import localFont from "next/font/local";
 import { LuCheck as Check } from "react-icons/lu";
 import { useAlertStore } from "@/stores/alertStore";
 import { useTankStore } from "@/stores/tankStore";
 import { isOperator, useAuthStore } from "@/stores/authStore";
 import type { Alert, ApiResponse, AuditLog, Tank } from "@/types";
 import styles from "./alerts.module.css";
+
+const alertHeadingFont = localFont({
+  src: '../../../../assets/fonts/asap/Asap-Variable.ttf',
+  variable: '--font-alert-heading',
+  weight: '400 700',
+  display: 'swap',
+});
+const alertButtonFont = localFont({
+  src: '../../../../assets/fonts/inter/Inter-Variable.ttf',
+  variable: '--font-alert-button',
+  weight: '400 700',
+  display: 'swap',
+});
 
 type ModalKind = "sensor" | "resolve" | "mark" | "pump";
 type OpenModal = { kind: ModalKind; alert: Alert };
@@ -61,7 +75,7 @@ function AlertModal({
   onClose,
   children,
 }: {
-  kind: ModalKind;
+  kind: ModalKind | "sop";
   title: string;
   subtitle: string;
   onClose: () => void;
@@ -76,9 +90,9 @@ function AlertModal({
   return (
     <dialog
       ref={dialogRef}
-      className={`${styles.modalBox} ${kind === "resolve" ? styles.modalResolve : kind === "sensor" ? styles.modalSensor : styles.modalConfirm}`}
+      className={`${styles.modalBox} ${kind === "resolve" ? styles.modalResolve : kind === "sensor" ? styles.modalSensor : kind === "sop" ? styles.modalSop : styles.modalConfirm}`}
       aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-subtitle"
+      aria-describedby={subtitle ? "alert-dialog-subtitle" : undefined}
       onClose={onClose}
       onClick={(event) => {
         if (event.target === event.currentTarget) dialogRef.current?.close();
@@ -87,8 +101,10 @@ function AlertModal({
       <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Tutup dialog">
         <Image src="/images/alerts/close.svg" alt="" width={25} height={25} />
       </button>
-      <h2 id="alert-dialog-title">{title}</h2>
-      <p id="alert-dialog-subtitle" className={styles.modalSubtitle}>{subtitle}</p>
+      <header className={styles.modalHeader}>
+        <h2 id="alert-dialog-title">{title}</h2>
+        {subtitle && <p id="alert-dialog-subtitle" className={styles.modalSubtitle}>{subtitle}</p>}
+      </header>
       {children}
     </dialog>
   );
@@ -110,6 +126,7 @@ export default function AlertsPage() {
   const [tab, setTab] = useState<"active" | "all" | "history">("active");
   const [selectedTankId, setSelectedTankId] = useState("ALL");
   const [modal, setModal] = useState<OpenModal | null>(null);
+  const [sopOpen, setSopOpen] = useState(false);
   const [actionNotes, setActionNotes] = useState("");
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -193,6 +210,9 @@ export default function AlertsPage() {
   const priorityAlert = alerts.find((alert) => alert.status === "active" && alert.level === "CRITICAL")
     ?? alerts.find((alert) => alert.status === "active");
   const priorityTank = priorityAlert ? tankMap.get(priorityAlert.tankId) : undefined;
+  const guidance = priorityAlert
+    ? `Periksa sensor dan kondisi ${alertName(priorityAlert, priorityTank)}${priorityTank?.minThresholdPercent ? ` saat level mendekati batas minimum ${formatReading(priorityTank.minThresholdPercent, "%")}` : ""}. Catat tindakan sebelum menyelesaikan peringatan.`
+    : "Periksa status sensor dan kondisi tangki ketika peringatan muncul. Selesaikan peringatan setelah tindakan diverifikasi.";
 
   async function reload() {
     await Promise.all([refreshAlerts(), fetchTanks(), loadHistory()]);
@@ -229,22 +249,22 @@ export default function AlertsPage() {
   const modalReading = modalTank?.latestReading;
   const modalTitle = modal?.kind === "sensor" ? "View Sensor"
     : modal?.kind === "resolve" ? "Resolve Alert"
-    : modal?.kind === "mark" ? "Mark as Resolved" : "Activate Backup Pump";
+    : modal?.kind === "mark" ? "Mark as Resolved" : "Active Backup Pump";
 
   return (
-    <section className={styles.page}>
+    <section className={`${styles.page} ${alertHeadingFont.variable} ${alertButtonFont.variable}`}>
       <header className={styles.heading}><h1>Alarm and Events</h1></header>
 
       <div className={styles.breadcrumb}>
         <span className={styles.crumbPath}>
-          <Image src="/images/alerts/breadcrumb.svg" alt="" width={19} height={19} />
+          <Image src="/images/alerts/breadcrumb.svg" alt="" width={18.84} height={18.84} />
           <Link href="/">Dashboard</Link> &gt; Alarm and Events
         </span>
         <span className={styles.refreshInfo}>
-          <Image src="/images/alerts/update.svg" alt="" width={12} height={12} />
+          <Image src="/images/alerts/update.svg" alt="" width={11.9992} height={12} />
           {lastUpdated ? `Updated ${formatTime(lastUpdated.toISOString())}` : "Belum diperbarui"}
           <button type="button" onClick={() => void reload()} disabled={alertLoading}>
-            <Image src="/images/alerts/reload.svg" alt="" width={11} height={13} /> Reload
+            <Image src="/images/alerts/reload.svg" alt="" width={10.8903} height={13} /> Reload
           </button>
         </span>
       </div>
@@ -306,7 +326,9 @@ export default function AlertsPage() {
                     </div>
                     <p className={styles.metaText}>ID: ALM-{alert.id} · Unit: {tank?.nodes?.[0]?.deviceCode || "—"}</p>
                     <div className={`${styles.msgBox} ${critical ? styles.critical : styles.warning}`}>
-                      <p>{alert.message}</p>
+                      <p>{alert.message.split(/(\d+(?:[.,]\d+)?\s*%(?:\s*\([^)]*\))?)/).map((part, index) =>
+                        index === 1 ? <strong key={index}>{part}</strong> : part
+                      )}</p>
                       {level && <strong className={styles.levelBadge}>{level}</strong>}
                     </div>
                     <div className={styles.actionsRow}>
@@ -345,20 +367,24 @@ export default function AlertsPage() {
           <section className={styles.sopCard} aria-label="Panduan penanganan peringatan">
             <div className={styles.sopHeader}>
               <span className={styles.sopIcon}><Image src="/images/alerts/sop.svg" alt="" width={20} height={20} /></span>
-              <h2>Panduan Penanganan Alert</h2>
+              <h2>Medical Water Crisis SOP RSA UGM</h2>
             </div>
-            <p className={styles.sopBody}>
-              {priorityAlert
-                ? `Periksa sensor dan kondisi ${alertName(priorityAlert, priorityTank)}${priorityTank?.minThresholdPercent ? ` saat level mendekati batas minimum ${formatReading(priorityTank.minThresholdPercent, "%")}` : ""}. Catat tindakan sebelum menyelesaikan peringatan.`
-                : "Periksa status sensor dan kondisi tangki ketika peringatan muncul. Selesaikan peringatan setelah tindakan diverifikasi."}
-            </p>
+            <p className={styles.sopBody}>{guidance}</p>
             <div className={styles.sopFooter}>
               <span>{counts.active} peringatan aktif</span>
-              <Link href="/devices">Lihat perangkat sensor →</Link>
+              <button type="button" onClick={() => setSopOpen(true)}>View SOP Procedure &rarr;</button>
             </div>
           </section>
         </aside>
       </div>
+
+      {sopOpen && <AlertModal kind="sop" title="Medical Water Crisis SOP - RSA UGM" subtitle="" onClose={() => setSopOpen(false)}>
+        <div className={styles.sopDialogBody}>
+          <p>{guidance}</p>
+          <Link href="/devices">Lihat perangkat sensor &rarr;</Link>
+        </div>
+        <div className={styles.modalActions}><button type="button" className={styles.btnCancel} onClick={() => setSopOpen(false)}>Cancel</button></div>
+      </AlertModal>}
 
       {modal && <AlertModal kind={modal.kind} title={modalTitle} subtitle={alertName(modal.alert, modalTank)} onClose={() => setModal(null)}>
         {modal.kind === "sensor" ? <>
@@ -384,7 +410,8 @@ export default function AlertsPage() {
           {formError && <p className={styles.formError} role="alert">{formError}</p>}
           <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled={submitting} onClick={() => void confirmResolve()}>{submitting ? "Menyelesaikan..." : "Mark as Resolved"}</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
         </> : <>
-          <p className={styles.confirmQuestion}>Kontrol pompa cadangan belum tersedia melalui API saat ini.</p>
+          <p className={styles.confirmQuestion}>Are you sure you want to activate the backup pump for {alertName(modal.alert, modalTank)}?</p>
+          <p className={styles.notesHint}>Kontrol pompa cadangan belum tersedia melalui API saat ini.</p>
           <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled>Activate Pump</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
         </>}
       </AlertModal>}
