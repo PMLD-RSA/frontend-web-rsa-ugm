@@ -50,6 +50,8 @@
 .filterFooter { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
 .resetButton { color: #02395a; font-size: 20px; font-weight: 600; letter-spacing: -0.8px; }
 .activeDot { position: absolute; top: -4px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: #016da6; }
+.filterTriggerIcon { position: relative; flex-shrink: 0; width: 18px; height: 18px; }
+.filterTriggerIcon img { position: absolute; top: -1px; left: -1px; max-width: none; }
 
 /* Calendar: Figma frame 1044:10515, 250 × 293 for a five-week month. */
 .calendarPopover { width: 250px; overflow: visible; border: 1px solid #e2e8f0; border-radius: 12px; }

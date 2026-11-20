@@ -1,0 +1,78 @@
+.page {
+  max-width: 1282px;
+  margin: 0 auto;
+  padding: 34px 0 40px;
+  color: #000;
+  font-family: var(--font-plus-jakarta-sans), Arial, sans-serif;
+}
+
+.header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 29px; }
+.welcome { min-width: 0; }
+.welcome h1 { margin: 0 0 18px; color: #3e435d; font-size: 24px; font-weight: 600; line-height: 30px; overflow-wrap: anywhere; }
+.welcome time { display: block; color: #ada7a7; font-size: 16px; font-weight: 500; line-height: 20px; }
+.headerActions { display: flex; align-items: center; gap: 20px; }
+.search { display: flex; align-items: center; gap: 9px; width: 373px; min-width: 0; height: 39px; padding: 0 13px; border: 2px solid #a1a1a1; border-radius: 13px; background: #fff; }
+.search img { flex-shrink: 0; }
+.search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 20px; font-weight: 600; line-height: 30px; }
+.search input::placeholder { color: #a1a1a1; opacity: 1; }
+.search:focus-within { border-color: #0077b6; }
+.notification { display: grid; place-items: center; width: 43px; height: 43px; border: 1.5px solid #a1a1a1; border-radius: 5px; background: #fff; cursor: pointer; }
+.headerAvatar, .avatar { display: grid; flex-shrink: 0; place-items: center; overflow: hidden; border-radius: 50%; background: #d1dff8; color: #0a3f5c; font-weight: 600; }
+.headerAvatar img, .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.headerAvatar { width: 52px; height: 52px; font-size: 18px; text-decoration: none; }
+.banner { height: 100px; overflow: hidden; border-radius: 8px 8px 0 0; }
+.banner img { display: block; width: 100%; height: 100px; object-fit: cover; }
+.content { display: flex; flex-direction: column; gap: 29px; padding: 29px 32px 0; }
+.identity { display: flex; align-items: center; justify-content: space-between; gap: 24px; scroll-margin-top: 24px; }
+.identityDetails { display: flex; align-items: center; gap: 24px; min-width: 0; }
+.avatar { width: 100px; height: 100px; padding: 0; border: 0; font-size: 36px; cursor: pointer; }
+.avatar:disabled { cursor: wait; opacity: .65; }
+.photoActions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.photoActions button { padding: 0; border: 0; background: transparent; color: #0077b6; font: inherit; font-size: 13px; cursor: pointer; }
+.photoActions button:disabled { cursor: wait; opacity: .55; }
+.photoSettings { margin-top: -12px; color: #64748b; font-size: 12px; line-height: 20px; }
+.photoSettings p { margin: 0; }
+.photoError { color: #b91c1c; }
+.photoSuccess { color: #15803d; }
+.fileInput { display: none; }
+.name { min-width: 0; }
+.name h2 { margin: 0 0 12px; font-size: 20px; font-weight: 600; line-height: 25px; overflow-wrap: anywhere; }
+.name p { margin: 0; color: #0008; font-size: 16px; font-weight: 500; line-height: 24px; overflow-wrap: anywhere; }
+.edit { flex-shrink: 0; width: 93px; height: 44px; border: 0; border-radius: 8px; background: #0077b6; color: #fff; font-size: 16px; }
+.edit:disabled, .addEmail:disabled { cursor: not-allowed; opacity: .55; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 29px 32px; }
+.field { display: flex; min-width: 0; flex-direction: column; gap: 12px; color: #000c; font-size: 16px; line-height: 20px; }
+.fieldValue { display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 20px; border-radius: 8px; background: #f9f9f9; }
+.fieldValue input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #3e435d; font: inherit; text-overflow: ellipsis; }
+.fieldValue img { flex-shrink: 0; opacity: .5; }
+.email { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; min-width: 0; }
+.email h2 { margin: 0; font-size: 18px; font-weight: 500; line-height: 24px; }
+.emailDetails { display: flex; align-items: flex-start; gap: 20px; min-width: 0; }
+.emailIcon { display: grid; flex-shrink: 0; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #d1dff8; }
+.emailDetails p { margin: 0 0 8px; font-size: 16px; line-height: 24px; overflow-wrap: anywhere; }
+.emailDetails small { color: #0008; font-size: 16px; line-height: 24px; overflow-wrap: anywhere; }
+.addEmail { min-height: 44px; margin-top: 12px; padding: 10px 24px; border: 1px solid #0a3f5c; border-radius: 8px; background: transparent; color: #0077b6; font: inherit; font-size: 16px; }
+.editNote, .empty { margin: 0; color: #64748b; font-size: 13px; line-height: 20px; }
+.recovery { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; color: #0077b6; }
+.page :is(button, input, a):focus-visible { outline: 2px solid #0077b6; outline-offset: 3px; }
+
+@media (max-width: 1150px) {
+  .header { flex-wrap: wrap; }
+  .headerActions { flex: 1; justify-content: flex-end; }
+  .search { width: min(373px, 100%); }
+}
+
+@media (max-width: 700px) {
+  .page { padding-top: 16px; }
+  .headerActions { width: 100%; flex-basis: 100%; gap: 12px; }
+  .search { flex: 1; width: auto; }
+  .content { padding: 24px 0 0; }
+  .fields { grid-template-columns: 1fr; gap: 24px; }
+  .identity { flex-wrap: wrap; gap: 16px; }
+  .identityDetails { gap: 16px; }
+  .avatar { width: 72px; height: 72px; font-size: 28px; }
+  .headerAvatar { width: 43px; height: 43px; font-size: 16px; }
+  .search input { font-size: 18px; }
+  .notificationPanel { width: min(320px, calc(100vw - 110px)); }
+  .emailDetails small { font-size: 13px; }
+}

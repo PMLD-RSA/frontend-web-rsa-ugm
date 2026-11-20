@@ -345,6 +345,13 @@
   .mapPopup { width: auto; padding: 18px; }
 }
 .dashboardColumn { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+@media (min-width: 1151px) {
+  .dashboardColumn { display: contents; }
+  .dashboardColumn:first-child > :first-child { grid-column: 1; grid-row: 1; }
+  .dashboardColumn:first-child > :last-child { grid-column: 1; grid-row: 2; }
+  .dashboardColumn:last-child > :first-child { grid-column: 2; grid-row: 1; }
+  .dashboardColumn:last-child > :last-child { grid-column: 2; grid-row: 2; }
+}
 .statTabs { flex-wrap: wrap; }
 .statDateRange { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 12px; margin-bottom: 18px; border: 1px solid #ececf2; border-radius: 8px; }
 .statDateRange label { display: flex; flex: 1; min-width: 130px; flex-direction: column; gap: 6px; color: #697586; font-size: 12px; }

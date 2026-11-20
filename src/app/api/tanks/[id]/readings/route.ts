@@ -22,13 +22,14 @@ export async function GET(
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
   // Generate fallback 50 readings for this tank
-  const targetTank = MOCK_TANKS.find((t) => t.id === id) || MOCK_TANKS[0];
-  const basePercent = Number(targetTank.latestReading?.levelPercent || 75);
-  const baseVolume = Number(targetTank.latestReading?.volumeLiters || 7500);
+  const targetTank = MOCK_TANKS.find((t) => t.id === id);
+  const reading = targetTank?.latestReading;
+  const basePercent = Number(reading?.levelPercent);
+  const baseVolume = Number(reading?.volumeLiters);
 
   const fallbackReadings: WaterLevelReading[] = [];
   const now = Date.now();
-  for (let i = 0; i < Number(limit); i++) {
+  for (let i = 0; targetTank && reading && i < Number(limit); i++) {
     fallbackReadings.push({
       id: 1000 + i,
       tankId: targetTank.id,

@@ -78,16 +78,23 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // Backend menolak (401/403)
+    // Teruskan penolakan backend, termasuk batas percobaan login (429).
     const errData = await beRes.json().catch(() => ({}));
     return NextResponse.json(
       {
         success: false,
-        message: errData.message || (beRes.status === 401 || beRes.status === 403
-          ? "Username atau password salah."
-          : "Backend tidak dapat memproses login."),
+        message: errData.message || (beRes.status === 429
+          ? "Terlalu banyak percobaan login. Tunggu hingga pembatasan backend berakhir, lalu coba lagi."
+          : beRes.status === 401 || beRes.status === 403
+            ? "Username atau password salah."
+            : "Backend tidak dapat memproses login."),
       },
-      { status: beRes.status }
+      {
+        status: beRes.status,
+        headers: beRes.status === 429 && beRes.headers.has("retry-after")
+          ? { "Retry-After": beRes.headers.get("retry-after")! }
+          : undefined,
+      }
     );
   } catch {
     return NextResponse.json(

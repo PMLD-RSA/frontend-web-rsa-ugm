@@ -6,13 +6,14 @@ import 'leaflet/dist/leaflet.css';
 import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
+import { vokasiTankName } from '@/lib/vokasiLocations';
 import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
 const locations = [
-  { id: 'DTEDI', name: 'DTEDI', sourceTankName: 'Tangki Atap Gedung Utama', position: [-7.7751166667, 110.3736611111] as [number, number], coordinateLabel: `7°46'30.42"S, 110°22'25.18"E` },
-  { id: 'DTK', name: 'DTK', sourceTankName: 'Tangki Gedung Rawat Inap', position: [-7.7747805556, 110.3743777778] as [number, number], coordinateLabel: `7°46'29.21"S, 110°22'27.76"E` },
-  { id: 'DLIKES', name: 'DLIKES', sourceTankName: null, position: [-7.7738361111, 110.3744027778] as [number, number], coordinateLabel: `7°46'25.81"S, 110°22'27.85"E` },
+  { id: 'DTEDI', name: 'DTEDI', position: [-7.7751166667, 110.3736611111] as [number, number], coordinateLabel: `7°46'30.42"S, 110°22'25.18"E` },
+  { id: 'DTK', name: 'DTK', position: [-7.7747805556, 110.3743777778] as [number, number], coordinateLabel: `7°46'29.21"S, 110°22'27.76"E` },
+  { id: 'DLIKES', name: 'DLIKES', position: [-7.7738361111, 110.3744027778] as [number, number], coordinateLabel: `7°46'25.81"S, 110°22'27.85"E` },
 ];
 
 const colors: Record<string, string> = {
@@ -45,7 +46,7 @@ export function TankMap({
   const visible = useMemo(() => locations
     .map(location => {
       const tank = tanks.find(tank =>
-        tank.name.trim().toLowerCase() === location.sourceTankName?.toLowerCase() ||
+        vokasiTankName(tank.name) === location.id ||
         new RegExp(`(^|[^A-Z])${location.id}([^A-Z]|$)`, 'i').test(`${tank.name} ${tank.location ?? ''}`)
       );
       return { ...location, tank, tankStatus: tank ? getTankStatus(tank) ?? 'UNKNOWN' : 'UNKNOWN' };

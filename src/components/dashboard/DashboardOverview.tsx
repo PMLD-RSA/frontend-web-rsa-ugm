@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import localFont from 'next/font/local';
 import { useRef, useState } from 'react';
 import type { Tank } from '@/types';
 import { Card } from '@/components/ui/Card';
@@ -11,15 +12,31 @@ import {
 import { DashboardIcon as Icon } from './DashboardIcon';
 import { DashboardDatePicker } from './DashboardCalendar';
 import { DashboardFilter } from './DashboardFilter';
+import { AnchoredPopover } from './AnchoredPopover';
 import { DownloadReportDialog } from './DownloadReportDialog';
 import { NotificationPopover } from './NotificationPopover';
 import styles from './DashboardOverview.module.css';
+
+const dateRangeFont = localFont({
+  src: '../../../assets/fonts/inter/Inter-Variable.ttf',
+  weight: '500',
+  style: 'normal',
+  display: 'swap',
+});
 
 const statuses = [
   { value: 'NORMAL', label: 'Normal', tone: 'normal', description: 'Safe Water Level', image: 'tank-normal.png', width: 107 },
   { value: 'WARNING', label: 'Warning', tone: 'warning', description: 'Monitoring Required', image: 'tank-warning.png', width: 108 },
   { value: 'CRITICAL', label: 'Critical', tone: 'critical', description: 'Action Required', image: 'tank-critical.png', width: 99 },
 ] as const;
+
+const periods: { value: DashboardPeriod; label: string }[] = [
+  { value: 'Daily', label: 'Daily' },
+  { value: 'Weekly', label: 'Weekly' },
+  { value: 'Monthly', label: 'Monthly' },
+  { value: 'Custom', label: 'Custom' },
+  { value: 'All', label: 'All Time' },
+];
 
 interface Props {
   tanks: Tank[];
@@ -74,28 +91,48 @@ export function DashboardOverview({ tanks, allTanks, loading, failed, query, onQ
       <div className={styles.headingRow}>
         <h1>Dashboard</h1>
         <div className={styles.controls}>
-          <div ref={dateControl} className={styles.dateControl}>
+          <div ref={dateControl} className={`${styles.dateControl} ${dateRangeFont.className}`}>
             <DashboardDatePicker label="Select latest reading date range" triggerClassName={styles.dateButton} value={filters} onChange={(range) => onFiltersChange({ ...filters, ...range, period: 'Custom' })}>
-              <Icon name="calendar" width={16} />
+              <Image src="/images/dashboard/date-range-calendar.svg" alt="" width={16} height={16} unoptimized />
               <span>{rangeLabel(filters.startDate, filters.endDate)}</span>
             </DashboardDatePicker>
-            <div className={styles.period}>
-              <select
-                aria-label="Latest reading period" value={filters.period}
-                onChange={(event) => {
-                  const period = event.target.value as DashboardPeriod;
-                  if (period === 'Custom') dateControl.current?.querySelector<HTMLButtonElement>('button[popovertarget]')?.click();
-                  else onFiltersChange({ ...filters, ...periodRange(period), period });
-                }}
-              >
-                <option value="Daily">Daily</option>
-                <option value="Weekly">Weekly</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Custom">Custom</option>
-                <option value="All">All time</option>
-              </select>
-              <Icon name="chevron-down" width={13} />
-            </div>
+            <AnchoredPopover
+              label="Time Range"
+              anchorRef={dateControl}
+              triggerClassName={styles.period}
+              trigger={<><span>{periods.find(period => period.value === filters.period)?.label}</span><Image src="/images/dashboard/date-range-chevron.svg" alt="" width={13} height={13} unoptimized /></>}
+            >
+              {(close) => (
+                <div className={styles.timeRangePanel}>
+                  <header className={styles.timeRangeHeader}>
+                    <h2>Time Range</h2>
+                    <button type="button" aria-label="Close time range" onClick={close}>
+                      <Image src="/images/dashboard/time-range-close.svg" alt="" width={16} height={16} unoptimized />
+                    </button>
+                  </header>
+                  <div className={styles.timeRangeOptions}>
+                    {periods.map(period => (
+                      <button
+                        key={period.value}
+                        type="button"
+                        aria-pressed={filters.period === period.value}
+                        data-popup-focus={filters.period === period.value ? '' : undefined}
+                        onClick={() => {
+                          close();
+                          if (period.value === 'Custom') {
+                            dateControl.current?.querySelector<HTMLButtonElement>('button[popovertarget]')?.click();
+                          } else {
+                            onFiltersChange({ ...filters, ...periodRange(period.value), period: period.value });
+                          }
+                        }}
+                      >
+                        {period.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </AnchoredPopover>
           </div>
           <DashboardFilter tanks={allTanks} filters={filters} onChange={onFiltersChange} triggerClassName={styles.filterButton} />
         </div>

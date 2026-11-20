@@ -145,7 +145,7 @@ export default function DevicesPage() {
                 <div className={styles.gatewayHeader}>
                   <div>
                     <h3>{gw.deviceCode || "Gateway Utama RSA UGM"}</h3>
-                    <p>Atap Gedung Utama (Raspberry Pi 4)</p>
+                    <p>Gedung DTEDI (Raspberry Pi 4)</p>
                   </div>
                   <span className={isOnline ? styles.badgeOnline : styles.badgeOffline}>
                     {isOnline ? <Wifi size={12} /> : <WifiOff size={12} />}
@@ -174,7 +174,7 @@ export default function DevicesPage() {
             <div className={styles.gatewayHeader}>
               <div>
                 <h3>Gateway Utama RSA UGM</h3>
-                <p>Atap Gedung Utama (Raspberry Pi 4)</p>
+                <p>Gedung DTEDI (Raspberry Pi 4)</p>
               </div>
               <span className={styles.badgeOnline}>
                 <Wifi size={12} /> Online
