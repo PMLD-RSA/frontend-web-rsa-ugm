@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { LuClock3 as Clock3, LuDroplets as Droplets, LuInfo as Info, LuX as X, LuRefreshCw as RefreshCw } from "react-icons/lu";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { ApiResponse, AuditLog, Tank, WaterLevelReading } from '@/types';
-import { TankStatistics, referenceTanks } from './TankStatistics';
+import { TankStatistics } from './TankStatistics';
 import { TankMap } from './TankMap';
 import { measurement, readingTime, TankDetails } from './TankLevel';
 import styles from './TankDashboard.module.css';
@@ -234,7 +234,7 @@ export function TankDashboard({ tanks, loading, unavailable, onRefresh }: { tank
   return <>
     <div className={styles.dashboardGrid}>
       <div className={styles.dashboardColumn}>
-      <TankMap tanks={unavailable ? referenceTanks : tanks} loading={loading} unavailable={unavailable} onDetail={setDetail} />
+      <TankMap tanks={unavailable ? [] : tanks} loading={loading} unavailable={unavailable} onDetail={setDetail} />
       <VolumeHistory tanks={tanks} />
       </div>
       <div className={styles.dashboardColumn}>
