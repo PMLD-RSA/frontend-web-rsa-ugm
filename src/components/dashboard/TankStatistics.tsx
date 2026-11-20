@@ -5,13 +5,23 @@ import { useState } from 'react';
 import { LuRefreshCw as RefreshCw } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
+import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
 import { numeric, readingTime } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
-const referenceTanks: Tank[] = ['DTK', 'DTEDI', 'DLIKES'].map(name => ({
-  id: `reference-${name}`, name, location: name,
-  capacityLiters: '', minThresholdPercent: '', maxThresholdPercent: '',
-}));
+const referenceTanks: Tank[] = ['DTK', 'DTEDI', 'DLIKES'].map(name => {
+  const loc = VOKASI_LOCATIONS.find(l => l.name === name);
+  return {
+    id: 'reference-' + name,
+    name,
+    location: name,
+    latitude: loc ? String(loc.latitude) : undefined,
+    longitude: loc ? String(loc.longitude) : undefined,
+    capacityLiters: '',
+    minThresholdPercent: '',
+    maxThresholdPercent: '',
+  };
+});
 
 const locationNames: Record<string, string> = {
   'tangki gedung rawat inap': 'DTK',

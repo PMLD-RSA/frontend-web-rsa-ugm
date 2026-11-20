@@ -173,7 +173,7 @@ export function TankMap({
       </header>
 
       <div className={styles.mapFrame}>
-        <div ref={mapElement} className={styles.satelliteMap} aria-label="Peta satelit DTEDI, DTK, dan DLIKES" />
+        <div ref={mapElement} className={styles.satelliteMap} aria-label="Peta satelit Sekolah Vokasi UGM" />
 
         {current && (
           <div
