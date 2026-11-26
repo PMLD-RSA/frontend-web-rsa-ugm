@@ -10,23 +10,39 @@ import {
 } from "react-icons/lu";
 import { AuditLog, ApiResponse } from "@/types";
 import { downloadCsv } from "@/lib/downloadCsv";
+import { isAdmin, useAuthStore } from "@/stores/authStore";
 import { useTankStore } from "@/stores/tankStore";
 import styles from "./logs.module.css";
 
 export default function LogsPage() {
+  const currentUser = useAuthStore((state) => state.user);
+  const userLoaded = currentUser !== null;
+  const canViewLogs = isAdmin(currentUser);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isForbidden, setIsForbidden] = useState(false);
   const tanks = useTankStore((state) => state.tanks);
 
   const [query, setQuery] = useState("");
+  const [entityFilter, setEntityFilter] = useState("ALL");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [tankFilter, setTankFilter] = useState("ALL");
   const [page, setPage] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
-  async function loadLogs(signal?: AbortSignal) {
+  async function loadLogs(selectedEntity = entityFilter, signal?: AbortSignal) {
     try {
-      const response = await fetch("/api/audit-logs?limit=100", { signal });
+      const params = new URLSearchParams({ limit: "100" });
+      if (selectedEntity !== "ALL") {
+        params.set("entity", selectedEntity);
+      }
+      const response = await fetch(`/api/audit-logs?${params.toString()}`, { signal });
+      if (response.status === 403) {
+        setIsForbidden(true);
+        setLogs([]);
+        return;
+      }
+      setIsForbidden(false);
       const result: ApiResponse<AuditLog[]> = await response.json();
       if (response.ok && result.success && Array.isArray(result.data)) {
         setLogs(result.data);
@@ -34,23 +50,43 @@ export default function LogsPage() {
         setLogs([]);
       }
     } catch {
-      setLogs([]);
+      if (!signal?.aborted) setLogs([]);
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   }
 
   useEffect(() => {
+    if (userLoaded && !canViewLogs) {
+      setIsForbidden(true);
+      setLogs([]);
+      setIsLoading(false);
+      return;
+    }
+
     let ignore = false;
     const controller = new AbortController();
 
     async function fetchLogs() {
+      setIsLoading(true);
       try {
-        const response = await fetch("/api/audit-logs?limit=100", {
+        const params = new URLSearchParams({ limit: "100" });
+        if (entityFilter !== "ALL") {
+          params.set("entity", entityFilter);
+        }
+        const response = await fetch(`/api/audit-logs?${params.toString()}`, {
           signal: controller.signal,
         });
+        if (response.status === 403) {
+          if (!ignore) {
+            setIsForbidden(true);
+            setLogs([]);
+          }
+          return;
+        }
         const result: ApiResponse<AuditLog[]> = await response.json();
         if (!ignore) {
+          setIsForbidden(false);
           if (response.ok && result.success && Array.isArray(result.data)) {
             setLogs(result.data);
           } else {
@@ -70,7 +106,7 @@ export default function LogsPage() {
       ignore = true;
       controller.abort();
     };
-  }, []);
+  }, [entityFilter, userLoaded, canViewLogs]);
 
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
@@ -179,15 +215,39 @@ export default function LogsPage() {
             </button>
 
             <select
+              aria-label="Filter entitas"
+              className={styles.selectInput}
+              value={entityFilter}
+              onChange={(e) => {
+                setEntityFilter(e.target.value);
+                setPage(0);
+              }}
+            >
+              <option value="ALL">All Entities</option>
+              <option value="auth">Auth</option>
+              <option value="tanks">Tanks</option>
+              <option value="alerts">Alerts</option>
+              <option value="users">Users</option>
+            </select>
+
+            <select
               aria-label="Filter tipe aksi"
               className={styles.selectInput}
               value={actionFilter}
-              onChange={(e) => setActionFilter(e.target.value)}
+              onChange={(e) => {
+                setActionFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <option value="ALL">All Types</option>
               <option value="LOGIN">Login</option>
               <option value="RESOLVE_ALERT">Resolve Alert</option>
+              <option value="CREATE_TANK">Create Tank</option>
               <option value="UPDATE_TANK">Update Tank</option>
+              <option value="DELETE_TANK">Delete Tank</option>
+              <option value="CREATE_USER">Create User</option>
+              <option value="UPDATE_USER">Update User</option>
+              <option value="DELETE_USER">Delete User</option>
             </select>
 
             <select
@@ -248,7 +308,11 @@ export default function LogsPage() {
               ) : (
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
-                    {isLoading ? "Memuat riwayat log..." : "Tidak ada catatan log aktivitas yang cocok."}
+                    {isLoading
+                      ? "Memuat riwayat log..."
+                      : isForbidden
+                      ? "Akses terbatas: halaman Audit Logs hanya tersedia untuk role Admin."
+                      : "Tidak ada catatan log aktivitas yang cocok."}
                   </td>
                 </tr>
               )}
