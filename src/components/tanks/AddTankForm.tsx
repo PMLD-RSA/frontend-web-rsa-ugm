@@ -25,8 +25,10 @@ export function AddTankForm({
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const location = String(data.get("location") ?? "").trim();
-    const latitude = Number(data.get("latitude"));
-    const longitude = Number(data.get("longitude"));
+    const latRaw = String(data.get("latitude") ?? "").trim();
+    const lngRaw = String(data.get("longitude") ?? "").trim();
+    const latitude = latRaw === "" ? NaN : Number(latRaw);
+    const longitude = lngRaw === "" ? NaN : Number(lngRaw);
     const capacityLiters = Number(data.get("capacityLiters"));
     const minDistanceCm = Number(data.get("minDistanceCm") || 30);
     const maxDistanceCm = Number(data.get("maxDistanceCm") || 350);
@@ -41,8 +43,14 @@ export function AddTankForm({
       return;
     }
 
-    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
-        !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+    if (
+      !Number.isFinite(latitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      !Number.isFinite(longitude) ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
       setError("Enter valid latitude and longitude coordinates.");
       return;
     }

@@ -32,12 +32,12 @@ export default function DashboardRouteLayout({ children }: { children: ReactNode
   useRealtimeSocket();
 
   return (
-    <div lang="en" className="flex h-screen w-full bg-slate-50 overflow-hidden">
+    <div lang="en" className="flex h-[100dvh] w-full bg-slate-50 overflow-hidden">
       {/* Sidebar Navigasi */}
       <Sidebar />
 
       {/* Konten Utama */}
-      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col h-[100dvh] overflow-hidden">
         {/* Dynamic Content Viewport */}
         <main
           className={

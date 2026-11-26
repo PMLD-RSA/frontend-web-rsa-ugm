@@ -25,6 +25,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await fetch("/api/auth/me");
+      if (res.status === 401) {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("ws_token");
+        }
+        set({ user: null, token: null, isAuthenticated: false });
+        if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+          window.location.replace("/login");
+        }
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         let activeToken: string | null = null;

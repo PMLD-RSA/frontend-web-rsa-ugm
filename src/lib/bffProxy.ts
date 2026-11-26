@@ -27,8 +27,9 @@ export async function forwardToBackend<T>(
       fetchHeaders.set("Content-Type", "application/json");
     }
 
+    const method = (options.method || "GET").toUpperCase();
     const res = await fetch(url, {
-      method: options.method || "GET",
+      method,
       headers: fetchHeaders,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
@@ -38,22 +39,34 @@ export async function forwardToBackend<T>(
     clearTimeout(timeout);
 
     if (res.ok) {
+      if (res.status === 204) {
+        return NextResponse.json({ success: true } as ApiResponse<T>, { status: 200 });
+      }
       const data = await res.json();
-      return NextResponse.json(normalizeVokasiDisplayData(data));
+      return NextResponse.json(normalizeVokasiDisplayData(data), { status: res.status });
     }
 
-    // Jika server merespons 4xx/5xx, kembalikan pesan error asli dari backend
+    // Jika server merespons 4xx/5xx (termasuk 401/403/429), kembalikan error asli backend
+    const responseHeaders =
+      res.status === 429 && res.headers.has("retry-after")
+        ? { "Retry-After": res.headers.get("retry-after")! }
+        : undefined;
+
     try {
       const errJson = await res.json();
-      return NextResponse.json(errJson, { status: res.status });
+      return NextResponse.json(errJson, { status: res.status, headers: responseHeaders });
     } catch {
       return NextResponse.json(
         { success: false, message: `Backend error HTTP ${res.status}` },
-        { status: res.status }
+        { status: res.status, headers: responseHeaders }
       );
     }
   } catch {
-    if (options.fallbackData === undefined) {
+    const method = (options.method || "GET").toUpperCase();
+    const isReadMethod = method === "GET" || method === "HEAD";
+
+    // Jangan pernah pakai fallback mock untuk operasi mutasi (POST/PATCH/PUT/DELETE)
+    if (!isReadMethod || options.fallbackData === undefined) {
       return NextResponse.json(
         { success: false, message: "The backend is unreachable." },
         { status: 503 }

@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 20;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   overflow-y: auto;
   color: #1b1919;
@@ -64,7 +64,7 @@
   justify-content: center;
   gap: 53px;
   width: min(1369px, calc(100% - 70px));
-  height: min(874px, calc(100vh - 150px));
+  height: min(874px, calc(100dvh - 150px));
   min-height: 0;
   margin: 33px auto 35px;
 }

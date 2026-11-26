@@ -9,6 +9,38 @@
   --navigation-hover: linear-gradient(90deg, #0077b6, #0a3f5c);
 }
 
+.mobileBackdrop,
+.mobileSpacer {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .sidebar[data-expanded='true'] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    --sidebar-width: 191px;
+    box-shadow: 8px 0 28px rgba(5, 0, 78, 0.28);
+  }
+
+  .mobileBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(1px);
+  }
+
+  .mobileSpacer {
+    display: block;
+    width: 75px;
+    flex-shrink: 0;
+  }
+}
+
 .navItem {
   --sidebar-icon-color: #ffcc00;
   isolation: isolate;
