@@ -13,6 +13,7 @@ import {
 } from "react-icons/lu";
 import { AuditLog, ApiResponse } from "@/types";
 import { downloadCsv } from "@/lib/downloadCsv";
+import { isAdmin, useAuthStore } from "@/stores/authStore";
 import { useTankStore } from "@/stores/tankStore";
 import styles from "./logs.module.css";
 
@@ -48,22 +49,38 @@ function FilterMenu({ label, title, options, value, onChange, highlighted = fals
 }
 
 export default function LogsPage() {
+  const currentUser = useAuthStore((state) => state.user);
+  const userLoaded = currentUser !== null;
+  const canViewLogs = isAdmin(currentUser);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isForbidden, setIsForbidden] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const forbidden = isForbidden || (userLoaded && !canViewLogs);
   const tanks = useTankStore((state) => state.tanks);
   const fetchTanks = useTankStore((state) => state.fetchTanks);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const [query, setQuery] = useState("");
+  const [entityFilter, setEntityFilter] = useState("ALL");
   const [actionFilter, setActionFilter] = useState("ALL");
   const [tankFilter, setTankFilter] = useState("ALL");
   const [page, setPage] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
-  async function loadLogs(signal?: AbortSignal) {
+  async function loadLogs(selectedEntity = entityFilter, signal?: AbortSignal) {
     try {
-      const response = await fetch("/api/audit-logs?limit=100", { signal });
+      const params = new URLSearchParams({ limit: "100" });
+      if (selectedEntity !== "ALL") {
+        params.set("entity", selectedEntity);
+      }
+      const response = await fetch(`/api/audit-logs?${params.toString()}`, { signal });
+      if (response.status === 403) {
+        setIsForbidden(true);
+        setLogs([]);
+        return;
+      }
+      setIsForbidden(false);
       const result: ApiResponse<AuditLog[]> = await response.json();
       if (response.ok && result.success && Array.isArray(result.data)) {
         setLogs(result.data);
@@ -74,24 +91,43 @@ export default function LogsPage() {
         setLoadError(true);
       }
     } catch {
-      setLogs([]);
-      setLoadError(true);
+      if (!signal?.aborted) {
+        setLogs([]);
+        setLoadError(true);
+      }
     } finally {
-      setIsLoading(false);
+      if (!signal?.aborted) setIsLoading(false);
     }
   }
 
   useEffect(() => {
+    if (userLoaded && !canViewLogs) {
+      return;
+    }
+
     let ignore = false;
     const controller = new AbortController();
 
     async function fetchLogs() {
       try {
-        const response = await fetch("/api/audit-logs?limit=100", {
+        const params = new URLSearchParams({ limit: "100" });
+        if (entityFilter !== "ALL") {
+          params.set("entity", entityFilter);
+        }
+        const response = await fetch(`/api/audit-logs?${params.toString()}`, {
           signal: controller.signal,
         });
+        if (response.status === 403) {
+          if (!ignore) {
+            setIsForbidden(true);
+            setLogs([]);
+            setLoadError(false);
+          }
+          return;
+        }
         const result: ApiResponse<AuditLog[]> = await response.json();
         if (!ignore) {
+          setIsForbidden(false);
           if (response.ok && result.success && Array.isArray(result.data)) {
             setLogs(result.data);
             setLastUpdated(new Date());
@@ -102,7 +138,10 @@ export default function LogsPage() {
           }
         }
       } catch {
-        if (!ignore) { setLogs([]); setLoadError(true); }
+        if (!ignore) {
+          setLogs([]);
+          setLoadError(true);
+        }
       } finally {
         if (!ignore) setIsLoading(false);
       }
@@ -115,15 +154,25 @@ export default function LogsPage() {
       ignore = true;
       controller.abort();
     };
-  }, [fetchTanks]);
+  }, [entityFilter, userLoaded, canViewLogs, fetchTanks]);
 
   const eventGroups = useMemo(() => [
     { value: "LOGIN", label: "Login", actions: ["LOGIN"] },
-    { value: "DATA_UPDATE", label: "Data Update", actions: ["DATA_UPDATE", "UPDATE_TANK"] },
+    { value: "DATA_UPDATE", label: "Data Update", actions: ["DATA_UPDATE", "CREATE_TANK", "UPDATE_TANK", "DELETE_TANK"] },
     { value: "ALERT_TRIGGERED", label: "Alert Triggered", actions: ["ALERT_TRIGGERED", "TRIGGER_ALERT"] },
-    { value: "PUMP_ACTIVATED", label: "Pump Activated", actions: ["PUMP_ACTIVATED", "ACTIVATE_PUMP"] },
     { value: "ALERT_RESOLVED", label: "Alert Resolved", actions: ["ALERT_RESOLVED", "RESOLVE_ALERT"] },
+    { value: "USER_MANAGEMENT", label: "User Management", actions: ["CREATE_USER", "UPDATE_USER", "DELETE_USER"] },
   ], []);
+  const entityOptions = useMemo(
+    () => [
+      { value: "ALL", label: "All Entities" },
+      { value: "auth", label: "Auth" },
+      { value: "tanks", label: "Tanks" },
+      { value: "alerts", label: "Alerts" },
+      { value: "users", label: "Users" },
+    ],
+    []
+  );
   const actionOptions = useMemo(() => [
     { value: "ALL", label: "All Types" }, ...eventGroups,
     ...Array.from(new Set(logs.map((log) => log.action))).filter((action) => !eventGroups.some((group) => group.actions.includes(action))).sort().map((action) => ({
@@ -182,7 +231,7 @@ export default function LogsPage() {
   return (
     <section className={styles.page}>
       <div className={styles.summaryRow} aria-label="Ringkasan aktivitas">
-        <div className={`${styles.summaryCard} ${styles.total}`}><h2>Total Activities</h2><strong>{isLoading || loadError ? "-" : logs.length}</strong></div>
+        <div className={`${styles.summaryCard} ${styles.total}`}><h2>Total Activities</h2><strong>{forbidden || isLoading || loadError ? "-" : logs.length}</strong></div>
         <div className={`${styles.summaryCard} ${styles.warning}`}><h2>Warning</h2><strong>-</strong></div>
         <div className={`${styles.summaryCard} ${styles.success}`}><h2>Success</h2><strong>-</strong></div>
       </div>
@@ -234,6 +283,17 @@ export default function LogsPage() {
           </div>
 
           <div className={styles.toolbarActions}>
+            <FilterMenu
+              label="Filter entitas"
+              title="Filter by Entity"
+              options={entityOptions}
+              value={entityFilter}
+              onChange={(value) => {
+                setIsLoading(true);
+                setEntityFilter(value);
+                setPage(0);
+              }}
+            />
             <FilterMenu label="Filter tipe aksi" title="Filter by Event Type" options={actionOptions} value={actionFilter} onChange={(value) => { setActionFilter(value); setPage(0); }} />
             <FilterMenu label="Filter berdasarkan tangki" title="Select Tank" options={tankOptions} value={tankFilter} highlighted onChange={(value) => { setTankFilter(value); setPage(0); }} />
           </div>
@@ -281,7 +341,13 @@ export default function LogsPage() {
               ) : (
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
-                    {isLoading ? "Memuat riwayat log..." : loadError ? "Riwayat aktivitas tidak tersedia. Silakan coba lagi." : "Tidak ada catatan log aktivitas yang cocok."}
+                    {forbidden
+                      ? "Akses terbatas: halaman Audit Logs hanya tersedia untuk role Admin."
+                      : isLoading
+                      ? "Memuat riwayat log..."
+                      : loadError
+                      ? "Riwayat aktivitas tidak tersedia. Silakan coba lagi."
+                      : "Tidak ada catatan log aktivitas yang cocok."}
                   </td>
                 </tr>
               )}

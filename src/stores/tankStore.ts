@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import { Tank, WsLevelUpdateData, Alert } from "@/types";
+import { Tank, WsLevelUpdateData, Alert, NodeStatus } from "@/types";
+
+interface WsNodeStatusUpdate {
+  nodeCode?: string;
+  tankId?: string;
+  status?: NodeStatus;
+  rssi?: number | null;
+  lastSeen?: string;
+}
 
 interface TankState {
   tanks: Tank[];
@@ -9,6 +17,7 @@ interface TankState {
   setTanks: (tanks: Tank[]) => void;
   fetchTanks: (signal?: AbortSignal) => Promise<void>;
   updateTankFromWs: (update: WsLevelUpdateData) => void;
+  updateNodeStatusFromWs: (update: WsNodeStatusUpdate) => void;
   setTankActiveAlert: (tankId: string, alert: Alert | null) => void;
 }
 
@@ -60,6 +69,33 @@ export const useTankStore = create<TankState>((set) => ({
           ...tank,
           latestReading: newReading,
         };
+      }),
+    }));
+  },
+
+  updateNodeStatusFromWs: (update) => {
+    set((state) => ({
+      tanks: state.tanks.map((tank) => {
+        if (!tank.nodes?.length) return tank;
+        const matchesTank = Boolean(update.tankId && tank.id === update.tankId);
+        let changed = false;
+
+        const updatedNodes = tank.nodes.map((node) => {
+          const matchesNode = Boolean(
+            update.nodeCode &&
+              node.deviceCode.toLowerCase() === update.nodeCode.toLowerCase()
+          );
+          if (!matchesTank && !matchesNode) return node;
+          changed = true;
+          return {
+            ...node,
+            status: update.status ?? node.status,
+            lastRssi: update.rssi !== undefined ? update.rssi : node.lastRssi,
+            lastSeen: update.lastSeen ?? node.lastSeen,
+          };
+        });
+
+        return changed ? { ...tank, nodes: updatedNodes } : tank;
       }),
     }));
   },

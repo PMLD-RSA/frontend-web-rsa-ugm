@@ -43,9 +43,9 @@ Folder ekspor berulang `UI/UI`, `source/source`, dan folder kosong telah digabun
 Pembersihan memakai SHA-256 isi file, bukan kesamaan nama. Daftar file yang dihapus dan salinan identik yang dipertahankan tersimpan di `asset-deduplication.json`.
 
 ```sh
-npm run assets:audit
-npm run assets:audit -- --verbose
-npm run assets:dedupe
+pnpm run assets:audit
+pnpm run assets:audit -- --verbose
+pnpm run assets:dedupe
 ```
 
 Audit tidak mengubah file. Deduplikasi hanya menghapus salinan di `assets/` yang tidak dirujuk secara literal oleh source, setelah memastikan hash salinan yang dipertahankan sama. Symlink dilewati. Manifest dipertahankan antar-eksekusi.

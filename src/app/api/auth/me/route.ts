@@ -46,11 +46,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: user });
     }
 
-    // Token tidak valid di backend
-    return NextResponse.json(
+    // Token tidak valid di backend — hapus cookie HttpOnly yang kadaluarsa/invalid
+    const response = NextResponse.json(
       { success: false, message: "Sesi tidak valid. Silakan login kembali." },
       { status: 401 }
     );
+    if (cookieToken) {
+      response.cookies.delete("auth_token");
+    }
+    return response;
   } catch {
     return NextResponse.json(
       { success: false, message: "Backend tidak dapat dihubungi." },

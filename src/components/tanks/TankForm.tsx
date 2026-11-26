@@ -15,6 +15,8 @@ type TankUpdate = {
   maxThresholdPercent: number;
   minDistanceCm: number;
   maxDistanceCm: number;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export function TankForm({
@@ -80,6 +82,10 @@ export function TankForm({
     const maxThresholdPercent = Number(data.get("maxThresholdPercent"));
     const minDistanceCm = Number(data.get("minDistanceCm") || tank.minDistanceCm || 30);
     const maxDistanceCm = Number(data.get("maxDistanceCm") || tank.maxDistanceCm || 350);
+    const latRaw = String(data.get("latitude") ?? "").trim();
+    const lngRaw = String(data.get("longitude") ?? "").trim();
+    const latitude = latRaw === "" ? null : Number(latRaw);
+    const longitude = lngRaw === "" ? null : Number(lngRaw);
     if (
       !name.trim() ||
       !Number.isFinite(capacityLiters) ||
@@ -90,10 +96,12 @@ export function TankForm({
       maxThresholdPercent > 100 ||
       minThresholdPercent >= maxThresholdPercent ||
       minDistanceCm >= maxDistanceCm ||
-      minDistanceCm < 0
+      minDistanceCm < 0 ||
+      (latitude !== null && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) ||
+      (longitude !== null && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
     ) {
       setError(
-        "Periksa nama, kapasitas, batas level air, dan kalibrasi jarak toren.",
+        "Periksa nama, kapasitas, batas level air, kalibrasi jarak, dan koordinat GPS toren.",
       );
       return;
     }
@@ -106,6 +114,8 @@ export function TankForm({
       maxThresholdPercent,
       minDistanceCm,
       maxDistanceCm,
+      ...(latitude !== null ? { latitude } : {}),
+      ...(longitude !== null ? { longitude } : {}),
     });
   }
 
@@ -147,6 +157,12 @@ export function TankForm({
           "jarak saat penuh",
         pending.maxDistanceCm !== Number(tank.maxDistanceCm) &&
           "jarak saat kosong",
+        pending.latitude !== undefined &&
+          pending.latitude !== (tank.latitude != null ? Number(tank.latitude) : null) &&
+          "latitude",
+        pending.longitude !== undefined &&
+          pending.longitude !== (tank.longitude != null ? Number(tank.longitude) : null) &&
+          "longitude",
       ].filter(Boolean)
     : [];
 
@@ -303,6 +319,30 @@ export function TankForm({
                     ? editStyles.changedInput
                     : undefined
                 }
+              />
+            </label>
+            <label>
+              Latitude (Opsional)
+              <input
+                name="latitude"
+                type="number"
+                min="-90"
+                max="90"
+                step="any"
+                defaultValue={tank.latitude ?? ""}
+                placeholder="Contoh: -7.775117"
+              />
+            </label>
+            <label>
+              Longitude (Opsional)
+              <input
+                name="longitude"
+                type="number"
+                min="-180"
+                max="180"
+                step="any"
+                defaultValue={tank.longitude ?? ""}
+                placeholder="Contoh: 110.373661"
               />
             </label>
           </div>
