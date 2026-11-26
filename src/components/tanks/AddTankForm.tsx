@@ -28,6 +28,10 @@ export function AddTankForm({
     const capacityLiters = Number(data.get("capacityLiters"));
     const minDistanceCm = Number(data.get("minDistanceCm") || 30);
     const maxDistanceCm = Number(data.get("maxDistanceCm") || 350);
+    const latRaw = String(data.get("latitude") ?? "").trim();
+    const lngRaw = String(data.get("longitude") ?? "").trim();
+    const latitude = latRaw === "" ? undefined : Number(latRaw);
+    const longitude = lngRaw === "" ? undefined : Number(lngRaw);
 
     if (
       !name ||
@@ -41,6 +45,14 @@ export function AddTankForm({
 
     if (minDistanceCm >= maxDistanceCm || minDistanceCm < 0) {
       setError("Jarak sensor saat penuh harus lebih kecil dari jarak saat kosong.");
+      return;
+    }
+
+    if (
+      (latitude !== undefined && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) ||
+      (longitude !== undefined && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
+    ) {
+      setError("Koordinat GPS tidak valid (latitude -90..90, longitude -180..180).");
       return;
     }
 
@@ -59,6 +71,8 @@ export function AddTankForm({
           maxThresholdPercent: 90,
           minDistanceCm,
           maxDistanceCm,
+          ...(latitude !== undefined ? { latitude } : {}),
+          ...(longitude !== undefined ? { longitude } : {}),
         }),
       });
       const result: ApiResponse = await response.json();
@@ -127,6 +141,28 @@ export function AddTankForm({
               placeholder="Masukkan nama gedung"
               maxLength={150}
               required
+            />
+          </label>
+          <label>
+            Latitude (Opsional)
+            <input
+              name="latitude"
+              type="number"
+              min="-90"
+              max="90"
+              step="any"
+              placeholder="Contoh: -7.775117"
+            />
+          </label>
+          <label>
+            Longitude (Opsional)
+            <input
+              name="longitude"
+              type="number"
+              min="-180"
+              max="180"
+              step="any"
+              placeholder="Contoh: 110.373661"
             />
           </label>
         </div>
