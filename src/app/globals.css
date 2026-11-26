@@ -19,3 +19,42 @@ body {
   margin: 0;
   padding: 0;
 }
+.dashboard-viewport { padding-inline: 16px; }
+@media (min-width: 768px) { .dashboard-viewport { padding-inline: 15px 34px; } }
+
+/* Shared dashboard search and breadcrumb styles. */
+.app-search {
+  width: min(505px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  height: var(--toolbar-control-height, 34px);
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #94a3b8;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+.app-search :is(svg, img) { flex: 0 0 16px; width: 16px; height: 16px; }
+.app-search input { flex: 1; width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: #334155; font-family: var(--font-plus-jakarta-sans), sans-serif; font-size: 12px; font-weight: 400; line-height: normal; }
+.app-search input::placeholder { color: #94a3b8; opacity: 1; }
+.app-search:focus-within { outline: 2px solid #0077b6; outline-offset: 2px; }
+.app-breadcrumb.app-breadcrumb { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #a1a1a1; font-size: 13px; font-weight: 600; line-height: 28px; }
+.app-breadcrumb.app-breadcrumb a { color: inherit; text-decoration: none; }
+.app-breadcrumb.app-breadcrumb a:hover, .app-breadcrumb.app-breadcrumb button { text-decoration: underline; }
+.app-breadcrumb.app-breadcrumb button { color: inherit; }
+@media (max-width: 560px) { .app-breadcrumb.app-breadcrumb { flex-wrap: wrap; } }
+
+.app-breadcrumb.app-breadcrumb > :first-child { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+
+.app-breadcrumb.app-breadcrumb > span:last-child { display: inline-flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+
+html { -webkit-tap-highlight-color: transparent; }
+
+/* Text inputs can match :focus-visible even after a mouse click. */
+html[data-pointer-focus] :focus,
+html[data-pointer-focus] :focus-within {
+  outline: none !important;
+}

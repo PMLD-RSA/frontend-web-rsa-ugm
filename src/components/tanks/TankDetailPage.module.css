@@ -1,7 +1,6 @@
 .page {
-  max-width: 1500px;
-  margin: auto;
-  padding: 24px 30px 48px;
+  width: 100%;
+  padding: 0 0 48px;
   color: #0f172a;
   font-family: var(--font-plus-jakarta-sans), sans-serif;
 }
@@ -269,7 +268,7 @@
 }
 @media (max-width: 560px) {
   .page {
-    padding: 20px 16px;
+    padding: 0 0 32px;
   }
   .panel {
     padding: 20px 16px;

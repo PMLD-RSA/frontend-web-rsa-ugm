@@ -5,7 +5,7 @@
   --panel-yellow: #fecb28;
   color: var(--panel-ink);
   background: #fff;
-  font-family: var(--font-plus-jakarta-sans), Arial, sans-serif;
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
   font-size: 14px;
 }
 
