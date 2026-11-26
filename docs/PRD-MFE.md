@@ -47,17 +47,17 @@ Pilihan teknologi diselaraskan 100% dengan dependensi yang telah terpasang pada 
 
 | Layer / Kategori | Frontend Web & BFF (`frontend-web-rsa-ugm`) | Frontend Mobile (`frontend-mobile-rsa-ugm`) |
 | :--- | :--- | :--- |
-| **Framework Utama** | **Next.js 16.3.x (App Router)** | **React Native 0.88.0 via Expo SDK 58** (`~58.0.19`) |
+| **Framework Utama** | **Next.js 16.4.6 (App Router)** | **React Native 0.88.1 via Expo SDK 58** (`~58.0.26`) |
 | **Bahasa Pemrograman** | TypeScript 5.x | **TypeScript ~6.0.3** |
-| **Library UI Reaktif** | React 19.x | **React 19.3.0** |
-| **UI & Styling** | Tailwind CSS v4 & Lucide Icons | StyleSheet Native, **Hospital Clean Light UI** (Card, Progress Bar, Dot Badges) |
-| **State Management** | **Zustand v5** | **Zustand ^5.0.16** |
-| **HTTP Client** | Native `fetch` (Server & Client) | **Axios ^1.20.0** |
-| **Data Visualization** | **Recharts v3** (Area & Line Time-Series) | Native Horizontal Progress Bar, Metrics Overview (Sparkline planned) |
-| **Security Storage** | Server-side `cookies()` (HTTP-Only) | **Expo SecureStore (~58.0.2)** |
-| **Unit Testing Engine**| Vitest / Jest | **Jest ^30.5.2 & ts-jest ^29.4.15** |
-| **CI / Quality Gate** | GitHub Actions (Lint, Typecheck, Build) | **GitHub Actions Multi-Stage** (Healthcheck, Unit Tests, Dry Export) |
-| **Realtime Channel** | WebSocket Client (`ws://.../ws`) | WebSocket Client Native (`ws://.../ws`) |
+| **Library UI Reaktif** | **React 19.3.1** | **React 19.3.0** |
+| **UI & Styling** | Tailwind CSS v4.3.5 & Lucide Icons | StyleSheet Native, **Design Tokens (`src/theme/tokens.ts`)** selaras Figma Web (`#0A3F5C`, `#05004E`, `#FECB28`, `#ECF4F9`) & **`@expo/vector-icons` (Feather)** |
+| **State Management** | **Zustand ^5.1.0** | **Zustand ^5.1.0** |
+| **HTTP Client** | Native `fetch` (Server & Client) | **Axios ^1.21.1** |
+| **Data Visualization** | **Recharts ^3.11.1** (Area & Line Time-Series) | Animated Native Progress Bar, Metrics Overview & Sparkline 24h/7d |
+| **Security Storage** | Server-side `cookies()` (HTTP-Only, `maxAge: 1d`) | **Expo SecureStore (~58.0.3)** |
+| **Unit Testing Engine**| Vitest / Jest | **Jest ^30.5.2 & ts-jest ^29.4.15** (11 suites / 58 tests) |
+| **CI / Quality Gate** | GitHub Actions Single-Pipeline (`lint`, `typecheck`, `assets:audit`, `build`) | **GitHub Actions Single-Pipeline** (`typecheck`, `test:ci`, `expo-doctor`, `expo export`) |
+| **Realtime Channel** | WebSocket Client (`ws://.../ws?token=<jwt>`) | WebSocket Client Native (`ws://.../ws?token=<jwt>`) |
 | **Port / Runtime** | Port `3000` (Next.js Dev Server) | Port `8081` (Metro Bundler) |
 
 ### 2.2 Konfigurasi Environment & Komunikasi Jaringan

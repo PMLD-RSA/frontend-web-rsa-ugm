@@ -4,7 +4,7 @@
 
 > **Repositori Target Pengembangan:** `frontend-web-rsa-ugm`  
 > **Parent Documentation:** [`../PRD-MFE.md`](../PRD-MFE.md) *(Master Frontend PRD)* & [`../PRD.md`](../PRD.md) *(Backend Core)*  
-> **Arsitektur:** Next.js 16.3 (App Router), React 19, Tailwind CSS v4, Zustand v5, Recharts v3, Lucide Icons  
+> **Arsitektur:** Next.js 16.4.6 (App Router), React 19.3.1, Tailwind CSS v4, Zustand v5, Recharts v3, Lucide Icons  
 > **Port Pengembangan:** `http://localhost:3000` (UI Web & Rute BFF)  
 > **Status Dokumen:** Acuan Tunggal Spesifikasi Frontend Web & Rute BFF
 
@@ -34,11 +34,11 @@ Repositori `frontend-web-rsa-ugm` memiliki **dua tanggung jawab utama**:
 
 | Komponen / Pustaka | Versi Terpasang | Peran & Penggunaan |
 | :--- | :--- | :--- |
-| **Framework Inti** | Next.js 16.3.6 (App Router) | Server-Side Rendering (SSR), Client Components, & Route Handlers (BFF) |
-| **UI Library** | React 19.2.x & ReactDOM 19.2.x | Pustaka rendering UI berbasis komponen fungsional |
-| **Styling & Theme** | Tailwind CSS v4 (@tailwindcss/postcss) | Utility-first CSS dengan CSS variables untuk dark/light medical mode |
-| **State Management** | Zustand v5.0.x | Global client state (Tank Store, Alert Store, Auth Store, Device Store) |
-| **Grafik Time-Series** | Recharts v3.10.x | Grafik area dan garis interaktif untuk visualisasi histori 24 jam |
+| **Framework Inti** | Next.js 16.4.6 (App Router) | Server-Side Rendering (SSR), Client Components, & Route Handlers (BFF) |
+| **UI Library** | React 19.3.1 & ReactDOM 19.3.1 | Pustaka rendering UI berbasis komponen fungsional |
+| **Styling & Theme** | Tailwind CSS v4.3.5 (@tailwindcss/postcss) | Utility-first CSS dengan CSS variables untuk light medical mode selaras Figma |
+| **State Management** | Zustand ^5.1.0 | Global client state (Tank Store, Alert Store, Auth Store, Device Store) |
+| **Grafik Time-Series** | Recharts ^3.11.1 | Grafik area dan garis interaktif untuk visualisasi histori 24 jam |
 | **Icon Pack** | Lucide React v1.47.x | Ikonografi modern (tangki, sinyal, alert, user, settings, log) |
 | **HTTP Client** | Native `fetch` (ES2022) | Komunikasi asinkron server-to-server BFF dan client-to-BFF |
 | **Package Manager** | `pnpm` v11.5.x | Package manager wajib untuk efisiensi disk dan instalasi deterministik |

@@ -31,10 +31,11 @@ Sistem ini memantau ketinggian air pada tangki-tangki penyediaan di RSA UGM seca
 
 | Kategori | Library / Tool |
 |---|---|
-| Framework | **Next.js 16** (App Router, Turbopack) |
-| Styling | **Tailwind CSS v4** |
-| State Management | **Zustand** |
-| Charts | **Recharts** |
+| Framework | **Next.js 16.4.6** (App Router, Turbopack) |
+| Library UI | **React 19.3.1** |
+| Styling | **Tailwind CSS v4.3.5** |
+| State Management | **Zustand ^5.1.0** |
+| Charts | **Recharts ^3.11.1** |
 | Icons | **Lucide React** |
 | Package Manager | **pnpm** |
 | Language | **TypeScript 5** |
@@ -122,13 +123,13 @@ Pada akses HTTP internal saat ini, cookie login dipasang sesuai protokol HTTP. U
 
 | Fase | Scope | Status |
 |------|-------|--------|
-| **Fase 1** | TypeScript types, BFF proxy, 10 API routes, mock data, Layout (Sidebar + Header) | ✅ Selesai |
-| **Fase 2** | Auth/session (login, me, logout), Zustand store, route protection (`proxy.ts`), Login page | ✅ Selesai |
-| **Fase 3** | WebSocket real-time (`LEVEL_UPDATE`, `ALERT_TRIGGERED`, `ALERT_RESOLVED`; `NODE_STATUS` belum ditangani) | 🟡 Sebagian — lihat target di `docs/PRD-Web.md` |
-| **Fase 4** | Halaman lengkap (Tanks, Alerts, Devices, Reports, Logs, Users) | 🟡 Sebagian — sinkronisasi dengan PRD & Core BE sedang berjalan |
-| **Fase 5** | CI/CD GitHub Actions (`.github/workflows/ci.yml`) | ✅ Selesai |
+| **Fase 1** | TypeScript types, BFF proxy, API routes lengkap, Layout (Sidebar responsif + Header + favicon UGM `src/app/icon.png`) | ✅ Selesai |
+| **Fase 2** | Auth/session (`login`, `me`, `logout`, `token`), cookie `1d`, auto-logout `401`, route protection (`proxy.ts` + CORS Expo Web) | ✅ Selesai |
+| **Fase 3** | WebSocket real-time (`CONNECTED`, `LEVEL_UPDATE`, `ALERT_TRIGGERED`, `ALERT_RESOLVED`, `NODE_STATUS`, clean StrictMode close) | ✅ Selesai |
+| **Fase 4** | Halaman lengkap (Dashboard, Tanks + Lat/Lng, Alerts, Devices, Reports, Logs Admin RBAC, Users CRUD Admin) | ✅ Selesai |
+| **Fase 5** | CI/CD GitHub Actions single-pipeline (`.github/workflows/ci.yml`: lint, typecheck, `assets:audit`, build) | ✅ Selesai |
 
-> **Target sinkronisasi dengan PRD terbaru (belum selesai di kode):** rute BFF `POST /api/users`, `PATCH|PUT|DELETE /api/users/[id]`, dan `PUT /api/tanks/[id]`; CRUD user di halaman `/users`; pembatasan `/users` & `/logs` khusus `admin`; penanganan `NODE_STATUS`; serta penghapusan data/aksi simulasi pada UI (mis. aktivasi pompa). Detail lengkap ada di `docs/PRD-Web.md` dan `docs/PRD-MFE.md`.
+> **Sinkronisasi PRD & Core BE:** Seluruh rute BFF (`POST /api/users`, `PATCH|PUT|DELETE /api/users/[id]`, `PUT /api/tanks/[id]`), CRUD user di `/users`, pembatasan RBAC `/users` & `/logs` khusus `admin`, penanganan `NODE_STATUS`, serta dukungan CORS untuk klien Expo Web sudah terimplementasi dan selaras dengan [`docs/PRD-Web.md`](docs/PRD-Web.md) dan [`docs/PRD-MFE.md`](docs/PRD-MFE.md).
 
 ---
 
@@ -150,30 +151,22 @@ Akun `operator` dan `viewer` dibuat oleh Admin melalui `POST /api/users` (menu U
 
 ```
 src/
-├── types/index.ts          ← Semua TypeScript interface (Tank, Alert, User, dll)
+├── types/index.ts          ← TypeScript interfaces (Tank, Alert, User, AuditLog, dll)
 ├── lib/
-│   ├── bffProxy.ts         ← forwardToBackend() dengan fallback mock otomatis
-│   └── mockData.ts         ← Mock data realistis (3 tangki RSA UGM)
-├── stores/authStore.ts     ← Zustand: user, isAdmin(), isOperator(), login/logout
-├── proxy.ts                ← Route protection (middleware Next.js 16)
+│   └── bffProxy.ts         ← forwardToBackend() (preserve HTTP status, tanpa mock pada mutasi/auth)
+├── stores/authStore.ts     ← Zustand: user, isAdmin(), isOperator(), login/logout & auto-clear 401
+├── proxy.ts                ← Route protection + CORS preflight handler untuk Expo Web
 └── app/
-    ├── (auth)/login/       ← Halaman login
+    ├── icon.png            ← Favicon resmi lambang UGM
+    ├── (auth)/login/       ← Halaman login pengguna
     ├── (dashboard)/        ← Layout dashboard (Sidebar + Header)
-    │   ├── tanks/          ← Stub — perlu implementasi
-    │   ├── alerts/         ← Stub — perlu implementasi
-    │   ├── devices/        ← Stub — perlu implementasi
-    │   ├── reports/        ← Stub — perlu implementasi
-    │   ├── logs/           ← Stub — perlu implementasi
-    │   └── users/          ← Stub — perlu implementasi (admin only)
-    └── api/                ← BFF Routes (berfungsi + fallback mock)
-        ├── tanks/
-        ├── alerts/
-        ├── gateways/
-        ├── nodes/
-        ├── readings/
-        ├── audit-logs/     ← Tersedia untuk Mobile & Web
-        ├── auth/
-        └── health/
+    │   ├── tanks/          ← Manajemen tangki, kalibrasi & koordinat Lat/Lng
+    │   ├── alerts/         ← Peringatan dini & resolusi alert (Operator/Admin)
+    │   ├── devices/        ← Monitoring Gateway & Sensor Node STM32
+    │   ├── reports/        ← Grafik analitik historis & ekspor CSV
+    │   ├── logs/           ← Timeline audit log (Admin only)
+    │   └── users/          ← CRUD pengguna, toggle status & reset sandi (Admin only)
+    └── api/                ← BFF Routes lengkap (auth, tanks, alerts, gateways, nodes, readings, users, audit-logs, reports)
 ```
 
 ---
@@ -209,33 +202,28 @@ Semua response menggunakan envelope: `{ success: boolean, data: T }`. Rute BFF m
 | GET | `/api/reports/readings/export` | Viewer | CSV pembacaan (`?tankId=&startDate=&endDate=`) |
 | GET | `/api/reports/alerts/export` | Viewer | CSV alert (`?level=&startDate=&endDate=`) |
 
-> **Status implementasi:** rute `POST /api/users`, `PATCH|PUT|DELETE /api/users/:id`, dan `PUT /api/tanks/:id` masih dalam target sinkronisasi (belum ada di kode saat ini).
+> Seluruh rute BFF di atas telah tersedia dan menjaga kode status asli Core Backend (termasuk `401` dan validasi error) serta meneruskan header CORS ke klien Web/Mobile.
 
 ---
 
-### 📖 Langkah Lanjutan untuk Web Team
+### 📖 Panduan Pengembangan Lanjutan Web Team
 
-1. **Baca PRD lebih dulu:**
-   - [`docs/PRD-Web.md`](docs/PRD-Web.md) — spesifikasi lengkap semua halaman
-   - [`docs/PRD-MFE.md`](docs/PRD-MFE.md) — kontrak API yang digunakan Mobile
+1. **Baca PRD sebagai acuan kontrak:**
+   - [`docs/PRD-Web.md`](docs/PRD-Web.md) — spesifikasi halaman Web & BFF
+   - [`docs/PRD-MFE.md`](docs/PRD-MFE.md) — kontrak API bersama Web & Mobile
 
-2. **WebSocket Real-time** (PRD-Web § 6):
-   - Hook `src/hooks/useRealtimeSocket.ts` terhubung ke `ws://<host>:8000/ws?token=<jwt>`
-   - Event (discriminator `type`): `CONNECTED`, `LEVEL_UPDATE` (`snake_case`), `ALERT_TRIGGERED`, `ALERT_RESOLVED`, `NODE_STATUS`
+2. **WebSocket Real-time** (`src/hooks/useRealtimeSocket.ts`):
+   - Terhubung ke `ws://<host>:8000/ws?token=<jwt>` (menggunakan token dari `GET /api/auth/token`)
+   - Event: `CONNECTED`, `LEVEL_UPDATE`, `ALERT_TRIGGERED`, `ALERT_RESOLVED`, `NODE_STATUS`
 
-3. **Sinkronisasi halaman & BFF dengan PRD**:
-   - Lengkapi rute BFF & UI yang belum ada (lihat catatan "Target sinkronisasi" di atas)
-   - Gunakan tipe dari `src/types/index.ts` dan auth dari `src/stores/authStore.ts`
-
-4. **Alur kerja Git:**
+3. **Alur kerja Git & Quality Gate:**
    ```bash
    git checkout dev
    git pull upstream dev
    git checkout -b feat/<nama-fitur>
    # ... kode ...
    git push upstream feat/<nama-fitur>
-   # Buka PR ke dev — CI otomatis jalan
+   # Buka PR ke dev — CI otomatis menjalankan lint, typecheck, assets:audit, & build
    ```
 
-5. **CI otomatis jalan** setiap PR ke `dev` atau `main`.  
-   Pastikan `pnpm run lint`, `tsc --noEmit`, dan `pnpm run build` lolos sebelum push.
+4. **CI otomatis berjalan** setiap push/PR ke `dev` atau `main` lewat [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Pastikan `pnpm run lint`, `npx tsc --noEmit`, `pnpm run assets:audit`, dan `pnpm run build` lolos sebelum push.
