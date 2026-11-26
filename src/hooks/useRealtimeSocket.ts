@@ -12,25 +12,34 @@ export function useRealtimeSocket() {
   const token = useAuthStore((state) => state.token);
 
   useEffect(() => {
-    let wsToken = token;
-    if (!wsToken && typeof window !== "undefined") {
-      wsToken = sessionStorage.getItem("ws_token");
-    }
-
-    if (!wsToken) {
-      return;
-    }
-
-    const baseWsUrl =
-      process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
-    const wsUrl = `${baseWsUrl}${
-      baseWsUrl.includes("?") ? "&" : "?"
-    }token=${encodeURIComponent(wsToken)}`;
-
     let socket: WebSocket | null = null;
     let isDisposed = false;
+    const tokenController = new AbortController();
 
-    function connect() {
+    async function resolveToken(): Promise<string | null> {
+      if (token) return token;
+      if (typeof window !== "undefined") {
+        const cached = sessionStorage.getItem("ws_token");
+        if (cached) return cached;
+      }
+      try {
+        const res = await fetch("/api/auth/token", { signal: tokenController.signal });
+        if (!res.ok) return null;
+        const json = await res.json();
+        const fetched = json?.data?.token;
+        if (typeof fetched === "string" && fetched) {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("ws_token", fetched);
+          }
+          return fetched;
+        }
+      } catch {
+        // ignore abort or network error
+      }
+      return null;
+    }
+
+    function connect(wsUrl: string) {
       if (isDisposed) return;
 
       try {
@@ -75,6 +84,17 @@ export function useRealtimeSocket() {
               useTankStore.getState().updateTankFromWs(update);
             }
 
+            if (eventType === "NODE_STATUS" && (data.node_code || data.nodeCode || data.tank_id || data.tankId)) {
+              const rawStatus = String(data.status || "").toLowerCase();
+              useTankStore.getState().updateNodeStatusFromWs({
+                nodeCode: data.node_code || data.nodeCode,
+                tankId: data.tank_id || data.tankId,
+                status: rawStatus === "online" || rawStatus === "offline" ? rawStatus : undefined,
+                rssi: data.rssi != null ? Number(data.rssi) : undefined,
+                lastSeen: data.last_seen || data.lastSeen || data.timestamp || new Date().toISOString(),
+              });
+            }
+
             if (eventType === "ALERT_TRIGGERED" && data.id) {
               const alert: Alert = {
                 id: data.id,
@@ -112,32 +132,46 @@ export function useRealtimeSocket() {
 
           // Jangan reconnect jika ditolak karena policy violation (token invalid/expired)
           if (event.code === 1008) {
+            if (typeof window !== "undefined") {
+              sessionStorage.removeItem("ws_token");
+            }
             console.warn("WebSocket ditolak oleh server (1008). Token tidak valid.");
             return;
           }
 
-          reconnectTimeoutRef.current = setTimeout(connect, 3000);
+          reconnectTimeoutRef.current = setTimeout(() => connect(wsUrl), 3000);
         };
 
         socket.onerror = () => {
-          socket?.close();
+          if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.close();
+          }
         };
       } catch (err) {
         console.warn("Gagal inisialisasi WebSocket:", err);
         if (!isDisposed) {
-          reconnectTimeoutRef.current = setTimeout(connect, 4000);
+          reconnectTimeoutRef.current = setTimeout(() => connect(wsUrl), 4000);
         }
       }
     }
 
-    connect();
+    void resolveToken().then((wsToken) => {
+      if (isDisposed || !wsToken) return;
+      const baseWsUrl =
+        process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws";
+      const wsUrl = `${baseWsUrl}${
+        baseWsUrl.includes("?") ? "&" : "?"
+      }token=${encodeURIComponent(wsToken)}`;
+      connect(wsUrl);
+    });
 
     return () => {
       isDisposed = true;
+      tokenController.abort();
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
       }
-      if (socket) {
+      if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
       }
     };

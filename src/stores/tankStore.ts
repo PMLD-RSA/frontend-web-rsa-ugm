@@ -1,6 +1,14 @@
 import { create } from "zustand";
 import { Tank, WsLevelUpdateData, Alert } from "@/types";
 
+interface WsNodeStatusUpdate {
+  nodeCode?: string;
+  tankId?: string;
+  status?: "online" | "offline";
+  rssi?: number | null;
+  lastSeen?: string;
+}
+
 interface TankState {
   tanks: Tank[];
   isLoading: boolean;
@@ -9,6 +17,7 @@ interface TankState {
   setTanks: (tanks: Tank[]) => void;
   fetchTanks: (signal?: AbortSignal) => Promise<void>;
   updateTankFromWs: (update: WsLevelUpdateData) => void;
+  updateNodeStatusFromWs: (update: WsNodeStatusUpdate) => void;
   setTankActiveAlert: (tankId: string, alert: Alert | null) => void;
 }
 
@@ -59,6 +68,29 @@ export const useTankStore = create<TankState>((set) => ({
         return {
           ...tank,
           latestReading: newReading,
+        };
+      }),
+    }));
+  },
+
+  updateNodeStatusFromWs: (update) => {
+    set((state) => ({
+      tanks: state.tanks.map((tank) => {
+        const matchesTank = update.tankId && tank.id === update.tankId;
+        const matchesNode =
+          update.nodeCode &&
+          tank.sensorNode?.deviceCode?.toLowerCase() === update.nodeCode.toLowerCase();
+        if (!matchesTank && !matchesNode) return tank;
+        if (!tank.sensorNode) return tank;
+
+        return {
+          ...tank,
+          sensorNode: {
+            ...tank.sensorNode,
+            status: update.status ?? tank.sensorNode.status,
+            rssi: update.rssi !== undefined ? update.rssi : tank.sensorNode.rssi,
+            lastSeen: update.lastSeen ?? tank.sensorNode.lastSeen,
+          },
         };
       }),
     }));
