@@ -257,6 +257,11 @@ export function Sidebar() {
           aria-label={item.label}
           aria-current={isActive ? "page" : undefined}
           title={!isOpen ? item.label : undefined}
+          onClick={() => {
+            if (typeof window !== "undefined" && window.innerWidth < 768) {
+              setIsOpen(false);
+            }
+          }}
           className={`${styles.navItem} relative flex h-[35px] items-center gap-1 rounded-[5px] text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffcc00] ${
             isOpen ? "w-[157px] pr-3" : "w-[35px]"
           }`}
@@ -291,11 +296,22 @@ export function Sidebar() {
   }
 
   return (
-    <aside
-      aria-label="Sidebar navigasi"
-      data-expanded={isOpen}
-      className={`${styles.sidebar} relative z-20 flex h-dvh shrink-0 flex-col bg-[#0a3f5c] transition-[width] duration-300 ease-out motion-reduce:transition-none`}
-    >
+    <>
+      {isOpen && (
+        <>
+          <div
+            className={styles.mobileBackdrop}
+            aria-hidden="true"
+            onClick={() => setIsOpen(false)}
+          />
+          <div className={styles.mobileSpacer} aria-hidden="true" />
+        </>
+      )}
+      <aside
+        aria-label="Sidebar navigasi"
+        data-expanded={isOpen}
+        className={`${styles.sidebar} relative z-20 flex h-dvh shrink-0 flex-col bg-[#0a3f5c] transition-[width] duration-300 ease-out motion-reduce:transition-none`}
+      >
       <div
         className={`flex h-[74px] shrink-0 items-start gap-[9px] overflow-hidden pt-4 ${isOpen ? "pl-4" : "pl-[17px]"}`}
       >
@@ -536,6 +552,7 @@ export function Sidebar() {
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
