@@ -230,7 +230,7 @@ export default function LogsPage() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.summaryRow} aria-label="Ringkasan aktivitas">
+      <div className={styles.summaryRow} aria-label="Activity summary">
         <div className={`${styles.summaryCard} ${styles.total}`}><h2>Total Activities</h2><strong>{forbidden || isLoading || loadError ? "-" : logs.length}</strong></div>
         <div className={`${styles.summaryCard} ${styles.warning}`}><h2>Warning</h2><strong>-</strong></div>
         <div className={`${styles.summaryCard} ${styles.success}`}><h2>Success</h2><strong>-</strong></div>
@@ -238,7 +238,7 @@ export default function LogsPage() {
       <header className={styles.heading}>
         <h1>Audit Logs</h1>
         <div className={styles.headingActions}>
-        <Link href="/alerts" className={styles.notification} aria-label="Lihat peringatan"><Bell size={22} /></Link>
+        <Link href="/alerts" className={styles.notification} aria-label="View alerts"><Bell size={22} /></Link>
         <button
           type="button"
           className={styles.download}
@@ -256,7 +256,7 @@ export default function LogsPage() {
           <Settings size={16} aria-hidden="true" /> <Link href="/">Dashboard</Link> &gt; Audit Logs
         </span>
         <span>
-          {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}` : "Belum diperbarui"} {" "}
+          {lastUpdated ? `Updated ${lastUpdated.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : "Awaiting first update"} {" "}
           <button
             type="button"
             onClick={() => {
@@ -275,7 +275,7 @@ export default function LogsPage() {
             <Search size={16} aria-hidden="true" />
             <input
               type="text"
-              aria-label="Cari riwayat aktivitas"
+              aria-label="Search activity history"
               placeholder="Search Logs"
               value={query}
               onChange={(e) => { setQuery(e.target.value); setPage(0); }}
@@ -284,7 +284,7 @@ export default function LogsPage() {
 
           <div className={styles.toolbarActions}>
             <FilterMenu
-              label="Filter entitas"
+              label="Filter by entity"
               title="Filter by Entity"
               options={entityOptions}
               value={entityFilter}
@@ -294,15 +294,15 @@ export default function LogsPage() {
                 setPage(0);
               }}
             />
-            <FilterMenu label="Filter tipe aksi" title="Filter by Event Type" options={actionOptions} value={actionFilter} onChange={(value) => { setActionFilter(value); setPage(0); }} />
-            <FilterMenu label="Filter berdasarkan tangki" title="Select Tank" options={tankOptions} value={tankFilter} highlighted onChange={(value) => { setTankFilter(value); setPage(0); }} />
+            <FilterMenu label="Filter by action type" title="Filter by Event Type" options={actionOptions} value={actionFilter} onChange={(value) => { setActionFilter(value); setPage(0); }} />
+            <FilterMenu label="Filter by tank" title="Select Tank" options={tankOptions} value={tankFilter} highlighted onChange={(value) => { setTankFilter(value); setPage(0); }} />
           </div>
         </div>
 
       <div className={styles.logCard}>
         <div className={styles.cardHeader}>
           <FileText size={45} aria-hidden="true" />
-          <h2>RIWAYAT AKTIVITAS SISTEM</h2>
+          <h2>SYSTEM ACTIVITY HISTORY</h2>
         </div>
         <div className={styles.tableWrap}>
           <table>
@@ -342,12 +342,12 @@ export default function LogsPage() {
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
                     {forbidden
-                      ? "Akses terbatas: halaman Audit Logs hanya tersedia untuk role Admin."
+                      ? "Restricted access: the Audit Logs page is only available for the Admin role."
                       : isLoading
-                      ? "Memuat riwayat log..."
+                      ? "Loading activity logs..."
                       : loadError
-                      ? "Riwayat aktivitas tidak tersedia. Silakan coba lagi."
-                      : "Tidak ada catatan log aktivitas yang cocok."}
+                      ? "Activity history is unavailable. Please try again."
+                      : "No matching activity logs."}
                   </td>
                 </tr>
               )}

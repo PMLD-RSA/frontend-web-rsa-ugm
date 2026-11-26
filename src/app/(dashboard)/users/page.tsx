@@ -146,11 +146,11 @@ export default function UsersPage() {
     event.preventDefault();
     const trimmedUsername = newUsername.trim();
     if (trimmedUsername.length < 3) {
-      setFormError("Username minimal 3 karakter.");
+      setFormError("Username must be at least 3 characters.");
       return;
     }
     if (newPassword.length < 6) {
-      setFormError("Password minimal 6 karakter.");
+      setFormError("Password must be at least 6 characters.");
       return;
     }
 
@@ -168,12 +168,12 @@ export default function UsersPage() {
       });
       const result: ApiResponse<User> = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Gagal membuat pengguna baru.");
+        throw new Error(result.message || "Failed to create user.");
       }
       setCreateOpen(false);
       await loadUsers();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Gagal membuat pengguna baru.");
+      setFormError(err instanceof Error ? err.message : "Failed to create user.");
     } finally {
       setSubmitting(false);
     }
@@ -189,7 +189,7 @@ export default function UsersPage() {
     };
     if (editPassword.trim()) {
       if (editPassword.trim().length < 6) {
-        setFormError("Password baru minimal 6 karakter.");
+        setFormError("New password must be at least 6 characters.");
         return;
       }
       payload.password = editPassword.trim();
@@ -205,12 +205,12 @@ export default function UsersPage() {
       });
       const result: ApiResponse<User> = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Gagal memperbarui pengguna.");
+        throw new Error(result.message || "Failed to update user.");
       }
       setEditingUser(null);
       await loadUsers();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Gagal memperbarui pengguna.");
+      setFormError(err instanceof Error ? err.message : "Failed to update user.");
     } finally {
       setSubmitting(false);
     }
@@ -226,12 +226,12 @@ export default function UsersPage() {
       });
       const result: ApiResponse<unknown> = await response.json();
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Gagal menghapus pengguna.");
+        throw new Error(result.message || "Failed to delete user.");
       }
       setDeletingUser(null);
       await loadUsers();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Gagal menghapus pengguna.");
+      setFormError(err instanceof Error ? err.message : "Failed to delete user.");
     } finally {
       setSubmitting(false);
     }
@@ -256,7 +256,7 @@ export default function UsersPage() {
 
   function download() {
     downloadCsv("users.csv", [
-      ["No", "Username", "Role", "Status", "Tanggal dibuat"],
+      ["No", "Username", "Role", "Status", "Date created"],
       ...users.map((user, idx) => [
         idx + 1,
         user.username,
@@ -317,7 +317,7 @@ export default function UsersPage() {
           <div className="app-search">
             <Search size={16} aria-hidden="true" />
             <input
-              aria-label="Cari pengguna"
+              aria-label="Search users"
               placeholder="Search users..."
               value={query}
               onChange={(e) => {
@@ -341,8 +341,8 @@ export default function UsersPage() {
             disabled={!canManageUsers || state === "forbidden"}
             title={
               canManageUsers
-                ? "Tambah pengguna baru"
-                : "Hanya admin yang dapat menambah pengguna baru"
+                ? "Add a new user"
+                : "Only administrators can add new users"
             }
             onClick={openCreateModal}
           >
@@ -365,7 +365,7 @@ export default function UsersPage() {
               setPage(0);
             }}
           >
-            <option value="">Semua role</option>
+            <option value="">All roles</option>
             <option value="admin">Admin</option>
             <option value="operator">Operator</option>
             <option value="viewer">Viewer</option>
@@ -428,7 +428,7 @@ export default function UsersPage() {
                         minute: "2-digit",
                         second: "2-digit",
                       })
-                    : "Belum pernah aktif";
+                    : "Never active";
 
                   return (
                     <tr key={user.id}>
@@ -470,8 +470,8 @@ export default function UsersPage() {
                           <button
                             type="button"
                             className={styles.actionBtn}
-                            aria-label={`Detail ${user.username}`}
-                            title="Detail pengguna"
+                            aria-label={`View details for ${user.username}`}
+                            title="User details"
                             onClick={() => setDetail(user)}
                           >
                             <Eye size={17} />
@@ -482,7 +482,7 @@ export default function UsersPage() {
                                 type="button"
                                 className={styles.actionBtn}
                                 aria-label={`Edit ${user.username}`}
-                                title="Edit role, status, atau reset password"
+                                title="Edit role, status, or reset password"
                                 onClick={() => openEditModal(user)}
                               >
                                 <Pencil size={15} />
@@ -490,11 +490,11 @@ export default function UsersPage() {
                               <button
                                 type="button"
                                 className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                                aria-label={`Hapus ${user.username}`}
+                                aria-label={`Delete ${user.username}`}
                                 title={
                                   currentUser?.id === user.id
-                                    ? "Tidak dapat menghapus akun yang sedang digunakan"
-                                    : "Hapus pengguna"
+                                    ? "Cannot delete the currently signed-in account"
+                                    : "Delete user"
                                 }
                                 disabled={currentUser?.id === user.id}
                                 onClick={() => openDeleteModal(user)}
@@ -512,12 +512,12 @@ export default function UsersPage() {
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
                     {state === "loading"
-                      ? "Memuat data pengguna..."
+                      ? "Loading users..."
                       : state === "forbidden"
-                      ? "Akses terbatas: halaman manajemen pengguna hanya tersedia untuk role Admin."
+                      ? "Restricted access: User management is only available for the Admin role."
                       : state === "error"
-                      ? "Daftar pengguna tidak tersedia. Periksa koneksi backend."
-                      : "Tidak ada pengguna yang sesuai dengan pencarian."}
+                      ? "The user list is unavailable. Check the backend connection."
+                      : "No users match your search."}
                   </td>
                 </tr>
               )}
@@ -532,7 +532,7 @@ export default function UsersPage() {
               type="button"
               disabled={currentPage === 0 || showAll}
               onClick={() => setPage(currentPage - 1)}
-              aria-label="Halaman sebelumnya"
+              aria-label="Previous page"
             >
               &lt;
             </button>
@@ -553,7 +553,7 @@ export default function UsersPage() {
               type="button"
               disabled={currentPage >= pages - 1 || showAll}
               onClick={() => setPage(currentPage + 1)}
-              aria-label="Halaman berikutnya"
+              aria-label="Next page"
             >
               &gt;
             </button>
@@ -586,31 +586,31 @@ export default function UsersPage() {
             className={styles.dialogBox}
             role="dialog"
             aria-modal="true"
-            aria-label={`Detail Pengguna ${detail.username}`}
+            aria-label={`User details ${detail.username}`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className={styles.dialogClose}
               onClick={() => setDetail(null)}
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
             <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 12px" }}>
-              Detail Pengguna: {detail.username}
+              User details: {detail.username}
             </h3>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
               <strong>Role:</strong> {detail.role}
             </p>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
-              <strong>Status:</strong> {detail.isActive ? "Aktif" : "Nonaktif"}
+              <strong>Status:</strong> {detail.isActive ? "Active" : "Inactive"}
             </p>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
-              <strong>Dibuat:</strong>{" "}
+              <strong>Created:</strong>{" "}
               {detail.createdAt
-                ? new Date(detail.createdAt).toLocaleString("id-ID")
-                : "Belum tersedia"}
+                ? new Date(detail.createdAt).toLocaleString("en-GB")
+                : "Unavailable"}
             </p>
           </div>
         </div>
@@ -626,19 +626,19 @@ export default function UsersPage() {
             className={styles.dialogBox}
             role="dialog"
             aria-modal="true"
-            aria-label="Tambah Pengguna Baru"
+            aria-label="Add New User"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className={styles.dialogClose}
               onClick={() => !submitting && setCreateOpen(false)}
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
             <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 16px" }}>
-              Tambah Pengguna Baru
+              Add New User
             </h3>
             <form onSubmit={handleCreateUser}>
               <div className={styles.formGroup}>
@@ -650,11 +650,11 @@ export default function UsersPage() {
                   minLength={3}
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="Contoh: operator1"
+                  placeholder="Example: operator1"
                 />
               </div>
               <div className={styles.formGroup}>
-                <label htmlFor="create-password">Password Awal</label>
+                <label htmlFor="create-password">Initial Password</label>
                 <input
                   id="create-password"
                   type="password"
@@ -662,7 +662,7 @@ export default function UsersPage() {
                   minLength={6}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Minimal 6 karakter"
+                  placeholder="Minimum 6 characters"
                 />
               </div>
               <div className={styles.formGroup}>
@@ -685,14 +685,14 @@ export default function UsersPage() {
                   disabled={submitting}
                   onClick={() => setCreateOpen(false)}
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className={styles.btnPrimary}
                   disabled={submitting}
                 >
-                  {submitting ? "Menyimpan..." : "Simpan Pengguna"}
+                  {submitting ? "Saving..." : "Save User"}
                 </button>
               </div>
             </form>
@@ -710,19 +710,19 @@ export default function UsersPage() {
             className={styles.dialogBox}
             role="dialog"
             aria-modal="true"
-            aria-label={`Edit Pengguna ${editingUser.username}`}
+            aria-label={`Edit User ${editingUser.username}`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className={styles.dialogClose}
               onClick={() => !submitting && setEditingUser(null)}
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
             <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 16px" }}>
-              Edit Pengguna: {editingUser.username}
+              Edit User: {editingUser.username}
             </h3>
             <form onSubmit={handleUpdateUser}>
               <div className={styles.formGroup}>
@@ -743,16 +743,16 @@ export default function UsersPage() {
                   checked={editActive}
                   onChange={(e) => setEditActive(e.target.checked)}
                 />
-                <span>Akun Aktif</span>
+                <span>Active Account</span>
               </label>
               <div className={styles.formGroup}>
-                <label htmlFor="edit-password">Reset Password (Opsional)</label>
+                <label htmlFor="edit-password">Reset Password (Optional)</label>
                 <input
                   id="edit-password"
                   type="password"
                   value={editPassword}
                   onChange={(e) => setEditPassword(e.target.value)}
-                  placeholder="Kosongkan jika tidak ingin mengubah password"
+                  placeholder="Leave blank to keep the current password"
                 />
               </div>
               {formError && <p className={styles.formError}>{formError}</p>}
@@ -763,14 +763,14 @@ export default function UsersPage() {
                   disabled={submitting}
                   onClick={() => setEditingUser(null)}
                 >
-                  Batal
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className={styles.btnPrimary}
                   disabled={submitting}
                 >
-                  {submitting ? "Menyimpan..." : "Simpan Perubahan"}
+                  {submitting ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </form>
@@ -788,24 +788,24 @@ export default function UsersPage() {
             className={styles.dialogBox}
             role="dialog"
             aria-modal="true"
-            aria-label={`Hapus Pengguna ${deletingUser.username}`}
+            aria-label={`Delete User ${deletingUser.username}`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className={styles.dialogClose}
               onClick={() => !submitting && setDeletingUser(null)}
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
             <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 10px" }}>
-              Hapus Pengguna
+              Delete User
             </h3>
             <p style={{ margin: "0 0 14px", fontSize: "13px", color: "#475569" }}>
-              Apakah Anda yakin ingin menghapus akun{" "}
+              Are you sure you want to delete account{" "}
               <strong>{deletingUser.username}</strong> ({deletingUser.role})?
-              Tindakan ini tidak dapat dibatalkan.
+              This action cannot be undone.
             </p>
             {formError && <p className={styles.formError}>{formError}</p>}
             <div className={styles.dialogActions}>
@@ -815,7 +815,7 @@ export default function UsersPage() {
                 disabled={submitting}
                 onClick={() => setDeletingUser(null)}
               >
-                Batal
+                Cancel
               </button>
               <button
                 type="button"
@@ -823,7 +823,7 @@ export default function UsersPage() {
                 disabled={submitting}
                 onClick={handleDeleteUser}
               >
-                {submitting ? "Menghapus..." : "Hapus Akun"}
+                {submitting ? "Deleting..." : "Delete Account"}
               </button>
             </div>
           </div>

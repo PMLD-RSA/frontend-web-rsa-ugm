@@ -42,7 +42,7 @@ function TankFill({ tank, unavailable, loading, onDetail }: { tank: Tank; unavai
 
   return <article className={styles.statTank}>
     <button className={styles.statTankName} onClick={onDetail} disabled={unavailable || loading || isPlaceholder}>{tank.name}</button>
-    <div className={styles.donut} style={{ background }} role="img" aria-label={`${tank.name}: ${level == null ? status : `isi ${percentage}, ${status}`}`}>
+    <div className={styles.donut} style={{ background }} role="img" aria-label={`${tank.name}: ${level == null ? status : `${percentage} full, ${status}`}`}>
       <span><strong>{percentage}</strong><small style={{ color: category?.color }}>{status}</small></span>
     </div>
     <dl className={styles.statLegend}>{Object.values(categories).map(item => <div key={item.label}>
@@ -76,7 +76,7 @@ export function TankStatistics({ tanks, loading, unavailable, onDetail, onRefres
     <div className={styles.statTabs}><span className={styles.statHint}>Latest water level</span><button aria-label="Refresh water levels" disabled={loading} onClick={onRefresh}><RefreshCw size={16} /></button></div>
     <div className={styles.statGrid}>{list.slice(currentPage * pageSize, currentPage * pageSize + pageSize).map(tank => <TankFill key={tank.id} tank={tank} unavailable={unavailable} loading={loading} onDetail={() => onDetail(tank)} />)}</div>
     {!list.length && <p className={styles.helper}>No tanks match the selected filters.</p>}
-    {pageCount > 1 && <nav className={styles.statPagination} aria-label="Halaman tingkat tangki"><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Sebelumnya</button><span aria-live="polite" aria-label={`Halaman ${currentPage + 1} dari ${pageCount}`}>{currentPage + 1}/{pageCount}</span><button type="button" disabled={currentPage + 1 >= pageCount} onClick={() => setPage(currentPage + 1)}>Berikutnya</button></nav>}
+    {pageCount > 1 && <nav className={styles.statPagination} aria-label="Tank level pages"><button type="button" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>Previous</button><span aria-live="polite" aria-label={`Page ${currentPage + 1} of ${pageCount}`}>{currentPage + 1}/{pageCount}</span><button type="button" disabled={currentPage + 1 >= pageCount} onClick={() => setPage(currentPage + 1)}>Next</button></nav>}
     {explain && <p className={styles.helper}>The arc shows the latest tank fill percentage: Normal &gt;60% (green), Warning 30-60% (yellow), and Critical &lt;30% (red). Gray indicates remaining capacity. Click a tank name for details.</p>}
     {unavailable && <p className={styles.helper}>Water level data is unavailable. DTK, DTEDI, and DLIKES are shown as placeholders.</p>}
   </section>;

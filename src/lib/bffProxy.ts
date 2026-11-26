@@ -68,7 +68,7 @@ export async function forwardToBackend<T>(
     // Jangan pernah pakai fallback mock untuk operasi mutasi (POST/PATCH/PUT/DELETE)
     if (!isReadMethod || options.fallbackData === undefined) {
       return NextResponse.json(
-        { success: false, message: "Backend tidak dapat diakses." },
+        { success: false, message: "The backend is unreachable." },
         { status: 503 }
       );
     }

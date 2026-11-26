@@ -103,7 +103,7 @@ export default function DevicesPage() {
   return (
     <section className={styles.page}>
       <header className={styles.heading}>
-        <h1>Status Perangkat IoT</h1>
+        <h1>IoT Device Status</h1>
       </header>
 
       <div className={`${styles.breadcrumb} app-breadcrumb`}>
@@ -133,20 +133,20 @@ export default function DevicesPage() {
           gateways.map((gw) => {
             const isOnline = gw.status === "online";
             const lastSeen = gw.lastHeartbeat
-              ? new Date(gw.lastHeartbeat).toLocaleString("id-ID", {
+              ? new Date(gw.lastHeartbeat).toLocaleString("en-GB", {
                   day: "2-digit",
                   month: "short",
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "Belum pernah aktif";
+              : "Never active";
 
             return (
               <article key={gw.id} className={styles.gatewayCard}>
                 <div className={styles.gatewayHeader}>
                   <div>
-                    <h3>{gw.deviceCode || "Gateway Utama RSA UGM"}</h3>
-                    <p>Gedung DTEDI (Raspberry Pi 4)</p>
+                    <h3>{gw.deviceCode || "RSA UGM Main Gateway"}</h3>
+                    <p>DTEDI Building (Raspberry Pi 4)</p>
                   </div>
                   <span className={isOnline ? styles.badgeOnline : styles.badgeOffline}>
                     {isOnline ? <Wifi size={12} /> : <WifiOff size={12} />}
@@ -159,11 +159,11 @@ export default function DevicesPage() {
                     <strong>192.168.100.14</strong>
                   </div>
                   <div>
-                    <span>Frekuensi LoRa</span>
+                    <span>LoRa Frequency</span>
                     <strong>915.0 MHz (SX1262)</strong>
                   </div>
                   <div>
-                    <span>Terakhir Terhubung</span>
+                    <span>Last Connected</span>
                     <strong>{lastSeen}</strong>
                   </div>
                 </div>
@@ -174,8 +174,8 @@ export default function DevicesPage() {
           <article className={styles.gatewayCard}>
             <div className={styles.gatewayHeader}>
               <div>
-                <h3>Gateway Utama RSA UGM</h3>
-                <p>Gedung DTEDI (Raspberry Pi 4)</p>
+                <h3>RSA UGM Main Gateway</h3>
+                <p>DTEDI Building (Raspberry Pi 4)</p>
               </div>
               <span className={styles.badgeOnline}>
                 <Wifi size={12} /> Online
@@ -187,11 +187,11 @@ export default function DevicesPage() {
                 <strong>192.168.100.14</strong>
               </div>
               <div>
-                <span>Frekuensi LoRa</span>
+                <span>LoRa Frequency</span>
                 <strong>915.0 MHz (SX1262)</strong>
               </div>
               <div>
-                <span>Protokol</span>
+                <span>Protocol</span>
                 <strong>MQTT Mosquitto (Port 1883)</strong>
               </div>
             </div>
@@ -200,18 +200,18 @@ export default function DevicesPage() {
       </div>
 
       <h2 className={styles.sectionTitle}>
-        <Cpu size={18} /> Sensor Node Endpoints (STM32 + Ultrasonik)
+        <Cpu size={18} /> Sensor Node Endpoints (STM32 + Ultrasonic)
       </h2>
       <div className={styles.tableCard}>
         <div className={styles.tableWrap}>
           <table>
             <thead>
               <tr>
-                <th>KODE SENSOR</th>
-                <th>TANGKI TERHUBUNG</th>
-                <th>TIPE SENSOR</th>
+                <th>SENSOR CODE</th>
+                <th>CONNECTED TANK</th>
+                <th>SENSOR TYPE</th>
                 <th>STATUS</th>
-                <th>PEMBACAAN TERAKHIR</th>
+                <th>LAST READING</th>
                 <th>RSSI</th>
               </tr>
             </thead>
@@ -220,8 +220,8 @@ export default function DevicesPage() {
                 nodes.map((node) => {
                   const isOnline = node.status === "active";
                   const tankName = node.tankId
-                    ? tankNameMap.get(node.tankId) || `Tangki ${node.tankId}`
-                    : "Belum dipetakan";
+                    ? tankNameMap.get(node.tankId) || `Tank ${node.tankId}`
+                    : "Unassigned";
                   return (
                     <tr key={node.id}>
                       <td className={styles.deviceCode}>{node.deviceCode}</td>
@@ -229,12 +229,12 @@ export default function DevicesPage() {
                       <td>Ultrasonic A02YYUW</td>
                       <td>
                         <span className={isOnline ? styles.badgeOnline : styles.badgeOffline}>
-                          {isOnline ? "Aktif" : "Offline"}
+                          {isOnline ? "Active" : "Offline"}
                         </span>
                       </td>
                       <td>
                         {node.lastSeen
-                          ? new Date(node.lastSeen).toLocaleString("id-ID", {
+                          ? new Date(node.lastSeen).toLocaleString("en-GB", {
                               day: "2-digit",
                               month: "short",
                               hour: "2-digit",
@@ -251,7 +251,7 @@ export default function DevicesPage() {
               ) : (
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
-                    {isLoading ? "Memuat status node sensor..." : "Tidak ada sensor node terdaftar."}
+                    {isLoading ? "Loading sensor nodes..." : "No sensor nodes registered."}
                   </td>
                 </tr>
               )}

@@ -32,7 +32,7 @@ export default function DashboardRouteLayout({ children }: { children: ReactNode
   useRealtimeSocket();
 
   return (
-    <div className="flex h-[100dvh] w-full bg-slate-50 overflow-hidden">
+    <div lang="en" className="flex h-[100dvh] w-full bg-slate-50 overflow-hidden">
       {/* Sidebar Navigasi */}
       <Sidebar />
 

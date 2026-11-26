@@ -41,7 +41,7 @@ function ReportSelect({ id, value, options, onChange }: {
     <button id={id} type="button" className={styles.selectTrigger} aria-expanded={open} onClick={() => setOpen(!open)}>
       <span>{options.find((option) => option.value === value)?.label}</span><ChevronDown size={17} aria-hidden="true" />
     </button>
-    {open && <div className={styles.selectMenu} role="group" aria-label={id === "sensor-tank-target" ? "Target tangki" : "Tingkat keparahan"}>
+    {open && <div className={styles.selectMenu} role="group" aria-label={id === "sensor-tank-target" ? "Target tank" : "Severity"}>
       {options.map((option) => <button key={option.value} type="button" aria-pressed={value === option.value} onClick={() => { onChange(option.value); setOpen(false); }}>{option.label}</button>)}
     </div>}
   </div>;
@@ -82,19 +82,19 @@ export default function ReportsPage() {
 
       const url = `/api/reports/readings/export?${params.toString()}`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Gagal mengunduh CSV sensor.");
+      if (!response.ok) throw new Error("Could not download the sensor CSV.");
 
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `laporan-sensor-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `sensor-report-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch {
-      alert("Gagal mengunduh berkas CSV telemetri sensor.");
+      alert("Could not download the sensor telemetry CSV.");
     } finally {
       setIsExportingSensor(false);
     }
@@ -112,19 +112,19 @@ export default function ReportsPage() {
 
       const url = `/api/reports/alerts/export?${params.toString()}`;
       const response = await fetch(url);
-      if (!response.ok) throw new Error("Gagal mengunduh CSV alert.");
+      if (!response.ok) throw new Error("Could not download the alert CSV.");
 
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `rekap-insiden-alert-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `alert-incidents-${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(downloadUrl);
     } catch {
-      alert("Gagal mengunduh berkas CSV rekap alert.");
+      alert("Could not download the alert summary CSV.");
     } finally {
       setIsExportingAlert(false);
     }
@@ -165,8 +165,7 @@ export default function ReportsPage() {
               <div className={styles.heroText}>
                 <h2>Water Monitoring Reports</h2>
                 <p>
-                  Lihat dan unduh laporan pemantauan sistem air rumah sakit secara lengkap dan
-                  rinci.
+                  View and download monitoring reports for the hospital water system.
                 </p>
               </div>
             </div>
@@ -189,27 +188,27 @@ export default function ReportsPage() {
               </div>
               <div>
                 <h3>Sensor Readings Export (CSV)</h3>
-                <p>Histori ketinggian, volume, &amp; tekanan air</p>
+                <p>Water level, volume, and pressure history</p>
               </div>
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="sensor-tank-target">Target Tangki</label>
+              <label htmlFor="sensor-tank-target">Target Tank</label>
               <ReportSelect id="sensor-tank-target" value={sensorTankId} onChange={setSensorTankId} options={[{ value: "ALL", label: "All Tanks" }, ...tanks.map((tank) => ({ value: tank.id, label: tank.name }))]} />
             </div>
 
             <div className={styles.rowFields}>
               <div className={styles.field}>
-                <span className={styles.fieldLabel}>Rentang Mulai</span>
-                <DashboardDatePicker label="Rentang Mulai" mode="single" value={{ startDate: sensorStartDate, endDate: sensorStartDate }} onChange={(range) => setSensorStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                <span className={styles.fieldLabel}>Start Date</span>
+                <DashboardDatePicker label="Start Date" mode="single" value={{ startDate: sensorStartDate, endDate: sensorStartDate }} onChange={(range) => setSensorStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
                   <CalendarDays size={17} aria-hidden="true" />
                   <span>{sensorStartDate || "Select Date"}</span>
                   <ChevronDown size={16} aria-hidden="true" />
                 </DashboardDatePicker>
               </div>
               <div className={styles.field}>
-                <span className={styles.fieldLabel}>Rentang Selesai</span>
-                <DashboardDatePicker label="Rentang Selesai" mode="single" value={{ startDate: sensorEndDate, endDate: sensorEndDate }} onChange={(range) => setSensorEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                <span className={styles.fieldLabel}>End Date</span>
+                <DashboardDatePicker label="End Date" mode="single" value={{ startDate: sensorEndDate, endDate: sensorEndDate }} onChange={(range) => setSensorEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
                   <CalendarDays size={17} aria-hidden="true" />
                   <span>{sensorEndDate || "Select Date"}</span>
                   <ChevronDown size={16} aria-hidden="true" />
@@ -218,28 +217,28 @@ export default function ReportsPage() {
             </div>
 
             <div className={styles.intervalGroup}>
-              <label>Interval Pembacaan Telemetri</label>
+              <label>Telemetry Reading Interval</label>
               <div className={styles.intervalButtons}>
                 <button
                   type="button"
                   className={`${styles.intervalBtn} ${sensorInterval === "10m" ? styles.active : ""}`}
                   onClick={() => setSensorInterval("10m")}
                 >
-                  10 Menit
+                  10 Minutes
                 </button>
                 <button
                   type="button"
                   className={`${styles.intervalBtn} ${sensorInterval === "1h" ? styles.active : ""}`}
                   onClick={() => setSensorInterval("1h")}
                 >
-                  1 Jam
+                  1 Hour
                 </button>
                 <button
                   type="button"
                   className={`${styles.intervalBtn} ${sensorInterval === "daily" ? styles.active : ""}`}
                   onClick={() => setSensorInterval("daily")}
                 >
-                  Harian
+                  Daily
                 </button>
               </div>
             </div>
@@ -251,7 +250,7 @@ export default function ReportsPage() {
               disabled={isExportingSensor}
             >
               <Download size={16} />
-              <span>{isExportingSensor ? "Mengunduh..." : "Download Sensor CSV"}</span>
+              <span>{isExportingSensor ? "Downloading..." : "Download Sensor CSV"}</span>
             </button>
           </div>
 
@@ -263,27 +262,27 @@ export default function ReportsPage() {
               </div>
               <div>
                 <h3>Incident &amp; Alert Logs Export (CSV)</h3>
-                <p>Rekap gangguan sistem, critical low, &amp; trip motor</p>
+                <p>System faults, critical low levels, and motor trips</p>
               </div>
             </div>
 
             <div className={styles.field}>
-              <label htmlFor="alert-severity-target">Tingkat Keparahan (Severity)</label>
+              <label htmlFor="alert-severity-target">Severity</label>
               <ReportSelect id="alert-severity-target" value={alertSeverity} onChange={setAlertSeverity} options={[{ value: "ALL", label: "All Levels (Info, Warning, Critical)" }, { value: "INFO", label: "Info" }, { value: "WARNING", label: "Warning" }, { value: "CRITICAL", label: "Critical" }]} />
             </div>
 
             <div className={styles.rowFields}>
               <div className={styles.field}>
-                <span className={styles.fieldLabel}>Dari Tanggal</span>
-                <DashboardDatePicker label="Dari Tanggal" mode="single" value={{ startDate: alertStartDate, endDate: alertStartDate }} onChange={(range) => setAlertStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                <span className={styles.fieldLabel}>Start Date</span>
+                <DashboardDatePicker label="Start Date" mode="single" value={{ startDate: alertStartDate, endDate: alertStartDate }} onChange={(range) => setAlertStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
                   <CalendarDays size={17} aria-hidden="true" />
                   <span>{alertStartDate || "Select Date"}</span>
                   <ChevronDown size={16} aria-hidden="true" />
                 </DashboardDatePicker>
               </div>
               <div className={styles.field}>
-                <span className={styles.fieldLabel}>Sampai Tanggal</span>
-                <DashboardDatePicker label="Sampai Tanggal" mode="single" value={{ startDate: alertEndDate, endDate: alertEndDate }} onChange={(range) => setAlertEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                <span className={styles.fieldLabel}>End Date</span>
+                <DashboardDatePicker label="End Date" mode="single" value={{ startDate: alertEndDate, endDate: alertEndDate }} onChange={(range) => setAlertEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
                   <CalendarDays size={17} aria-hidden="true" />
                   <span>{alertEndDate || "Select Date"}</span>
                   <ChevronDown size={16} aria-hidden="true" />
@@ -298,7 +297,7 @@ export default function ReportsPage() {
               disabled={isExportingAlert}
             >
               <FileSpreadsheet size={16} />
-              <span>{isExportingAlert ? "Mengunduh..." : "Download Alert CSV"}</span>
+              <span>{isExportingAlert ? "Downloading..." : "Download Alert CSV"}</span>
             </button>
           </div>
         </div>
@@ -307,9 +306,9 @@ export default function ReportsPage() {
         <div className={styles.rightCol}>
           <div className={styles.archiveCard}>
             <div className={styles.archiveHeader}>
-              <h3>Arsip Laporan Terjadwal</h3>
+              <h3>Scheduled Report Archive</h3>
               <button type="button" onClick={() => void handleExportSensorCsv()}>
-                Lihat Semua
+                View All
               </button>
             </div>
 
@@ -318,16 +317,16 @@ export default function ReportsPage() {
                 type="button"
                 className={styles.archiveItem}
                 onClick={() => void handleExportSensorCsv()}
-                title="Klik untuk unduh laporan mingguan"
+                title="Download weekly report"
               >
                 <div className={styles.archiveLeft}>
                   <div className={styles.archiveFileIcon}>
                     <FileSpreadsheet size={16} />
                   </div>
                   <div className={styles.archiveMeta}>
-                    <strong>Laporan_Sensor_Mingguan_W37_2026.csv</strong>
+                    <strong>Weekly_Sensor_Report_W37_2026.csv</strong>
                     <span>
-                      2.4 MB · Hari ini, 07:00 WIB · <span className={styles.readyBadge}>Ready</span>
+                      2.4 MB · Today, 07:00 WIB · <span className={styles.readyBadge}>Ready</span>
                     </span>
                   </div>
                 </div>
@@ -338,14 +337,14 @@ export default function ReportsPage() {
                 type="button"
                 className={styles.archiveItem}
                 onClick={() => void handleExportAlertCsv("CRITICAL")}
-                title="Klik untuk unduh rekap insiden kritis"
+                title="Download critical incident summary"
               >
                 <div className={styles.archiveLeft}>
                   <div className={`${styles.archiveFileIcon} ${styles.warn}`}>
                     <AlertTriangle size={16} />
                   </div>
                   <div className={styles.archiveMeta}>
-                    <strong>Rekap_Insiden_Kritis_Agustus_2026.csv</strong>
+                    <strong>Critical_Incident_Summary_August_2026.csv</strong>
                     <span>
                       840 KB · 01 Sep 2026 · <span className={styles.readyBadge}>Ready</span>
                     </span>
@@ -358,16 +357,16 @@ export default function ReportsPage() {
                 type="button"
                 className={styles.archiveItem}
                 onClick={() => void handleExportSensorCsv()}
-                title="Klik untuk unduh audit sterilisasi bedah"
+                title="Download surgical sterilization audit"
               >
                 <div className={styles.archiveLeft}>
                   <div className={`${styles.archiveFileIcon} ${styles.blue}`}>
                     <FileText size={16} />
                   </div>
                   <div className={styles.archiveMeta}>
-                    <strong>Audit_Kepatuhan_Sterilisasi_Bedah_Q3.csv</strong>
+                    <strong>Surgical_Sterilization_Compliance_Audit_Q3.csv</strong>
                     <span>
-                      1.1 MB · 28 Agu 2026 · <span className={styles.readyBadge}>Ready</span>
+                      1.1 MB · 28 Aug 2026 · <span className={styles.readyBadge}>Ready</span>
                     </span>
                   </div>
                 </div>
@@ -379,10 +378,9 @@ export default function ReportsPage() {
           <div className={styles.infoCard}>
             <Info size={20} className={styles.infoIcon} />
             <div className={styles.infoContent}>
-              <h4>Informasi</h4>
+              <h4>Information</h4>
               <p>
-                Seluruh ekspor data telemetri disimpan dan tercatat otomatis di Audit Logs sesuai
-                standar akreditasi dan regulasi rekam medik RS.
+                Telemetry exports are automatically recorded in Audit Logs in accordance with hospital accreditation and medical record standards.
               </p>
             </div>
           </div>

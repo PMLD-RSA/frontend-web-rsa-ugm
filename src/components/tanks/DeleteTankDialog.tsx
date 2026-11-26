@@ -30,11 +30,11 @@ export function DeleteTankDialog({
       );
       const result: ApiResponse = await response.json();
       if (!response.ok || !result.success)
-        throw new Error(result.message || "Tangki gagal dihapus.");
+        throw new Error(result.message || "Could not delete the tank.");
       deleted();
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : "Tangki gagal dihapus.",
+        reason instanceof Error ? reason.message : "Could not delete the tank.",
       );
       setDeleting(false);
     }
@@ -52,11 +52,10 @@ export function DeleteTankDialog({
       }}
     >
       <header>
-        <h2 id="delete-tank-title">Hapus tangki?</h2>
+        <h2 id="delete-tank-title">Delete tank?</h2>
       </header>
       <p id="delete-tank-description" className={styles.deleteDescription}>
-        Tangki <strong>{tank.name}</strong> akan dihapus permanen, termasuk
-        pembacaan, peringatan, dan sensor yang terhubung.
+        Tank <strong>{tank.name}</strong> will be permanently deleted, including its readings, alerts, and linked sensors.
       </p>
       {error && (
         <p className={styles.formError} role="alert">
@@ -70,7 +69,7 @@ export function DeleteTankDialog({
           disabled={deleting}
           onClick={() => dialog.current?.close()}
         >
-          Batal
+          Cancel
         </button>
         <button
           type="button"
@@ -78,7 +77,7 @@ export function DeleteTankDialog({
           disabled={deleting}
           onClick={() => void remove()}
         >
-          {deleting ? "Menghapus…" : "Hapus tangki"}
+          {deleting ? "Deleting..." : "Delete tank"}
         </button>
       </div>
     </dialog>

@@ -17,10 +17,10 @@ function formatAlertSummary(message: string, level: string): string {
   const regex = new RegExp(`(?:${level}|WARNING|CRITICAL):\\s*(.+)$`, 'i');
   const match = message.match(regex);
   if (match && match[1]) {
-    return `Level air ${match[1].trim()}`;
+    return `Water level ${match[1].trim()}`;
   }
-  // Clean up duplicate "tangki Tangki" phrasing if present
-  return message.replace(/tangki\s+tangki/gi, 'Tangki');
+  // Clean up duplicate "tangki Tank" phrasing if present
+  return message.replace(/tangki\s+tangki/gi, 'Tank');
 }
 
 export function NotificationPopover({
@@ -58,9 +58,9 @@ export function NotificationPopover({
         type="button"
         className={className}
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label={`Notifikasi peringatan (${count} aktif)`}
+        aria-label={`Alert notifications (${count} active)`}
         aria-expanded={isOpen}
-        title="Lihat notifikasi peringatan"
+        title="View alert notifications"
       >
         <span className="relative inline-flex items-center justify-center">
           {icon ?? <Bell size={iconSize} />}
@@ -75,22 +75,22 @@ export function NotificationPopover({
       {isOpen && (
         <div
           role="dialog"
-          aria-label="Daftar Notifikasi Peringatan"
+          aria-label="Alert notifications"
           className={`absolute right-0 top-full mt-2.5 w-[320px] sm:w-[410px] bg-white border border-slate-200/90 rounded-2xl shadow-2xl shadow-slate-900/10 z-50 overflow-hidden text-slate-800 ${panelClassName}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 bg-white border-b border-slate-100">
             <div className="flex items-center gap-2.5">
               <span className="font-semibold text-sm text-slate-800">
-                Notifikasi Peringatan
+                Alert Notifications
               </span>
               {count > 0 ? (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-100">
-                  {count} Aktif
+                  {count} Active
                 </span>
               ) : (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
-                  Aman
+                  Safe
                 </span>
               )}
             </div>
@@ -98,7 +98,7 @@ export function NotificationPopover({
               type="button"
               onClick={() => setIsOpen(false)}
               className="flex size-7 items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-              aria-label="Tutup notifikasi"
+              aria-label="Close notifications"
             >
               <CloseIcon size={16} />
             </button>
@@ -126,7 +126,7 @@ export function NotificationPopover({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-[13px] text-slate-900 truncate">
-                          {a.tankName || `Tangki ${a.tankId}`}
+                          {a.tankName || `Tank ${a.tankId}`}
                         </span>
                         <span
                           className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-md ${
@@ -144,7 +144,7 @@ export function NotificationPopover({
                       <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mt-1.5">
                         <span className="inline-block size-1.5 rounded-full bg-slate-300" />
                         <span>
-                          {new Date(a.createdAt).toLocaleTimeString('id-ID', {
+                          {new Date(a.createdAt).toLocaleTimeString('en-GB', {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}{' '}
@@ -160,9 +160,9 @@ export function NotificationPopover({
                 <div className="size-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2.5">
                   <Check size={20} />
                 </div>
-                <p className="text-xs font-semibold text-slate-700">Tidak ada peringatan aktif</p>
+                <p className="text-xs font-semibold text-slate-700">No active alerts</p>
                 <p className="text-[11px] text-slate-400 mt-0.5 max-w-[220px] mx-auto">
-                  Semua tangki air berada dalam parameter normal.
+                  All water tanks are within normal parameters.
                 </p>
               </div>
             )}
@@ -175,7 +175,7 @@ export function NotificationPopover({
               onClick={() => setIsOpen(false)}
               className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-[#0077b6] hover:text-[#0a3f5c] py-0.5 transition-colors"
             >
-              <span>{count > 0 ? `Lihat Semua di Alarm & Events` : `Buka Alarm & Events`}</span>
+              <span>{count > 0 ? `View All in Alarm & Events` : `Open Alarm & Events`}</span>
               <LuArrowRight size={13} />
             </Link>
           </div>

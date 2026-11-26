@@ -155,7 +155,7 @@ export function TanksPage() {
         <button
           className={styles.add}
           disabled={!canEdit}
-          title={!canEdit ? "Hanya admin dapat menambahkan tangki" : undefined}
+          title={!canEdit ? "Only administrators can add tanks" : undefined}
           onClick={() => setForm({ tank: null })}
         >
           <Plus size={20} />
@@ -261,7 +261,7 @@ export function TanksPage() {
                       disabled={!canEdit}
                       title={
                         !canEdit
-                          ? "Hanya admin dapat mengedit tangki"
+                          ? "Only administrators can edit tanks"
                           : undefined
                       }
                       onClick={() => setForm({ tank })}
@@ -273,10 +273,10 @@ export function TanksPage() {
                       disabled={!canEdit}
                       title={
                         !canEdit
-                          ? "Hanya admin dapat menghapus tangki"
-                          : "Hapus tangki"
+                          ? "Only administrators can delete tanks"
+                          : "Delete tank"
                       }
-                      aria-label={`Hapus ${tank.name}`}
+                      aria-label={`Delete ${tank.name}`}
                       onClick={() => setDeletingTank(tank)}
                     >
                       <Trash2 size={19} />

@@ -26,15 +26,15 @@ export const useAlertStore = create<AlertState>((set, get) => ({
       const url = status ? `/api/alerts?status=${encodeURIComponent(status)}` : "/api/alerts";
       const response = await fetch(url, { signal });
       const result = await response.json();
-      if (response.status === 401) throw new Error("Sesi login tidak valid. Silakan masuk kembali.");
-      if (response.status === 403) throw new Error("Akun ini tidak memiliki akses ke data peringatan.");
-      if (!response.ok || !result.success) throw new Error(result.message || "Gagal memuat daftar peringatan.");
-      if (result.source === "mock") throw new Error("Backend tidak dapat dihubungi; data contoh tidak ditampilkan sebagai data realtime.");
-      if (!Array.isArray(result.data)) throw new Error("Format daftar peringatan dari backend tidak sesuai.");
+      if (response.status === 401) throw new Error("Your session has expired. Please sign in again.");
+      if (response.status === 403) throw new Error("This account cannot access alert data.");
+      if (!response.ok || !result.success) throw new Error(result.message || "Could not load alerts.");
+      if (result.source === "mock") throw new Error("Live data is unavailable because the backend could not be reached.");
+      if (!Array.isArray(result.data)) throw new Error("The server returned an invalid alert list.");
       set({ alerts: result.data, error: null });
     } catch (err: unknown) {
       if (err instanceof Error && err.name === "AbortError") return;
-      set({ error: err instanceof Error ? err.message : "Peringatan tidak dapat dimuat.", alerts: [] });
+      set({ error: err instanceof Error ? err.message : "Could not load alerts.", alerts: [] });
     } finally {
       set({ isLoading: false });
     }

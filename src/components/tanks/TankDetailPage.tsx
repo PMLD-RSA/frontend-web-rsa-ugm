@@ -43,24 +43,24 @@ type Detail = Tank & {
 
 function alertStatus(status: string | null | undefined) {
   const normalized = status?.trim().toLowerCase();
-  if (normalized === "active") return "Aktif";
-  if (normalized === "resolved") return "Selesai";
-  return status?.trim() || "Tidak diketahui";
+  if (normalized === "active") return "Active";
+  if (normalized === "resolved") return "Resolved";
+  return status?.trim() || "Unknown";
 }
 
 function activityDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime()))
-    return { time: "-", date: "Tidak diketahui" };
+    return { time: "-", date: "Unknown" };
   const today = new Date();
   return {
     time: date
-      .toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+      .toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
       .replace(".", ":"),
     date:
       date.toDateString() === today.toDateString()
-        ? "Hari ini"
-        : date.toLocaleDateString("id-ID", {
+        ? "Today"
+        : date.toLocaleDateString("en-GB", {
             day: "numeric",
             month: "short",
             year: "numeric",
@@ -149,7 +149,7 @@ export function TankDetailPage({ id }: { id: string }) {
 
   function download() {
     const rows = [
-      ["Waktu", "Level (%)", "Volume (L)"],
+      ["Time", "Level (%)", "Volume (L)"],
       ...readings.map((reading) => [
         reading.recordedAt,
         reading.levelPercent,
@@ -181,7 +181,7 @@ export function TankDetailPage({ id }: { id: string }) {
     currentActivityPage * 3 + 3,
   );
   const timeLabel = (timestamp: number) =>
-    new Date(timestamp).toLocaleString("id-ID", {
+    new Date(timestamp).toLocaleString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       ...(hours > 24 ? { day: "2-digit", month: "short" } : {}),
@@ -320,7 +320,7 @@ export function TankDetailPage({ id }: { id: string }) {
                 </div>
                 <div>
                   <Radio size={17} />
-                  <small>Jarak sensor</small>
+                  <small>Sensor distance</small>
                   <strong>
                     {measurement(
                       tank.latestReading?.rawValue ??
@@ -332,7 +332,7 @@ export function TankDetailPage({ id }: { id: string }) {
               </div>
               <div className={styles.sensor}>
                 <span>
-                  <Radio size={16} /> Sensor ultrasonik (Sinyal:{" "}
+                  <Radio size={16} /> Ultrasonic sensor (signal:{" "}
                   {measurement(tank.latestReading?.rssi, " dBm")})
                 </span>
                 <span>
@@ -346,7 +346,7 @@ export function TankDetailPage({ id }: { id: string }) {
               <div className={styles.panelHeader}>
                 <h2>Water Level Tank</h2>
                 <label>
-                  Periode{" "}
+                  Period{" "}
                   <select
                     value={hours}
                     onChange={(event) => {
@@ -354,26 +354,25 @@ export function TankDetailPage({ id }: { id: string }) {
                       setHours(Number(event.target.value));
                     }}
                   >
-                    <option value={24}>24 jam</option>
-                    <option value={72}>3 hari</option>
-                    <option value={168}>7 hari</option>
-                    <option value={720}>30 hari</option>
+                    <option value={24}>24 hours</option>
+                    <option value={72}>3 days</option>
+                    <option value={168}>7 days</option>
+                    <option value={720}>30 days</option>
                   </select>
                 </label>
               </div>
               {historyState === "loading" ? (
-                <p className={styles.empty}>Memuat pembacaan sensor…</p>
+                <p className={styles.empty}>Loading sensor readings...</p>
               ) : historyState === "error" ? (
                 <p className={styles.empty}>
-                  Riwayat pembacaan tidak dapat dimuat. Periksa koneksi backend
-                  lalu pilih Reload.
+                  Could not load readings. Check the backend connection and select Reload.
                 </p>
               ) : !chart.length ? (
                 <p className={styles.empty}>
-                  Tidak ada pembacaan sensor pada periode ini.
+                  No sensor readings for this period.
                   {tank.latestReading?.recordedAt
-                    ? ` Pembacaan terakhir: ${readingTime(tank.latestReading.recordedAt)}. Coba pilih periode yang lebih panjang.`
-                    : " Pastikan sensor sudah mengirim data untuk tangki ini."}
+                    ? ` Last reading: ${readingTime(tank.latestReading.recordedAt)}. Try a longer period.`
+                    : " Check that the sensor has sent data for this tank."}
                 </p>
               ) : (
                 <div className={styles.chart}>
@@ -442,12 +441,12 @@ export function TankDetailPage({ id }: { id: string }) {
             </section>
             <section className={`${styles.panel} ${styles.activityPanel}`}>
               <div className={styles.panelHeader}>
-                <h2>Log Aktivitas Tangki</h2>
+                <h2>Tank Activity Log</h2>
               </div>
               <div className={styles.activityHead}>
-                <span>Waktu</span>
-                <span>Aktivitas</span>
-                <span>Level air</span>
+                <span>Time</span>
+                <span>Activity</span>
+                <span>Water level</span>
               </div>
               {alerts.length ? (
                 <>
@@ -466,13 +465,13 @@ export function TankDetailPage({ id }: { id: string }) {
                               data-level={alert.level}
                             >
                               {alert.level === "CRITICAL"
-                                ? "Kritis"
-                                : "Peringatan"}
+                                ? "Critical"
+                                : "Warning"}
                             </span>
                             <strong className={styles.activityTitle}>
                               {alert.level === "CRITICAL"
-                                ? "Peringatan Level Air Kritis"
-                                : "Peringatan Level Air"}
+                                ? "Critical Water Level Alert"
+                                : "Water Level Alert"}
                             </strong>
                             <p>{alert.message}</p>
                             <small className={styles.activityStatus}>
@@ -481,7 +480,7 @@ export function TankDetailPage({ id }: { id: string }) {
                           </div>
                           <strong
                             className={styles.activityLevel}
-                            aria-label="Level air tidak tersedia"
+                            aria-label="Water level unavailable"
                           >
                             -
                           </strong>
@@ -492,22 +491,22 @@ export function TankDetailPage({ id }: { id: string }) {
                   {activityPages > 1 && (
                     <nav
                       className={styles.activityPagination}
-                      aria-label="Halaman riwayat peringatan"
+                      aria-label="Alert history pages"
                     >
                       <button
                         type="button"
-                        aria-label="Halaman sebelumnya"
+                        aria-label="Previous page"
                         disabled={currentActivityPage === 0}
                         onClick={() => setActivityPage(currentActivityPage - 1)}
                       >
                         <ChevronLeft size={18} />
                       </button>
                       <span>
-                        Halaman {currentActivityPage + 1} dari {activityPages}
+                        Page {currentActivityPage + 1} of {activityPages}
                       </span>
                       <button
                         type="button"
-                        aria-label="Halaman berikutnya"
+                        aria-label="Next page"
                         disabled={currentActivityPage >= activityPages - 1}
                         onClick={() => setActivityPage(currentActivityPage + 1)}
                       >
@@ -518,7 +517,7 @@ export function TankDetailPage({ id }: { id: string }) {
                 </>
               ) : (
                 <p className={styles.empty}>
-                  Belum ada riwayat peringatan untuk tangki ini.
+                  No alert history for this tank.
                 </p>
               )}
             </section>

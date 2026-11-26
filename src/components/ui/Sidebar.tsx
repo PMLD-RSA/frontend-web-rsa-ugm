@@ -213,7 +213,7 @@ export function Sidebar() {
     closeAccountMenu();
     setNotice({
       id: Date.now(),
-      message: `Fitur ${feature} belum terintegrasi dan belum dapat digunakan.`,
+      message: `Feature ${feature} is currently unavailable.`,
     });
   }
 
@@ -302,7 +302,7 @@ export function Sidebar() {
         </>
       )}
       <aside
-        aria-label="Sidebar navigasi"
+        aria-label="Sidebar navigation"
         data-expanded={isOpen}
         className={`${styles.sidebar} relative z-20 flex h-dvh shrink-0 flex-col bg-[#0a3f5c] transition-[width] duration-300 ease-out motion-reduce:transition-none`}
       >
@@ -316,7 +316,7 @@ export function Sidebar() {
         >
           <Image
             src="/images/sidebar/ugm-logo.png"
-            alt="Lambang UGM"
+            alt="UGM emblem"
             width={42}
             height={44}
             unoptimized
@@ -348,10 +348,10 @@ export function Sidebar() {
         <button
           type="button"
           onClick={() => setIsOpen((open) => !open)}
-          aria-label={isOpen ? "Ciutkan sidebar" : "Perluas sidebar"}
+          aria-label={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           aria-expanded={isOpen}
           aria-controls={navigationId}
-          title={isOpen ? "Ciutkan sidebar" : "Perluas sidebar"}
+          title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
           className={`${styles.navItem} relative flex h-[35px] w-[35px] cursor-pointer items-center justify-center rounded-[5px] text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffcc00]`}
         >
           <SidebarCollapseIcon isOpen={isOpen} />
@@ -360,7 +360,7 @@ export function Sidebar() {
 
       <nav
         id={navigationId}
-        aria-label="Menu utama"
+        aria-label="Main menu"
         className={`min-h-0 flex-1 overflow-x-hidden overflow-y-auto ${isOpen ? "pr-[13px] pl-[21px]" : "px-[19px]"}`}
       >
         <ul className={isOpen ? "pb-[6px]" : "pb-[7px]"}>
@@ -406,9 +406,9 @@ export function Sidebar() {
           ref={accountButtonRef}
           type="button"
           popoverTarget={accountPopoverId}
-          aria-label="Buka menu akun"
+          aria-label="Open account menu"
           aria-haspopup="menu"
-          title={user ? `Akun ${user.username}` : "Menu akun"}
+          title={user ? `Account ${user.username}` : "Account menu"}
           className={`flex min-h-8 cursor-pointer items-center gap-[11px] rounded-full text-left text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffcc00] ${isOpen ? "w-[150px]" : "w-8"}`}
         >
           <span
@@ -442,7 +442,7 @@ export function Sidebar() {
           ref={accountMenuRef}
           id={accountPopoverId}
           popover="auto"
-          aria-label="Menu akun"
+          aria-label="Account menu"
           role="menu"
           onKeyDown={handleAccountMenuKeyDown}
           onToggle={(event) => {
@@ -537,7 +537,7 @@ export function Sidebar() {
             <p>{notice.message}</p>
             <button
               type="button"
-              aria-label="Tutup pemberitahuan"
+              aria-label="Close notification"
               onClick={() => setNotice(null)}
               className="shrink-0 rounded p-1 hover:bg-sky-50 focus-visible:outline-2 focus-visible:outline-[#0077b6]"
             >

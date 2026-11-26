@@ -101,7 +101,7 @@ export function TankForm({
       (longitude !== null && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180))
     ) {
       setError(
-        "Periksa nama, kapasitas, batas level air, kalibrasi jarak, dan koordinat GPS toren.",
+        "Check the name, capacity, water level thresholds, sensor calibration, and tank GPS coordinates.",
       );
       return;
     }
@@ -134,11 +134,11 @@ export function TankForm({
       );
       const result: ApiResponse = await response.json();
       if (!response.ok || !result.success)
-        throw new Error(result.message || "Data toren gagal disimpan.");
+        throw new Error(result.message || "Could not save tank details.");
       saved();
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : "Data toren gagal disimpan.",
+        reason instanceof Error ? reason.message : "Could not save tank details.",
       );
       setSaving(false);
     }
@@ -146,17 +146,17 @@ export function TankForm({
 
   const changedFields = pending
     ? [
-        pending.name !== tank.name && "nama",
-        pending.location !== (tank.location ?? "") && "gedung",
-        pending.capacityLiters !== Number(tank.capacityLiters) && "kapasitas",
+        pending.name !== tank.name && "name",
+        pending.location !== (tank.location ?? "") && "building",
+        pending.capacityLiters !== Number(tank.capacityLiters) && "capacity",
         pending.minThresholdPercent !== Number(tank.minThresholdPercent) &&
-          "batas minimum",
+          "minimum threshold",
         pending.maxThresholdPercent !== Number(tank.maxThresholdPercent) &&
-          "batas maksimum",
+          "maximum threshold",
         pending.minDistanceCm !== Number(tank.minDistanceCm) &&
-          "jarak saat penuh",
+          "distance when full",
         pending.maxDistanceCm !== Number(tank.maxDistanceCm) &&
-          "jarak saat kosong",
+          "distance when empty",
         pending.latitude !== undefined &&
           pending.latitude !== (tank.latitude != null ? Number(tank.latitude) : null) &&
           "latitude",
@@ -196,8 +196,8 @@ export function TankForm({
       <div hidden={!!pending}>
         <header className={styles.header}>
           <div>
-            <h2 id="edit-tank-title">Edit Toren</h2>
-            <p>Ubah data toren yang sudah ada</p>
+            <h2 id="edit-tank-title">Edit Tank</h2>
+            <p>Update tank details</p>
             <button
               type="button"
               className={editStyles.historyLink}
@@ -207,14 +207,14 @@ export function TankForm({
                 setHistoryOpen(!historyOpen);
               }}
             >
-              Lihat riwayat perubahan
+              View change history
             </button>
           </div>
           <button
             type="button"
             className={styles.close}
             disabled={saving}
-            aria-label="Tutup"
+            aria-label="Close"
             onClick={() => dialog.current?.close()}
           >
             <LuX
@@ -228,13 +228,13 @@ export function TankForm({
         {historyOpen && (
           <section
             className={editStyles.history}
-            aria-label="Riwayat perubahan toren"
+            aria-label="Tank change history"
             aria-live="polite"
           >
             {historyState === "loading" ? (
-              <p>Memuat riwayat…</p>
+              <p>Loading history...</p>
             ) : historyState === "error" ? (
-              <p>Riwayat tidak dapat dimuat.</p>
+              <p>Could not load history.</p>
             ) : (
               <>
                 {history.length ? (
@@ -243,13 +243,13 @@ export function TankForm({
                       <li key={log.id}>
                         <strong>{log.detail || log.action}</strong>
                         <time dateTime={log.createdAt}>
-                          {new Date(log.createdAt).toLocaleString("id-ID")}
+                          {new Date(log.createdAt).toLocaleString("en-GB")}
                         </time>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p>Tidak ada riwayat toren pada halaman ini.</p>
+                  <p>No tank history on this page.</p>
                 )}
                 <div className={editStyles.pagination}>
                   <button
@@ -257,15 +257,15 @@ export function TankForm({
                     disabled={historyPage === 1}
                     onClick={() => void loadHistory(historyPage - 1)}
                   >
-                    Sebelumnya
+                    Previous
                   </button>
-                  <span>Halaman {historyPage}</span>
+                  <span>Page {historyPage}</span>
                   <button
                     type="button"
                     disabled={!historyHasNext}
                     onClick={() => void loadHistory(historyPage + 1)}
                   >
-                    Berikutnya
+                    Next
                   </button>
                 </div>
               </>
@@ -273,12 +273,12 @@ export function TankForm({
           </section>
         )}
         <form onSubmit={submit}>
-          <h3>Informasi Dasar</h3>
+          <h3>Basic Information</h3>
           <div className={styles.fields}>
             <label>
-              Nama toren <span>*</span>{" "}
+              Tank name <span>*</span>{" "}
               {name !== tank.name && (
-                <b className={editStyles.changed}>Diubah</b>
+                <b className={editStyles.changed}>Changed</b>
               )}
               <input
                 name="name"
@@ -293,27 +293,27 @@ export function TankForm({
               />
             </label>
             <label>
-              Kode toren
+              Tank code
               <input
-                placeholder="Belum tersedia"
+                placeholder="Unavailable"
                 disabled
                 aria-describedby="edit-code-help"
               />
               <small id="edit-code-help">
-                Kode toren belum didukung sistem.
+                Tank codes are currently unavailable.
               </small>
             </label>
             <label>
-              Gedung{" "}
+              Building{" "}
               {location !== (tank.location ?? "") && (
-                <b className={editStyles.changed}>Diubah</b>
+                <b className={editStyles.changed}>Changed</b>
               )}
               <input
                 name="location"
                 value={location}
                 onChange={(event) => setLocation(event.target.value)}
                 maxLength={150}
-                placeholder="Masukkan nama gedung"
+                placeholder="Enter the building name"
                 className={
                   location !== (tank.location ?? "")
                     ? editStyles.changedInput
@@ -322,7 +322,7 @@ export function TankForm({
               />
             </label>
             <label>
-              Latitude (Opsional)
+              Latitude (Optional)
               <input
                 name="latitude"
                 type="number"
@@ -330,11 +330,11 @@ export function TankForm({
                 max="90"
                 step="any"
                 defaultValue={tank.latitude ?? ""}
-                placeholder="Contoh: -7.775117"
+                placeholder="Example: -7.775117"
               />
             </label>
             <label>
-              Longitude (Opsional)
+              Longitude (Optional)
               <input
                 name="longitude"
                 type="number"
@@ -342,16 +342,16 @@ export function TankForm({
                 max="180"
                 step="any"
                 defaultValue={tank.longitude ?? ""}
-                placeholder="Contoh: 110.373661"
+                placeholder="Example: 110.373661"
               />
             </label>
           </div>
-          <h3 className={styles.capacityTitle}>Kapasitas</h3>
+          <h3 className={styles.capacityTitle}>Capacity</h3>
           <div className={styles.capacity}>
             <label>
-              Kapasitas total (L) <span>*</span>{" "}
+              Total capacity (L) <span>*</span>{" "}
               {Number(capacity) !== Number(tank.capacityLiters) && (
-                <b className={editStyles.changed}>Diubah</b>
+                <b className={editStyles.changed}>Changed</b>
               )}
               <input
                 name="capacityLiters"
@@ -369,7 +369,7 @@ export function TankForm({
               />
             </label>
             <label>
-              Jarak Saat Penuh / Min (cm) <span>*</span>
+              Distance when full / min (cm) <span>*</span>
               <input
                 name="minDistanceCm"
                 type="number"
@@ -380,7 +380,7 @@ export function TankForm({
               />
             </label>
             <label>
-              Jarak Saat Kosong / Max (cm) <span>*</span>
+              Distance when empty / max (cm) <span>*</span>
               <input
                 name="maxDistanceCm"
                 type="number"
@@ -392,10 +392,10 @@ export function TankForm({
             </label>
           </div>
           <details className={editStyles.thresholds}>
-            <summary>Pengaturan batas level air</summary>
+            <summary>Water level thresholds</summary>
             <div className={styles.capacity}>
               <label>
-                Batas minimum (%) <span>*</span>
+                Minimum threshold (%) <span>*</span>
                 <input
                   name="minThresholdPercent"
                   type="number"
@@ -407,7 +407,7 @@ export function TankForm({
                 />
               </label>
               <label>
-                Batas maksimum (%) <span>*</span>
+                Maximum threshold (%) <span>*</span>
                 <input
                   name="maxThresholdPercent"
                   type="number"
@@ -427,7 +427,7 @@ export function TankForm({
           )}
           <footer className={styles.footer}>
             <p>
-              <span>*</span> Data wajib dilengkapi
+              <span>*</span> Required fields
             </p>
             <div>
               <button
@@ -436,10 +436,10 @@ export function TankForm({
                 disabled={saving}
                 onClick={() => dialog.current?.close()}
               >
-                Batal
+                Cancel
               </button>
               <button type="submit" className={styles.save} disabled={saving}>
-                {saving ? "Menyimpan…" : "Simpan Toren"}
+                {saving ? "Saving..." : "Save Tank"}
               </button>
             </div>
           </footer>
@@ -447,18 +447,16 @@ export function TankForm({
       </div>
       {pending && (
         <div className={confirmStyles.content}>
-          <h2 id="confirm-edit-title">Simpan perubahan?</h2>
+          <h2 id="confirm-edit-title">Save changes?</h2>
           <p id="confirm-edit-description">
             {changedFields.length ? (
               <>
-                Kamu mengubah {changedFields.join(", ")} untuk{" "}
-                <strong>{tank.name}</strong>. Pastikan data sudah benar sebelum
-                menyimpan.
+                You changed {changedFields.join(", ")} for{" "}
+                <strong>{tank.name}</strong>. Check the details before saving.
               </>
             ) : (
               <>
-                Tidak ada perubahan data untuk <strong>{tank.name}</strong>.
-                Apakah kamu tetap ingin menyimpan?
+                No changes were made to <strong>{tank.name}</strong>. Save anyway?
               </>
             )}
           </p>
@@ -478,7 +476,7 @@ export function TankForm({
                 setError("");
               }}
             >
-              Batal
+              Cancel
             </button>
             <button
               type="button"
@@ -486,7 +484,7 @@ export function TankForm({
               disabled={saving}
               onClick={() => void confirmSave()}
             >
-              {saving ? "Menyimpan…" : "Ya, simpan perubahan"}
+              {saving ? "Saving..." : "Yes, save changes"}
             </button>
           </div>
         </div>

@@ -43,7 +43,7 @@ export default function Dashboard() {
       {unavailable && (
         <p role="status" className={styles.notice}>
           <Info size={18} />
-          Pemantauan tidak tersedia: {error} Gunakan Muat Ulang untuk mencoba kembali.
+          Monitoring is unavailable: {error} Use Refresh to try again.
         </p>
       )}
       <TankDashboard
