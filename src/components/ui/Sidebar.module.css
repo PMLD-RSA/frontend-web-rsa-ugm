@@ -58,7 +58,6 @@
 }
 
 .accountItem {
-  --hover-start: 18%;
   position: relative;
   display: flex;
   flex-shrink: 0;
@@ -67,36 +66,23 @@
   width: 100%;
   height: 40px;
   padding: 8px;
-  isolation: isolate;
   border: 0;
   border-radius: 12px;
   background: #f8f8f8;
   box-shadow: inset 0 0 0 0.5px #e0e0e0;
+  color: inherit;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
   text-align: left;
+  text-decoration: none;
   cursor: pointer;
-}
-
-.accountItem::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #f8f8f8 var(--hover-start), rgb(172 172 172 / 50%) 50%);
-  content: '';
-  opacity: 0;
-}
-
-.accountItem:hover::before,
-.accountItem:focus-visible::before {
-  opacity: 1;
 }
 
 .accountItem:hover,
 .accountItem:focus-visible {
-  background: transparent;
+  background: #eeeeee;
 }
 
 .accountItem:focus-visible {
@@ -109,39 +95,23 @@
   opacity: 0.5;
 }
 
-.profileItem {
-  --hover-start: 12%;
+.passwordItem {
+  height: 36px;
+  box-shadow: none;
 }
 
-.passwordItem {
-  --hover-start: 18.269%;
-  height: 36px;
-}
+.passwordIcon { position: relative; width: 14.222px; height: 16px; flex-shrink: 0; }
+.passwordIcon img { position: absolute; left: -0.889px; top: -0.8889px; }
 
 .logoutSection {
-  position: relative;
   flex-shrink: 0;
-  height: 64px;
-  padding-top: 24px;
-}
-
-.logoutDivider {
-  position: absolute;
-  top: -0.25px;
-  left: -0.25px;
-}
-
-.logoutDivider + .logoutDivider {
-  top: 11.75px;
+  width: 100%;
+  height: 40px;
 }
 
 .logoutItem {
   background: white;
   box-shadow: none;
-}
-
-.logoutItem::before {
-  background: linear-gradient(90deg, white 12%, rgb(172 172 172 / 50%) 50%);
 }
 
 @keyframes account-menu-enter {

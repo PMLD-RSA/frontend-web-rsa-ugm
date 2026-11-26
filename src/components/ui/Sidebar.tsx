@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
+import localFont from "next/font/local";
 import type { IconType } from "react-icons";
 import {
   LuBell,
@@ -10,9 +11,7 @@ import {
   LuCircle,
   LuClipboardList,
   LuDatabase,
-  LuKeyRound,
   LuLayoutDashboard,
-  LuLogOut,
   LuPanelLeftClose,
   LuPanelLeftOpen,
   LuRadio,
@@ -28,7 +27,25 @@ import {
 } from "react-icons/lu";
 import { useAuthStore, isAdmin } from "@/stores/authStore";
 import { useAlertStore } from "@/stores/alertStore";
+import { useProfilePhoto } from "@/hooks/useProfilePhoto";
 import styles from "./Sidebar.module.css";
+
+const accountMenuFont = localFont({
+  src: '../../../assets/fonts/inter/Inter-Variable.ttf',
+  weight: '500',
+  display: 'swap',
+});
+
+const accountAssets: Record<string, string> = {
+  'account-control-panel': 'control-panel.svg',
+  'account-control-arrow': 'control-arrow.svg',
+  'account-profile': 'profile.svg',
+  'account-profile-arrow': 'profile-arrow.svg',
+  'account-password': 'password.svg',
+  'account-password-arrow': 'password-arrow.svg',
+  'account-logout': 'logout.svg',
+  'account-logout-arrow': 'logout-arrow.svg',
+};
 
 function SidebarCollapseIcon({ isOpen }: { isOpen: boolean }) {
   return (
@@ -131,17 +148,11 @@ const sidebarIcons: Record<string, IconType> = {
   "expanded-toggle": LuPanelLeftClose,
   "toggle-arrow": LuPanelLeftOpen,
   "account-chevron": LuChevronRight,
-  "account-control-panel": LuLayoutDashboard,
-  "account-control-arrow": LuChevronRight,
-  "account-profile": LuUserRound,
-  "account-profile-arrow": LuChevronRight,
-  "account-password": LuKeyRound,
-  "account-password-arrow": LuChevronRight,
-  "account-logout": LuLogOut,
-  "account-logout-arrow": LuChevronRight,
 };
 
 function SidebarIcon({ name, width, height }: SidebarAsset) {
+  const accountAsset = accountAssets[name];
+  if (accountAsset) return <Image src={`/images/account-menu/${accountAsset}`} alt="" width={width} height={height} unoptimized style={{ flexShrink: 0, maxWidth: 'none' }} />;
   if (name.includes("divider") || name === "toggle-line")
     return (
       <span
@@ -189,6 +200,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
+  const { photo } = useProfilePhoto(user?.id);
   const activeAlertsCount = useAlertStore((state) =>
     state.alerts.filter((a) => a.status === "active").length
   );
@@ -389,12 +401,11 @@ export function Sidebar() {
           title={user ? `Akun ${user.username}` : "Menu akun"}
           className={`flex min-h-8 cursor-pointer items-center gap-[11px] rounded-full text-left text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#ffcc00] ${isOpen ? "w-[150px]" : "w-8"}`}
         >
-          {/* Avatar placeholder with user silhouette icon */}
           <span
             aria-hidden="true"
-            className="flex size-8 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white/75"
+            className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/25 bg-white/15 text-white/75"
           >
-            <LuUserRound size={17} />
+            {photo ? <Image src={photo} alt="" width={32} height={32} unoptimized className="h-full w-full object-cover" /> : <LuUserRound size={17} />}
           </span>
           {isOpen && user && (
             <span className="min-w-0 flex-1">
@@ -433,7 +444,7 @@ export function Sidebar() {
                 ?.focus({ preventScroll: true });
             }
           }}
-          className={styles.accountMenu}
+          className={`${styles.accountMenu} ${accountMenuFont.className}`}
         >
           <Link
             href="/"
@@ -445,16 +456,16 @@ export function Sidebar() {
             <span className="min-w-0 flex-1">Control panel</span>
             <SidebarIcon name="account-control-arrow" width={20} height={20} />
           </Link>
-          <button
-            type="button"
+          <Link
+            href="/profile"
             role="menuitem"
-            onClick={() => showUnavailableFeature("View Profile")}
-            className={`${styles.accountItem} ${styles.profileItem}`}
+            onClick={closeAccountMenu}
+            className={styles.accountItem}
           >
             <SidebarIcon name="account-profile" width={24} height={24} />
             <span className="min-w-0 flex-1">View Profile</span>
             <SidebarIcon name="account-profile-arrow" width={20} height={20} />
-          </button>
+          </Link>
           <button
             type="button"
             role="menuitem"
@@ -462,7 +473,7 @@ export function Sidebar() {
             className={`${styles.accountItem} ${styles.passwordItem}`}
           >
             <span
-              className="flex w-[14.222px] shrink-0 items-center justify-center"
+              className={styles.passwordIcon}
               aria-hidden="true"
             >
               <SidebarIcon
@@ -477,20 +488,6 @@ export function Sidebar() {
             <SidebarIcon name="account-password-arrow" width={20} height={20} />
           </button>
           <div className={styles.logoutSection} role="none">
-            <span className={styles.logoutDivider} aria-hidden="true">
-              <SidebarIcon
-                name="account-divider"
-                width={228.5}
-                height={0.50002}
-              />
-            </span>
-            <span className={styles.logoutDivider} aria-hidden="true">
-              <SidebarIcon
-                name="account-divider"
-                width={228.5}
-                height={0.50002}
-              />
-            </span>
             <button
               type="button"
               role="menuitem"

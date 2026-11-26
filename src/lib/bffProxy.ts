@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiResponse } from "@/types";
+import { normalizeVokasiDisplayData } from "@/lib/vokasiLocations";
 
 const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
 
@@ -38,7 +39,7 @@ export async function forwardToBackend<T>(
 
     if (res.ok) {
       const data = await res.json();
-      return NextResponse.json(data);
+      return NextResponse.json(normalizeVokasiDisplayData(data));
     }
 
     // Jika server merespons 4xx/5xx, kembalikan pesan error asli dari backend
@@ -62,7 +63,7 @@ export async function forwardToBackend<T>(
     return NextResponse.json({
       success: true,
       source: "mock",
-      data: options.fallbackData,
+      data: normalizeVokasiDisplayData(options.fallbackData),
     });
   }
 }

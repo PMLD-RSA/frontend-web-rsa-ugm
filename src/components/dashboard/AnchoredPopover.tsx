@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactNode, type RefObject } from 'react';
 import styles from './DashboardPanels.module.css';
 
 interface Props {
@@ -11,24 +11,25 @@ interface Props {
   active?: boolean;
   disabled?: boolean;
   align?: 'start' | 'end';
+  anchorRef?: RefObject<HTMLElement | null>;
   onOpen?: () => void;
   children: (close: () => void) => ReactNode;
 }
 
-export function AnchoredPopover({ label, trigger, triggerClassName, className = '', active, disabled, align = 'end', onOpen, children }: Props) {
+export function AnchoredPopover({ label, trigger, triggerClassName, className = '', active, disabled, align = 'end', anchorRef, onOpen, children }: Props) {
   const id = useId();
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const position = useCallback(() => {
     if (!button.current || !panel.current?.matches(':popover-open')) return;
-    const anchor = button.current.getBoundingClientRect();
+    const anchor = (anchorRef?.current ?? button.current).getBoundingClientRect();
     const bounds = panel.current.getBoundingClientRect();
     const left = align === 'start' ? anchor.left : anchor.right - bounds.width;
     const below = anchor.bottom + 8;
     panel.current.style.left = `${Math.max(8, Math.min(left, window.innerWidth - bounds.width - 8))}px`;
     panel.current.style.top = `${Math.max(8, Math.min(below + bounds.height <= window.innerHeight - 8 ? below : anchor.top - bounds.height - 8, window.innerHeight - bounds.height - 8))}px`;
-  }, [align]);
+  }, [align, anchorRef]);
 
   useEffect(() => {
     if (!open) return;

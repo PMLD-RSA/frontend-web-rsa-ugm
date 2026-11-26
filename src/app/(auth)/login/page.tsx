@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { LuUserRound, LuLockKeyhole, LuEye } from 'react-icons/lu';
 import { FcGoogle } from 'react-icons/fc';
 import localFont from 'next/font/local';
-import { FormEvent, Suspense, useRef, useState } from 'react';
+import { FormEvent, Suspense, useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LuCircleAlert as AlertCircle, LuEyeOff as EyeOff, LuLoaderCircle as Loader2 } from "react-icons/lu";
 import { useAuthStore } from '@/stores/authStore';
@@ -18,7 +18,10 @@ const plusJakartaSans = localFont({
   display: 'swap',
 });
 
+const subscribeToHydration = () => () => {};
+
 function LoginForm() {
+  const ready = useSyncExternalStore(subscribeToHydration, () => true, () => false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading, error, clearError } = useAuthStore();
@@ -47,17 +50,22 @@ function LoginForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const submittedUsername = String(fields.get('username') ?? '').trim();
+    const submittedPassword = String(fields.get('password') ?? '');
+    setUsername(submittedUsername);
+    setPassword(submittedPassword);
     clearError();
     setTouched({ username: true, password: true });
-    if (!username.trim()) {
+    if (!submittedUsername) {
       usernameRef.current?.focus();
       return;
     }
-    if (!password) {
+    if (!submittedPassword) {
       passwordRef.current?.focus();
       return;
     }
-    const success = await login(username.trim(), password);
+    const success = await login(submittedUsername, submittedPassword);
     if (success) {
       router.push(searchParams.get('from') || '/');
       router.refresh();
@@ -109,7 +117,7 @@ function LoginForm() {
               <p>Silakan masuk untuk memantau status operasional pompa, kontrol histeresis, dan peringatan tangki air.</p>
             </div>
 
-            <form className={styles.form} onSubmit={handleSubmit} noValidate>
+            <form className={styles.form} action="/login" method="post" onSubmit={handleSubmit} noValidate>
               {error && !rejectedCredentials && !rejectedPassword && (
                 <div className={styles.error} role="alert">
                   <AlertCircle size={17} aria-hidden="true" />
@@ -165,7 +173,7 @@ function LoginForm() {
                 </button>
               </div>
 
-              <button className={styles.submit} type="submit" disabled={isLoading}>
+              <button className={styles.submit} type="submit" disabled={!ready || isLoading}>
                 {isLoading ? <><Loader2 size={18} className={styles.spinner} /> Memverifikasi...</> : 'SIGN IN'}
               </button>
 

@@ -6,13 +6,14 @@ import 'leaflet/dist/leaflet.css';
 import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
-import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
+import { vokasiTankName } from '@/lib/vokasiLocations';
 import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
 
-const center: [number, number] = [
-  (VOKASI_LOCATIONS[0].latitude + VOKASI_LOCATIONS[2].latitude) / 2,
-  (VOKASI_LOCATIONS[0].longitude + VOKASI_LOCATIONS[2].longitude) / 2,
+const locations = [
+  { id: 'DTEDI', name: 'DTEDI', position: [-7.7751166667, 110.3736611111] as [number, number], coordinateLabel: `7°46'30.42"S, 110°22'25.18"E` },
+  { id: 'DTK', name: 'DTK', position: [-7.7747805556, 110.3743777778] as [number, number], coordinateLabel: `7°46'29.21"S, 110°22'27.76"E` },
+  { id: 'DLIKES', name: 'DLIKES', position: [-7.7738361111, 110.3744027778] as [number, number], coordinateLabel: `7°46'25.81"S, 110°22'27.85"E` },
 ];
 
 const colors: Record<string, string> = {
@@ -21,26 +22,6 @@ const colors: Record<string, string> = {
   CRITICAL: '#e4002b',
   UNKNOWN: '#64748b',
 };
-
-function coordinates(tank: Tank): [number, number] | null {
-  const labels = `${tank.name} ${tank.location ?? ''}`.toUpperCase().split(/[^A-Z0-9]+/);
-  const site = VOKASI_LOCATIONS.find(({ name }) => labels.includes(name));
-  if (site) return [site.latitude, site.longitude];
-
-  if (
-    tank.latitude == null ||
-    tank.longitude == null ||
-    String(tank.latitude).trim() === '' ||
-    String(tank.longitude).trim() === ''
-  ) {
-    return null;
-  }
-  const lat = Number(tank.latitude);
-  const lng = Number(tank.longitude);
-  return Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
-    ? [lat, lng]
-    : null;
-}
 
 export function TankMap({
   tanks,
@@ -62,27 +43,29 @@ export function TankMap({
   const [selected, setSelected] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
 
-  const visible = useMemo(
-    () =>
-      tanks.filter(
-        tank =>
-          (status === 'ALL' || (getTankStatus(tank) ?? 'UNKNOWN') === status) &&
-          (area === 'ALL' || tank.id === area)
-      ),
-    [tanks, status, area]
-  );
+  const visible = useMemo(() => locations
+    .map(location => {
+      const tank = tanks.find(tank =>
+        vokasiTankName(tank.name) === location.id ||
+        new RegExp(`(^|[^A-Z])${location.id}([^A-Z]|$)`, 'i').test(`${tank.name} ${tank.location ?? ''}`)
+      );
+      return { ...location, tank, tankStatus: tank ? getTankStatus(tank) ?? 'UNKNOWN' : 'UNKNOWN' };
+    })
+    .filter(location =>
+      (status === 'ALL' || location.tankStatus === status) &&
+      (area === 'ALL' || location.id === area)
+    ), [tanks, status, area]);
 
-  const current = visible.find(tank => tank.id === selected);
+  const current = visible.find(location => location.id === selected);
+  const currentTank = current?.tank;
+  const currentDisplayTank = currentTank && current ? { ...currentTank, name: current.name, location: current.name } : null;
 
   useEffect(() => {
     let cancelled = false;
     void import('leaflet').then(L => {
       if (cancelled || !mapElement.current) return;
-      const siteBounds = L.latLngBounds(VOKASI_LOCATIONS.map(({ latitude, longitude }) => [latitude, longitude]));
-      const instance = L.map(mapElement.current, { maxZoom: 20 }).fitBounds(siteBounds, {
-        padding: [40, 40],
-        maxZoom: 19,
-      });
+      const instance = L.map(mapElement.current, { maxZoom: 20 });
+      instance.fitBounds(locations.map(location => location.position), { padding: [32, 32], maxZoom: 19 });
       L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {
@@ -109,22 +92,21 @@ export function TankMap({
     void import('leaflet').then(L => {
       if (cancelled || !markers.current) return;
       markers.current.clearLayers();
-      for (const tank of visible) {
-        const actual = coordinates(tank);
-        const position = actual ?? center;
-        const color = colors[getTankStatus(tank) ?? 'UNKNOWN'];
+      for (const location of visible) {
+        const color = colors[location.tankStatus];
         const icon = L.divIcon({
           className: '',
           iconSize: [32, 40],
           iconAnchor: [16, 39],
-          html: `<svg width="32" height="40" viewBox="0 0 32 40" aria-hidden="true"><path d="M16 39C12 33 2 24 2 16a14 14 0 0 1 28 0c0 8-10 17-14 23Z" fill="${color}" stroke="white" stroke-width="2" ${actual ? '' : 'stroke-dasharray="3 2"'}/><circle cx="16" cy="16" r="5" fill="white"/></svg>`,
+          html: `<svg width="32" height="40" viewBox="0 0 32 40" aria-hidden="true"><path d="M16 39C12 33 2 24 2 16a14 14 0 0 1 28 0c0 8-10 17-14 23Z" fill="${color}" stroke="white" stroke-width="2" ${location.tank ? '' : 'stroke-dasharray="3 2"'}/><circle cx="16" cy="16" r="5" fill="white"/></svg>`,
         });
-        L.marker(position, {
+        L.marker(location.position, {
           icon,
-          title: tank.name,
+          title: location.name,
           keyboard: true,
         })
-          .on('click', () => setSelected(tank.id))
+          .on('click', () => setSelected(location.id))
+          .bindTooltip(location.name, { permanent: true, direction: 'top', offset: [0, -38] })
           .addTo(markers.current);
       }
     });
@@ -175,9 +157,9 @@ export function TankMap({
             }}
           >
             <option value="ALL">All Areas</option>
-            {tanks.map(tank => (
-              <option key={tank.id} value={tank.id}>
-                {tank.name}
+            {locations.map(location => (
+              <option key={location.id} value={location.id}>
+                {location.name}
               </option>
             ))}
           </select>
@@ -209,17 +191,18 @@ export function TankMap({
               <X size={15} />
             </button>
 
-            <TankDetails tank={current} showSignal={false} />
+            {currentDisplayTank ? <TankDetails tank={currentDisplayTank} showSignal={false} /> : <div className={styles.detailHeading}><div><h3>{current.name}</h3><p>Data tangki belum tersedia untuk lokasi ini.</p></div></div>}
+            <p className={styles.helper}>Koordinat: {current.coordinateLabel}</p>
 
-            <footer className={styles.popupFooter}>
+            {currentDisplayTank && <footer className={styles.popupFooter}>
               <button
                 type="button"
                 className={styles.popupDetailButton}
-                onClick={() => onDetail(current)}
+                onClick={() => onDetail(currentDisplayTank)}
               >
                 View details
               </button>
-            </footer>
+            </footer>}
           </div>
         )}
       </div>
@@ -228,17 +211,17 @@ export function TankMap({
         {Object.entries(statusLabels).map(([value, label]) => (
           <span key={value} data-status={value}>
             <i />
-            {label} ({visible.filter(tank => (getTankStatus(tank) ?? 'UNKNOWN') === value).length})
+            {label} ({visible.filter(location => location.tankStatus === value).length})
           </span>
         ))}
       </div>
       {(loading || unavailable || !visible.length) && (
         <p className={styles.helper}>
           {loading
-            ? 'Memuat lokasi tangki...'
+            ? 'Memuat data tangki...'
             : unavailable
             ? 'Data tangki saat ini tidak tersedia.'
-            : 'Tidak ada tangki yang sesuai dengan filter yang dipilih.'}
+            : 'Tidak ada lokasi yang sesuai dengan filter yang dipilih.'}
         </p>
       )}
     </section>

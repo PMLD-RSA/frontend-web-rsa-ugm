@@ -229,12 +229,19 @@ export default function LogsPage() {
                     <tr key={log.id}>
                       <td className={styles.timeCell}>{timeFormatted}</td>
                       <td style={{ fontWeight: 600 }}>{log.action}</td>
-                      <td>{log.username || log.user?.username || "admin"}</td>
+                      <td>
+                        <div className={styles.userCell}>
+                          <span className={styles.avatar} aria-hidden="true">
+                            {(log.username || log.user?.username || "admin").slice(0, 2).toUpperCase()}
+                          </span>
+                          <strong>{log.username || log.user?.username || "admin"}</strong>
+                        </div>
+                      </td>
                       <td>{log.entity || "Tank"}</td>
                       <td style={{ maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis" }}>
                         {log.detail || "-"}
                       </td>
-                      <td className={styles.statusSuccess}>Success</td>
+                      <td><span className={styles.statusSuccess}><i aria-hidden="true" />Success</span></td>
                     </tr>
                   );
                 })
