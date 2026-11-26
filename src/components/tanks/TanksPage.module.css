@@ -65,13 +65,14 @@
   text-decoration: underline;
 }
 .toolbar {
+  --toolbar-control-height: 40px;
   justify-content: flex-end;
   gap: 16px;
   margin: 20px 0 30px;
 }
 .search,
 .filter {
-  height: 40px;
+  height: var(--toolbar-control-height);
   background: #fff;
   border: 2px solid #a1a1a1;
   border-radius: 8px;

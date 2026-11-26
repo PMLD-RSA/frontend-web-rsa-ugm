@@ -8,6 +8,7 @@
 }
 
 .toolbar {
+  --toolbar-control-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,7 +36,7 @@
 .controls :is(img, svg),
 .cardFooter :is(img, svg) { flex-shrink: 0; }
 
-.search:focus-within { border-color: #016da6; }
+:global(html:not([data-pointer-focus])) .search:focus-within { border-color: #016da6; }
 
 .search input {
   width: 100%;
@@ -56,7 +57,7 @@
   display: grid;
   place-items: center;
   width: 43px;
-  height: 43px;
+  height: var(--toolbar-control-height);
   border: 1.5px solid var(--dashboard-border);
   border-radius: 5px;
 }
@@ -66,7 +67,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: var(--toolbar-control-height);
   padding: 10px 16px;
   border-radius: 4px;
   background: var(--dashboard-yellow);

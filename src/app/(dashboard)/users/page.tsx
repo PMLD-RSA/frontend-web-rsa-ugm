@@ -8,6 +8,7 @@ import {
   LuPencil as Pencil,
   LuPlus as Plus,
   LuRefreshCw as RefreshCw,
+  LuSettings as BreadcrumbIcon,
   LuSearch as Search,
   LuSlidersHorizontal as SlidersHorizontal,
   LuTrash2 as Trash2,
@@ -286,9 +287,9 @@ export default function UsersPage() {
       </header>
 
       {/* Consistent Breadcrumb */}
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <span>
-          <Link href="/">Dashboard</Link> &gt; Users
+          <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; Users
         </span>
         <span>
           {updated &&
@@ -313,11 +314,11 @@ export default function UsersPage() {
       <div className={styles.toolbar}>
         <h2>Quick Actions</h2>
         <div className={styles.toolbarActions}>
-          <div className={styles.search}>
-            <Search size={16} color="#64748b" />
+          <div className="app-search">
+            <Search size={16} aria-hidden="true" />
             <input
               aria-label="Cari pengguna"
-              placeholder="Search"
+              placeholder="Search users..."
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);

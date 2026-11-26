@@ -3,22 +3,12 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import localFont from 'next/font/local';
 import { useAuthStore } from '@/stores/authStore';
 import { useProfilePhoto } from '@/hooks/useProfilePhoto';
 import { NotificationPopover } from '@/components/dashboard/NotificationPopover';
+import { LuSearch as Search } from "react-icons/lu";
 import styles from './profile.module.css';
 
-const searchFont = localFont({
-  src: '../../../../assets/fonts/asap/Asap-Variable.ttf',
-  weight: '600',
-  display: 'swap',
-});
-const buttonFont = localFont({
-  src: '../../../../assets/fonts/poppins/Poppins-Regular.ttf',
-  weight: '400',
-  display: 'swap',
-});
 
 const accountDate = (value?: string) => value && Number.isFinite(Date.parse(value))
   ? new Date(value).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' })
@@ -114,9 +104,9 @@ export default function ProfilePage() {
           <time dateTime={today?.toISOString()}>{today ? today.toLocaleDateString('en-GB', { timeZone: 'Asia/Jakarta', weekday: 'short', day: '2-digit', month: 'long', year: 'numeric' }) : 'Memuat tanggal...'}</time>
         </div>
         <div className={styles.headerActions}>
-          <label className={`${styles.search} ${searchFont.className}`}>
-            <Image src="/images/profile/search.svg" alt="" width={24} height={24} unoptimized />
-            <input type="search" placeholder="Search" aria-label="Cari informasi profil" aria-controls="profile-details" value={query} onChange={event => setQuery(event.target.value)} />
+          <label className="app-search">
+            <Search size={16} aria-hidden="true" />
+            <input type="search" placeholder="Search profile details..." aria-label="Cari informasi profil" aria-controls="profile-details" value={query} onChange={event => setQuery(event.target.value)} />
           </label>
           <NotificationPopover className={styles.notification} panelClassName={styles.notificationPanel} icon={<Image src="/images/profile/notification.svg" alt="" width={25.1707} height={25.1707} unoptimized />} />
           <a href="#profile-identity" className={styles.headerAvatar} aria-label={`Profil ${user.username}`}>
@@ -144,7 +134,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          <button type="button" className={`${styles.edit} ${buttonFont.className}`} disabled aria-describedby="profile-edit-note">Edit</button>
+          <button type="button" className={styles.edit} disabled aria-describedby="profile-edit-note">Edit</button>
         </div>
 
         <div className={styles.photoSettings}>

@@ -3,26 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import localFont from "next/font/local";
 import { LuCheck as Check } from "react-icons/lu";
 import { useAlertStore } from "@/stores/alertStore";
 import { useTankStore } from "@/stores/tankStore";
+import { getTankStatus } from "@/lib/dashboard";
 import { isOperator, useAuthStore } from "@/stores/authStore";
 import type { Alert, ApiResponse, AuditLog, Tank } from "@/types";
+import { LuSearch as Search } from "react-icons/lu";
 import styles from "./alerts.module.css";
 
-const alertHeadingFont = localFont({
-  src: '../../../../assets/fonts/asap/Asap-Variable.ttf',
-  variable: '--font-alert-heading',
-  weight: '400 700',
-  display: 'swap',
-});
-const alertButtonFont = localFont({
-  src: '../../../../assets/fonts/inter/Inter-Variable.ttf',
-  variable: '--font-alert-button',
-  weight: '400 700',
-  display: 'swap',
-});
 
 type ModalKind = "sensor" | "resolve" | "mark" | "pump";
 type OpenModal = { kind: ModalKind; alert: Alert };
@@ -252,10 +241,10 @@ export default function AlertsPage() {
     : modal?.kind === "mark" ? "Mark as Resolved" : "Active Backup Pump";
 
   return (
-    <section className={`${styles.page} ${alertHeadingFont.variable} ${alertButtonFont.variable}`}>
+    <section className={styles.page}>
       <header className={styles.heading}><h1>Alarm and Events</h1></header>
 
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <span className={styles.crumbPath}>
           <Image src="/images/alerts/breadcrumb.svg" alt="" width={18.84} height={18.84} />
           <Link href="/">Dashboard</Link> &gt; Alarm and Events
@@ -271,18 +260,23 @@ export default function AlertsPage() {
 
       {tankError && <p className={styles.backendNotice} role="status">Data tangki tidak tersedia: {tankError}</p>}
 
-      <div className={styles.contentGrid}>
-        <div className={styles.leftCol}>
-          <div className={styles.summaryRow} aria-label="Ringkasan alert">
-            <div className={`${styles.summaryCard} ${styles.critical}`}><h2>Critical</h2><strong>{alertError || (alertLoading && !lastUpdated) ? "—" : counts.critical}</strong></div>
-            <div className={`${styles.summaryCard} ${styles.warning}`}><h2>Warning</h2><strong>{alertError || (alertLoading && !lastUpdated) ? "—" : counts.warning}</strong></div>
-            <div className={`${styles.summaryCard} ${styles.pending}`}><h2>Pending</h2><strong>{alertError || (alertLoading && !lastUpdated) ? "—" : counts.active}</strong></div>
-          </div>
+      <div className={styles.summaryRow} aria-label="Ringkasan tangki">
+        {([
+          { key: "pending", label: "Pending", value: tanks.length, detail: "Terdaftar dalam sistem" },
+          { key: "normal", label: "Normal", value: tanks.filter((tank) => getTankStatus(tank) === "NORMAL").length, detail: "Kondisi Air Aman" },
+          { key: "warning", label: "Peringatan", value: tanks.filter((tank) => getTankStatus(tank) === "WARNING").length, detail: "Perlu Pemantauan" },
+          { key: "critical", label: "Kritis", value: tanks.filter((tank) => getTankStatus(tank) === "CRITICAL").length, detail: "Perlu Penanganan" },
+        ] as const).map((item) => <div key={item.key} className={`${styles.summaryCard} ${styles[item.key]}`}>
+          <h2>{item.label}</h2>
+          <div className={styles.summaryValue}><strong>{tankError ? "?" : item.value}</strong><span>Tangki</span></div>
+          <p>{item.key !== "pending" && <span aria-hidden="true" />}{item.detail}</p>
+        </div>)}
+      </div>
 
           <div className={styles.filterBar}>
-            <label className={styles.search}>
-              <Image src="/images/alerts/search.svg" alt="" width={16} height={16} />
-              <input type="search" aria-label="Cari peringatan" placeholder="Search by tank, unit, incident code..." value={query} onChange={(event) => setQuery(event.target.value)} />
+            <label className="app-search">
+              <Search size={16} aria-hidden="true" />
+              <input type="search" aria-label="Cari peringatan" placeholder="Search by tank, medical unit, incident code..." value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
             <div className={styles.filterControls}>
               <div className={styles.pills} role="group" aria-label="Status peringatan">
@@ -297,6 +291,8 @@ export default function AlertsPage() {
             </div>
           </div>
 
+      <div className={styles.contentGrid}>
+        <div className={styles.leftCol}>
           <div className={styles.alertsBox}>
             <div className={styles.alertsHeader}>
               <h2><span className={tab === "history" ? styles.greenDot : styles.redDot} />
@@ -345,7 +341,7 @@ export default function AlertsPage() {
 
         <aside className={styles.rightCol}>
           <section className={styles.historyCard} aria-label="Riwayat aktivitas terbaru">
-            <header className={styles.historyHeader}><h2>Latest Event History</h2><p>{formatDate(recentEvents[0]?.createdAt)}</p></header>
+            <header className={styles.historyHeader}><h2>Latest Maintenance History</h2><p>{formatDate(recentEvents[0]?.createdAt)}</p></header>
             {historyState === "loading" ? <p className={styles.historyEmpty}>Memuat riwayat...</p>
               : historyState === "unavailable" ? <p className={styles.historyEmpty}>Riwayat aktivitas tidak tersedia.</p>
               : recentEvents.length === 0 ? <p className={styles.historyEmpty}>Belum ada aktivitas terbaru.</p>

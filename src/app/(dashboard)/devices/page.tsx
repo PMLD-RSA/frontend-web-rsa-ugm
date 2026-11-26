@@ -6,6 +6,7 @@ import {
   LuRadio as Radio,
   LuCpu as Cpu,
   LuRefreshCw as RefreshCw,
+  LuSettings as BreadcrumbIcon,
   LuWifi as Wifi,
   LuWifiOff as WifiOff,
 } from "react-icons/lu";
@@ -105,9 +106,9 @@ export default function DevicesPage() {
         <h1>Status Perangkat IoT</h1>
       </header>
 
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <span>
-          <Link href="/">Dashboard</Link> &gt; Devices
+          <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; Devices
         </span>
         <span>
           Updated just now ·{" "}

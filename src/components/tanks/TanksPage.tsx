@@ -11,6 +11,7 @@ import {
   LuMapPin as MapPin,
   LuPlus as Plus,
   LuRefreshCw as RefreshCw,
+  LuSettings as BreadcrumbIcon,
   LuSearch as Search,
   LuSlidersHorizontal as SlidersHorizontal,
   LuTrash2 as Trash2,
@@ -111,9 +112,9 @@ export function TanksPage() {
           </button>
         </div>
       </header>
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <span>
-          <Link href="/">Dashboard</Link> &gt; Tanks
+          <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; Tanks
         </span>
         <span>
           {updated &&
@@ -129,12 +130,12 @@ export function TanksPage() {
         </span>
       </div>
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <Search size={20} />
+        <label className="app-search">
+          <Search size={16} aria-hidden="true" />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search"
+            placeholder="Search tanks..."
             aria-label="Search tanks"
           />
         </label>

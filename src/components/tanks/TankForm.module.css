@@ -77,7 +77,7 @@
   color: #a1a1a1;
   opacity: 1;
 }
-.dialog input:focus {
+:global(html:not([data-pointer-focus])) .dialog input:focus {
   border-color: #0a3f5c;
 }
 .dialog input:disabled {

@@ -118,6 +118,7 @@
 }
 
 .toolbarActions {
+  --toolbar-control-height: 40px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -145,6 +146,7 @@
 }
 
 .filterBtn {
+  height: var(--toolbar-control-height);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -164,6 +166,7 @@
 }
 
 .addUserBtn {
+  height: var(--toolbar-control-height);
   display: inline-flex;
   align-items: center;
   gap: 6px;

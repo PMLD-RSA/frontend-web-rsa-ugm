@@ -30,7 +30,7 @@ export function Header() {
           <input
             type="text"
             placeholder="Cari tangki, gedung, atau sensor..."
-            className="pl-9 pr-4 py-2 bg-slate-100 border-transparent rounded-full text-sm focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none w-64 md:w-80 text-slate-700"
+            className="pl-9 pr-4 py-2 bg-slate-100 border-transparent rounded-full text-sm focus:bg-white focus-visible:outline-2 focus-visible:outline-slate-500 transition-all outline-none w-64 md:w-80 text-slate-700"
           />
         </div>
       </div>

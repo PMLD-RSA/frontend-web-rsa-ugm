@@ -2,19 +2,12 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import localFont from 'next/font/local';
 import type { Tank, TankStatusCategory } from '@/types';
 import type { DashboardFilters } from '@/lib/dashboard';
 import { AnchoredPopover } from './AnchoredPopover';
 import { DashboardIcon as Icon } from './DashboardIcon';
 import styles from './DashboardPanels.module.css';
 
-const filterFont = localFont({
-  src: '../../../assets/fonts/asap/Asap-Variable.ttf',
-  weight: '600',
-  style: 'normal',
-  display: 'swap',
-});
 
 const statuses = [
   { value: 'NORMAL', label: 'Normal', image: 'filter-normal' },
@@ -26,7 +19,7 @@ export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: 
   const [tankId, setTankId] = useState(filters.tankId);
   const [selected, setSelected] = useState<TankStatusCategory[]>(filters.statuses);
   const active = Boolean(filters.tankId || filters.statuses.length);
-  return <AnchoredPopover label="Filter Dashboard" trigger={<><span className={styles.filterTriggerIcon}><Image src="/images/dashboard/filter-trigger.svg" alt="" width={20} height={20} unoptimized /></span><span>Filter</span>{active && <span className={styles.activeDot} aria-label="Filter aktif" />}</>} triggerClassName={`${triggerClassName} ${filterFont.className}`} className={styles.filterPanel} active={active} onOpen={() => { setTankId(filters.tankId); setSelected(filters.statuses); }}>
+  return <AnchoredPopover label="Filter Dashboard" trigger={<><span className={styles.filterTriggerIcon}><Image src="/images/dashboard/filter-trigger.svg" alt="" width={20} height={20} unoptimized /></span><span>Filter</span>{active && <span className={styles.activeDot} aria-label="Filter aktif" />}</>} triggerClassName={triggerClassName} className={styles.filterPanel} active={active} onOpen={() => { setTankId(filters.tankId); setSelected(filters.statuses); }}>
     {(close) => <form onSubmit={(event) => { event.preventDefault(); onChange({ ...filters, tankId, statuses: selected }); close(); }}>
       <div className={styles.filterHeader}>
         <h2>Filter Dashboard</h2>

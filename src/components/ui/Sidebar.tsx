@@ -2,7 +2,6 @@
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
-import localFont from "next/font/local";
 import type { IconType } from "react-icons";
 import {
   LuBell,
@@ -30,11 +29,6 @@ import { useAlertStore } from "@/stores/alertStore";
 import { useProfilePhoto } from "@/hooks/useProfilePhoto";
 import styles from "./Sidebar.module.css";
 
-const accountMenuFont = localFont({
-  src: '../../../assets/fonts/inter/Inter-Variable.ttf',
-  weight: '500',
-  display: 'swap',
-});
 
 const accountAssets: Record<string, string> = {
   'account-control-panel': 'control-panel.svg',
@@ -460,7 +454,7 @@ export function Sidebar() {
                 ?.focus({ preventScroll: true });
             }
           }}
-          className={`${styles.accountMenu} ${accountMenuFont.className}`}
+          className={styles.accountMenu}
         >
           <Link
             href="/"

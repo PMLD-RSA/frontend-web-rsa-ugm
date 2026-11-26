@@ -13,6 +13,7 @@ import {
   LuMapPin as MapPin,
   LuRadio as Radio,
   LuRefreshCw as RefreshCw,
+  LuSettings as BreadcrumbIcon,
 } from "react-icons/lu";
 import {
   Area,
@@ -194,9 +195,9 @@ export function TankDetailPage({ id }: { id: string }) {
           Download All
         </button>
       </header>
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <nav>
-          <Link href="/">Dashboard</Link> &gt; <Link href="/tanks">Tanks</Link>{" "}
+          <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; <Link href="/tanks">Tanks</Link>{" "}
           &gt; {tank?.name ?? "Details"}
         </nav>
         <button

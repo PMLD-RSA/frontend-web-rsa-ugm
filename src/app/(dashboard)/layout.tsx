@@ -42,8 +42,8 @@ export default function DashboardRouteLayout({ children }: { children: ReactNode
         <main
           className={
             isOverview
-              ? 'flex-1 overflow-auto bg-white px-4 pb-8 md:pl-[15px] md:pr-[34px]'
-              : 'flex-1 overflow-auto bg-[#ecf4f9] px-4 pb-8 md:pl-[15px] md:pr-[34px] pt-4'
+              ? 'flex-1 overflow-auto bg-white dashboard-viewport pb-8'
+              : 'flex-1 overflow-auto bg-[#ecf4f9] dashboard-viewport pb-8 pt-4'
           }
         >
           {isLoading ? (
