@@ -33,6 +33,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   return forwardToBackend(`/api/tanks/${encodeURIComponent(id)}`, { method: 'PATCH', body, headers: token ? { Authorization: `Bearer ${token}` } : {} });
 }
 
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  return PATCH(request, context);
+}
+
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const cookieStore = await cookies();

@@ -66,13 +66,13 @@ export async function POST(request: NextRequest) {
         data: { token, user },
       });
 
-      // Set cookie HttpOnly untuk browser Web
+      // Set cookie HttpOnly untuk browser Web (selaras JWT_EXPIRES_IN=1d Core BE)
       response.cookies.set("auth_token", token, {
         httpOnly: true,
         sameSite: "lax",
         secure: isHttpsRequest(request),
         path: "/",
-        maxAge: 60 * 60 * 24 * 7, // 7 hari
+        maxAge: 60 * 60 * 24, // 1 hari
       });
 
       return response;
