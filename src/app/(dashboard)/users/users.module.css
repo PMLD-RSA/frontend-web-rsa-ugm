@@ -72,13 +72,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  color: #929292;
+  color: #64748b;
   font-size: 12px;
   margin: 12px 0 24px;
 }
 
 .breadcrumb a {
-  color: #929292;
+  color: #64748b;
   text-decoration: none;
 }
 
@@ -596,8 +596,38 @@
   cursor: pointer;
 }
 
+.search:focus-within,
+.formGroup input:focus-visible,
+.formGroup select:focus-visible,
+.actionBtn:focus-visible,
+.dialogClose:focus-visible {
+  outline: 2px solid #0a3f5c;
+  outline-offset: 2px;
+}
+
 @media (max-width: 900px) {
   .summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .summary {
+    grid-template-columns: 1fr;
+  }
+
+  .search {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (pointer: coarse) {
+  .actionBtn,
+  .dialogClose,
+  .pagination button {
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
   }
 }

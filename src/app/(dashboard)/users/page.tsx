@@ -104,6 +104,22 @@ export default function UsersPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const anyModalOpen = Boolean(detail || createOpen || editingUser || deletingUser);
+    if (!anyModalOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape" || submitting) return;
+      if (deletingUser) setDeletingUser(null);
+      else if (editingUser) setEditingUser(null);
+      else if (createOpen) setCreateOpen(false);
+      else if (detail) setDetail(null);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [detail, createOpen, editingUser, deletingUser, submitting]);
+
   function openCreateModal() {
     setNewUsername("");
     setNewPassword("");
@@ -565,7 +581,13 @@ export default function UsersPage() {
       {/* User Detail Dialog */}
       {detail && (
         <div className={styles.modalOverlay} onClick={() => setDetail(null)}>
-          <div className={styles.dialogBox} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.dialogBox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Detail Pengguna ${detail.username}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               className={styles.dialogClose}
@@ -599,7 +621,13 @@ export default function UsersPage() {
           className={styles.modalOverlay}
           onClick={() => !submitting && setCreateOpen(false)}
         >
-          <div className={styles.dialogBox} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.dialogBox}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tambah Pengguna Baru"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               className={styles.dialogClose}
@@ -677,7 +705,13 @@ export default function UsersPage() {
           className={styles.modalOverlay}
           onClick={() => !submitting && setEditingUser(null)}
         >
-          <div className={styles.dialogBox} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.dialogBox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Edit Pengguna ${editingUser.username}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               className={styles.dialogClose}
@@ -749,7 +783,13 @@ export default function UsersPage() {
           className={styles.modalOverlay}
           onClick={() => !submitting && setDeletingUser(null)}
         >
-          <div className={styles.dialogBox} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.dialogBox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Hapus Pengguna ${deletingUser.username}`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               type="button"
               className={styles.dialogClose}
