@@ -1,10 +1,10 @@
 import { create } from "zustand";
-import { Tank, WsLevelUpdateData, Alert } from "@/types";
+import { Tank, WsLevelUpdateData, Alert, NodeStatus } from "@/types";
 
 interface WsNodeStatusUpdate {
   nodeCode?: string;
   tankId?: string;
-  status?: "online" | "offline";
+  status?: NodeStatus;
   rssi?: number | null;
   lastSeen?: string;
 }
@@ -76,22 +76,26 @@ export const useTankStore = create<TankState>((set) => ({
   updateNodeStatusFromWs: (update) => {
     set((state) => ({
       tanks: state.tanks.map((tank) => {
-        const matchesTank = update.tankId && tank.id === update.tankId;
-        const matchesNode =
-          update.nodeCode &&
-          tank.sensorNode?.deviceCode?.toLowerCase() === update.nodeCode.toLowerCase();
-        if (!matchesTank && !matchesNode) return tank;
-        if (!tank.sensorNode) return tank;
+        if (!tank.nodes?.length) return tank;
+        const matchesTank = Boolean(update.tankId && tank.id === update.tankId);
+        let changed = false;
 
-        return {
-          ...tank,
-          sensorNode: {
-            ...tank.sensorNode,
-            status: update.status ?? tank.sensorNode.status,
-            rssi: update.rssi !== undefined ? update.rssi : tank.sensorNode.rssi,
-            lastSeen: update.lastSeen ?? tank.sensorNode.lastSeen,
-          },
-        };
+        const updatedNodes = tank.nodes.map((node) => {
+          const matchesNode = Boolean(
+            update.nodeCode &&
+              node.deviceCode.toLowerCase() === update.nodeCode.toLowerCase()
+          );
+          if (!matchesTank && !matchesNode) return node;
+          changed = true;
+          return {
+            ...node,
+            status: update.status ?? node.status,
+            lastRssi: update.rssi !== undefined ? update.rssi : node.lastRssi,
+            lastSeen: update.lastSeen ?? node.lastSeen,
+          };
+        });
+
+        return changed ? { ...tank, nodes: updatedNodes } : tank;
       }),
     }));
   },

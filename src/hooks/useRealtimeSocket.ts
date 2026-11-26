@@ -86,10 +86,18 @@ export function useRealtimeSocket() {
 
             if (eventType === "NODE_STATUS" && (data.node_code || data.nodeCode || data.tank_id || data.tankId)) {
               const rawStatus = String(data.status || "").toLowerCase();
+              const normalizedStatus =
+                rawStatus === "online" || rawStatus === "active"
+                  ? "active"
+                  : rawStatus === "offline"
+                  ? "offline"
+                  : rawStatus === "error"
+                  ? "error"
+                  : undefined;
               useTankStore.getState().updateNodeStatusFromWs({
                 nodeCode: data.node_code || data.nodeCode,
                 tankId: data.tank_id || data.tankId,
-                status: rawStatus === "online" || rawStatus === "offline" ? rawStatus : undefined,
+                status: normalizedStatus,
                 rssi: data.rssi != null ? Number(data.rssi) : undefined,
                 lastSeen: data.last_seen || data.lastSeen || data.timestamp || new Date().toISOString(),
               });

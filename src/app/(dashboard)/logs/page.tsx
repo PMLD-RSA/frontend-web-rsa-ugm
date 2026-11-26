@@ -21,6 +21,7 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isForbidden, setIsForbidden] = useState(false);
+  const forbidden = isForbidden || (userLoaded && !canViewLogs);
   const tanks = useTankStore((state) => state.tanks);
 
   const [query, setQuery] = useState("");
@@ -58,9 +59,6 @@ export default function LogsPage() {
 
   useEffect(() => {
     if (userLoaded && !canViewLogs) {
-      setIsForbidden(true);
-      setLogs([]);
-      setIsLoading(false);
       return;
     }
 
@@ -68,7 +66,6 @@ export default function LogsPage() {
     const controller = new AbortController();
 
     async function fetchLogs() {
-      setIsLoading(true);
       try {
         const params = new URLSearchParams({ limit: "100" });
         if (entityFilter !== "ALL") {
@@ -219,6 +216,7 @@ export default function LogsPage() {
               className={styles.selectInput}
               value={entityFilter}
               onChange={(e) => {
+                setIsLoading(true);
                 setEntityFilter(e.target.value);
                 setPage(0);
               }}
@@ -308,10 +306,10 @@ export default function LogsPage() {
               ) : (
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
-                    {isLoading
-                      ? "Memuat riwayat log..."
-                      : isForbidden
+                    {forbidden
                       ? "Akses terbatas: halaman Audit Logs hanya tersedia untuk role Admin."
+                      : isLoading
+                      ? "Memuat riwayat log..."
                       : "Tidak ada catatan log aktivitas yang cocok."}
                   </td>
                 </tr>
