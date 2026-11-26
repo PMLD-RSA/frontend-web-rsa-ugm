@@ -1,17 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   LuDownload as Download,
+  LuChevronDown as ChevronDown,
+  LuCalendarDays as CalendarDays,
   LuFileSpreadsheet as FileSpreadsheet,
   LuFileText as FileText,
   LuRefreshCw as RefreshCw,
+  LuSettings as BreadcrumbIcon,
   LuInfo as Info,
   LuTriangleAlert as AlertTriangle,
 } from "react-icons/lu";
+import { DashboardDatePicker } from "@/components/dashboard/DashboardCalendar";
 import { useTankStore } from "@/stores/tankStore";
 import styles from "./reports.module.css";
+
+function ReportSelect({ id, value, options, onChange }: {
+  id: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const dismiss = (event: MouseEvent) => {
+      if (event.target instanceof Node && !container.current?.contains(event.target)) setOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setOpen(false); container.current?.querySelector<HTMLButtonElement>("button")?.focus(); }
+    };
+    document.addEventListener("mousedown", dismiss);
+    document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("mousedown", dismiss); document.removeEventListener("keydown", escape); };
+  }, [open]);
+  return <div className={styles.selectContainer} ref={container}>
+    <button id={id} type="button" className={styles.selectTrigger} aria-expanded={open} onClick={() => setOpen(!open)}>
+      <span>{options.find((option) => option.value === value)?.label}</span><ChevronDown size={17} aria-hidden="true" />
+    </button>
+    {open && <div className={styles.selectMenu} role="group" aria-label={id === "sensor-tank-target" ? "Target tangki" : "Tingkat keparahan"}>
+      {options.map((option) => <button key={option.value} type="button" aria-pressed={value === option.value} onClick={() => { onChange(option.value); setOpen(false); }}>{option.label}</button>)}
+    </div>}
+  </div>;
+}
 
 export default function ReportsPage() {
   const { tanks, fetchTanks } = useTankStore();
@@ -41,10 +75,8 @@ export default function ReportsPage() {
       const params = new URLSearchParams();
       if (targetTank !== "ALL") {
         params.set("tankId", targetTank);
-      } else if (tanks.length > 0) {
-        // Jika ALL, ekspor tangki pertama atau keseluruhan
-        params.set("tankId", tanks[0].id);
       }
+      params.set("interval", sensorInterval);
       if (sensorStartDate) params.set("startDate", sensorStartDate);
       if (sensorEndDate) params.set("endDate", sensorEndDate);
 
@@ -104,9 +136,9 @@ export default function ReportsPage() {
         <h1>Reports</h1>
       </header>
 
-      <div className={styles.breadcrumb}>
+      <div className={`${styles.breadcrumb} app-breadcrumb`}>
         <span>
-          <Link href="/">Dashboard</Link> &gt; Reports
+          <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; Reports
         </span>
         <span>
           Updated just now ·{" "}
@@ -163,40 +195,25 @@ export default function ReportsPage() {
 
             <div className={styles.field}>
               <label htmlFor="sensor-tank-target">Target Tangki</label>
-              <select
-                id="sensor-tank-target"
-                value={sensorTankId}
-                onChange={(e) => setSensorTankId(e.target.value)}
-              >
-                <option value="ALL">
-                  Semua Tangki ({tanks.map((t) => t.name).join(", ") || "Semua"})
-                </option>
-                {tanks.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+              <ReportSelect id="sensor-tank-target" value={sensorTankId} onChange={setSensorTankId} options={[{ value: "ALL", label: "All Tanks" }, ...tanks.map((tank) => ({ value: tank.id, label: tank.name }))]} />
             </div>
 
             <div className={styles.rowFields}>
               <div className={styles.field}>
-                <label htmlFor="sensor-start-date">Rentang Mulai</label>
-                <input
-                  id="sensor-start-date"
-                  type="date"
-                  value={sensorStartDate}
-                  onChange={(e) => setSensorStartDate(e.target.value)}
-                />
+                <span className={styles.fieldLabel}>Rentang Mulai</span>
+                <DashboardDatePicker label="Rentang Mulai" mode="single" value={{ startDate: sensorStartDate, endDate: sensorStartDate }} onChange={(range) => setSensorStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <span>{sensorStartDate || "Select Date"}</span>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </DashboardDatePicker>
               </div>
               <div className={styles.field}>
-                <label htmlFor="sensor-end-date">Rentang Selesai</label>
-                <input
-                  id="sensor-end-date"
-                  type="date"
-                  value={sensorEndDate}
-                  onChange={(e) => setSensorEndDate(e.target.value)}
-                />
+                <span className={styles.fieldLabel}>Rentang Selesai</span>
+                <DashboardDatePicker label="Rentang Selesai" mode="single" value={{ startDate: sensorEndDate, endDate: sensorEndDate }} onChange={(range) => setSensorEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <span>{sensorEndDate || "Select Date"}</span>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </DashboardDatePicker>
               </div>
             </div>
 
@@ -252,35 +269,25 @@ export default function ReportsPage() {
 
             <div className={styles.field}>
               <label htmlFor="alert-severity-target">Tingkat Keparahan (Severity)</label>
-              <select
-                id="alert-severity-target"
-                value={alertSeverity}
-                onChange={(e) => setAlertSeverity(e.target.value)}
-              >
-                <option value="ALL">Semua Level (Info, Warning, Critical)</option>
-                <option value="CRITICAL">Critical</option>
-                <option value="WARNING">Warning</option>
-              </select>
+              <ReportSelect id="alert-severity-target" value={alertSeverity} onChange={setAlertSeverity} options={[{ value: "ALL", label: "All Levels (Info, Warning, Critical)" }, { value: "INFO", label: "Info" }, { value: "WARNING", label: "Warning" }, { value: "CRITICAL", label: "Critical" }]} />
             </div>
 
             <div className={styles.rowFields}>
               <div className={styles.field}>
-                <label htmlFor="alert-start-date">Dari Tanggal</label>
-                <input
-                  id="alert-start-date"
-                  type="date"
-                  value={alertStartDate}
-                  onChange={(e) => setAlertStartDate(e.target.value)}
-                />
+                <span className={styles.fieldLabel}>Dari Tanggal</span>
+                <DashboardDatePicker label="Dari Tanggal" mode="single" value={{ startDate: alertStartDate, endDate: alertStartDate }} onChange={(range) => setAlertStartDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <span>{alertStartDate || "Select Date"}</span>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </DashboardDatePicker>
               </div>
               <div className={styles.field}>
-                <label htmlFor="alert-end-date">Sampai Tanggal</label>
-                <input
-                  id="alert-end-date"
-                  type="date"
-                  value={alertEndDate}
-                  onChange={(e) => setAlertEndDate(e.target.value)}
-                />
+                <span className={styles.fieldLabel}>Sampai Tanggal</span>
+                <DashboardDatePicker label="Sampai Tanggal" mode="single" value={{ startDate: alertEndDate, endDate: alertEndDate }} onChange={(range) => setAlertEndDate(range.startDate)} triggerClassName={styles.reportDateButton}>
+                  <CalendarDays size={17} aria-hidden="true" />
+                  <span>{alertEndDate || "Select Date"}</span>
+                  <ChevronDown size={16} aria-hidden="true" />
+                </DashboardDatePicker>
               </div>
             </div>
 

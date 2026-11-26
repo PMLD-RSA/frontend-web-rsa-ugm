@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import localFont from 'next/font/local';
 import { useRef, useState } from 'react';
 import type { Tank } from '@/types';
 import { Card } from '@/components/ui/Card';
@@ -15,14 +14,9 @@ import { DashboardFilter } from './DashboardFilter';
 import { AnchoredPopover } from './AnchoredPopover';
 import { DownloadReportDialog } from './DownloadReportDialog';
 import { NotificationPopover } from './NotificationPopover';
+import { LuSearch as Search } from "react-icons/lu";
 import styles from './DashboardOverview.module.css';
 
-const dateRangeFont = localFont({
-  src: '../../../assets/fonts/inter/Inter-Variable.ttf',
-  weight: '500',
-  style: 'normal',
-  display: 'swap',
-});
 
 const statuses = [
   { value: 'NORMAL', label: 'Normal', tone: 'normal', description: 'Safe Water Level', image: 'tank-normal.png', width: 107 },
@@ -71,10 +65,10 @@ export function DashboardOverview({ tanks, allTanks, loading, failed, query, onQ
   return (
     <section className={styles.overview} aria-label="Dashboard summary">
       <header className={styles.toolbar}>
-        <div className={styles.search} role="search">
-          <Icon name="search" width={24} />
+        <div className="app-search" role="search">
+          <Search size={16} aria-hidden="true" />
           <input
-            type="search" placeholder="Search" aria-label="Search tanks, locations, or sensors"
+            type="search" placeholder="Search tanks, locations, or sensors..." aria-label="Search tanks, locations, or sensors"
             value={query} onChange={(event) => onQueryChange(event.target.value)}
             aria-controls="dashboard-tank-list"
           />
@@ -91,7 +85,7 @@ export function DashboardOverview({ tanks, allTanks, loading, failed, query, onQ
       <div className={styles.headingRow}>
         <h1>Dashboard</h1>
         <div className={styles.controls}>
-          <div ref={dateControl} className={`${styles.dateControl} ${dateRangeFont.className}`}>
+          <div ref={dateControl} className={styles.dateControl}>
             <DashboardDatePicker label="Select latest reading date range" triggerClassName={styles.dateButton} value={filters} onChange={(range) => onFiltersChange({ ...filters, ...range, period: 'Custom' })}>
               <Image src="/images/dashboard/date-range-calendar.svg" alt="" width={16} height={16} unoptimized />
               <span>{rangeLabel(filters.startDate, filters.endDate)}</span>

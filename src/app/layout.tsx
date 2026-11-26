@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { FocusModality } from "@/components/ui/FocusModality";
 
 const plusJakartaSans = localFont({
   src: "../../assets/fonts/plus-jakarta-sans/PlusJakartaSans-VariableFont_wght.ttf",
@@ -24,7 +25,10 @@ export default function RootLayout({
       lang="id"
       className={`${plusJakartaSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <FocusModality />
+        {children}
+      </body>
     </html>
   );
 }
