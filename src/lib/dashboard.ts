@@ -36,10 +36,10 @@ export function getTankStatus(tank: Tank): TankStatusCategory | null {
 }
 
 export function filterDashboardTanks(tanks: Tank[], query: string, filters: DashboardFilters) {
-  const search = query.trim().toLocaleLowerCase('id-ID');
+  const search = query.trim().toLocaleLowerCase('en-GB');
   return tanks.filter((tank) => {
     const searchable = [tank.name, tank.location, ...(tank.nodes?.map((node) => node.deviceCode) ?? [])]
-      .filter(Boolean).join(' ').toLocaleLowerCase('id-ID');
+      .filter(Boolean).join(' ').toLocaleLowerCase('en-GB');
     if (search && !searchable.includes(search)) return false;
     if (filters.tankId && tank.id !== filters.tankId) return false;
     const status = getTankStatus(tank);

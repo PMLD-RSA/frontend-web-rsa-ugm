@@ -19,7 +19,7 @@ export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: 
   const [tankId, setTankId] = useState(filters.tankId);
   const [selected, setSelected] = useState<TankStatusCategory[]>(filters.statuses);
   const active = Boolean(filters.tankId || filters.statuses.length);
-  return <AnchoredPopover label="Filter Dashboard" trigger={<><span className={styles.filterTriggerIcon}><Image src="/images/dashboard/filter-trigger.svg" alt="" width={20} height={20} unoptimized /></span><span>Filter</span>{active && <span className={styles.activeDot} aria-label="Filter aktif" />}</>} triggerClassName={triggerClassName} className={styles.filterPanel} active={active} onOpen={() => { setTankId(filters.tankId); setSelected(filters.statuses); }}>
+  return <AnchoredPopover label="Filter Dashboard" trigger={<><span className={styles.filterTriggerIcon}><Image src="/images/dashboard/filter-trigger.svg" alt="" width={20} height={20} unoptimized /></span><span>Filter</span>{active && <span className={styles.activeDot} aria-label="Filter active" />}</>} triggerClassName={triggerClassName} className={styles.filterPanel} active={active} onOpen={() => { setTankId(filters.tankId); setSelected(filters.statuses); }}>
     {(close) => <form onSubmit={(event) => { event.preventDefault(); onChange({ ...filters, tankId, statuses: selected }); close(); }}>
       <div className={styles.filterHeader}>
         <h2>Filter Dashboard</h2>
@@ -38,7 +38,7 @@ export function DashboardFilter({ tanks, filters, onChange, triggerClassName }: 
       </label>
       <fieldset className={styles.statusField}>
         <legend>Tank status</legend>
-        <p>Bisa pilih lebih dari satu</p>
+        <p>You can select more than one</p>
         <div className={styles.checkboxes}>
           {statuses.map(status => <label key={status.value}>
             <input type="checkbox" name="status" value={status.value} checked={selected.includes(status.value)} onChange={(event) => setSelected(current => event.target.checked ? [...current, status.value] : current.filter(value => value !== status.value))} />

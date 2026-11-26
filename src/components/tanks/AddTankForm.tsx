@@ -25,6 +25,8 @@ export function AddTankForm({
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const location = String(data.get("location") ?? "").trim();
+    const latitude = Number(data.get("latitude"));
+    const longitude = Number(data.get("longitude"));
     const capacityLiters = Number(data.get("capacityLiters"));
     const minDistanceCm = Number(data.get("minDistanceCm") || 30);
     const maxDistanceCm = Number(data.get("maxDistanceCm") || 350);
@@ -35,12 +37,18 @@ export function AddTankForm({
       !Number.isFinite(capacityLiters) ||
       capacityLiters <= 0
     ) {
-      setError("Lengkapi nama, gedung, dan kapasitas toren yang valid.");
+      setError("Enter a valid tank name, building, and capacity.");
+      return;
+    }
+
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
+        !Number.isFinite(longitude) || longitude < -180 || longitude > 180) {
+      setError("Enter valid latitude and longitude coordinates.");
       return;
     }
 
     if (minDistanceCm >= maxDistanceCm || minDistanceCm < 0) {
-      setError("Jarak sensor saat penuh harus lebih kecil dari jarak saat kosong.");
+      setError("The sensor distance when full must be less than the distance when empty.");
       return;
     }
 
@@ -54,6 +62,8 @@ export function AddTankForm({
         body: JSON.stringify({
           name,
           location,
+          latitude,
+          longitude,
           capacityLiters,
           minThresholdPercent: 30,
           maxThresholdPercent: 90,
@@ -63,11 +73,11 @@ export function AddTankForm({
       });
       const result: ApiResponse = await response.json();
       if (!response.ok || !result.success)
-        throw new Error(result.message || "Toren gagal disimpan.");
+        throw new Error(result.message || "Could not save the tank.");
       saved();
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : "Toren gagal disimpan.",
+        reason instanceof Error ? reason.message : "Could not save the tank.",
       );
       setSaving(false);
     }
@@ -89,14 +99,14 @@ export function AddTankForm({
     >
       <header className={styles.header}>
         <div>
-          <h2 id="add-tank-title">Tambah Toren Baru</h2>
-          <p>Daftarkan toren air di lokasi baru</p>
+          <h2 id="add-tank-title">Add New Tank</h2>
+          <p>Register a water tank at a new location</p>
         </div>
         <button
           type="button"
           className={styles.close}
           disabled={saving}
-          aria-label="Tutup"
+          aria-label="Close"
           onClick={() => dialog.current?.close()}
         >
           <LuX
@@ -108,43 +118,52 @@ export function AddTankForm({
         </button>
       </header>
       <form onSubmit={submit}>
-        <h3>Informasi Dasar</h3>
+        <h3>Basic Information</h3>
         <div className={styles.fields}>
           <label>
-            Nama toren <span>*</span>
+            Tank name <span>*</span>
             <input
               name="name"
-              placeholder="Harus unik dalam satu gedung"
+              placeholder="Must be unique within the building"
               maxLength={100}
               required
               autoFocus
             />
           </label>
           <label>
-            Gedung <span>*</span>
+            Building <span>*</span>
             <input
               name="location"
-              placeholder="Masukkan nama gedung"
+              placeholder="Enter the building name"
               maxLength={150}
               required
             />
           </label>
+          <label>
+            Latitude <span>*</span>
+            <input name="latitude" type="number" min="-90" max="90" step="any" placeholder="Example: -7.7751167" required />
+          </label>
+          <label>
+            Longitude <span>*</span>
+            <input name="longitude" type="number" min="-180" max="180" step="any" placeholder="Example: 110.3736611" required />
+            <small>Enter coordinates in decimal degrees, as shown in Google Maps.</small>
+          </label>
         </div>
-        <h3 className={styles.capacityTitle}>Kapasitas & Kalibrasi Jarak Sensor</h3>
+        <h3 className={styles.capacityTitle}>Capacity & Sensor Distance Calibration</h3>
         <div className={styles.capacity}>
           <label>
-            Kapasitas total (L) <span>*</span>
+            Total capacity (L) <span>*</span>
             <input
               name="capacityLiters"
               type="number"
               min="0.01"
               step="any"
-              placeholder="Contoh: 10000"
+              placeholder="Example: 10000"
               required
             />
           </label>
           <label>
-            Jarak Saat Penuh / Min (cm) <span>*</span>
+            Distance when full / min (cm) <span>*</span>
             <input
               name="minDistanceCm"
               type="number"
@@ -156,7 +175,7 @@ export function AddTankForm({
             />
           </label>
           <label>
-            Jarak Saat Kosong / Max (cm) <span>*</span>
+            Distance when empty / max (cm) <span>*</span>
             <input
               name="maxDistanceCm"
               type="number"
@@ -175,7 +194,7 @@ export function AddTankForm({
         )}
         <footer className={styles.footer}>
           <p>
-            <span>*</span> Data wajib dilengkapi
+            <span>*</span> Required fields
           </p>
           <div>
             <button
@@ -184,10 +203,10 @@ export function AddTankForm({
               disabled={saving}
               onClick={() => dialog.current?.close()}
             >
-              Batal
+              Cancel
             </button>
             <button type="submit" className={styles.save} disabled={saving}>
-              {saving ? "Menyimpan..." : "Simpan Toren"}
+              {saving ? "Saving..." : "Save Tank"}
             </button>
           </div>
         </footer>

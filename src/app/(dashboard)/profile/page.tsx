@@ -11,8 +11,8 @@ import styles from './profile.module.css';
 
 
 const accountDate = (value?: string) => value && Number.isFinite(Date.parse(value))
-  ? new Date(value).toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' })
-  : 'Belum tersedia';
+  ? new Date(value).toLocaleDateString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'long', year: 'numeric' })
+  : 'Unavailable';
 
 export default function ProfilePage() {
   const user = useAuthStore(state => state.user);
@@ -36,28 +36,28 @@ export default function ProfilePage() {
     if (!file || photoBusy) return;
     setPhotoFeedback(null);
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-      setPhotoFeedback({ message: 'Pilih foto JPG, PNG, atau WebP.', error: true });
+      setPhotoFeedback({ message: 'Select a JPG, PNG, or WebP photo.', error: true });
       return;
     }
     if (!file.size || file.size > 2 * 1024 * 1024) {
-      setPhotoFeedback({ message: 'Ukuran foto harus lebih dari 0 dan maksimal 2 MB.', error: true });
+      setPhotoFeedback({ message: 'Choose a nonempty photo up to 2 MB.', error: true });
       return;
     }
     setPhotoBusy(true);
     try {
       const dataUrl = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('Foto tidak dapat dibaca.'));
-        reader.onerror = () => reject(new Error('Foto tidak dapat dibaca.'));
+        reader.onload = () => typeof reader.result === 'string' ? resolve(reader.result) : reject(new Error('Could not read the photo.'));
+        reader.onerror = () => reject(new Error('Could not read the photo.'));
         reader.readAsDataURL(file);
       });
       const image = new window.Image();
       image.src = dataUrl;
-      try { await image.decode(); } catch { throw new Error('File gambar tidak valid. Pilih foto lain.'); }
+      try { await image.decode(); } catch { throw new Error('Invalid image file. Choose another photo.'); }
       setPhoto(dataUrl);
-      setPhotoFeedback({ message: 'Foto profil berhasil diperbarui.', error: false });
+      setPhotoFeedback({ message: 'Profile photo updated.', error: false });
     } catch (error) {
-      setPhotoFeedback({ message: error instanceof Error ? error.message : 'Foto gagal diperbarui.', error: true });
+      setPhotoFeedback({ message: error instanceof Error ? error.message : 'Could not update the photo.', error: true });
     } finally {
       setPhotoBusy(false);
     }
@@ -66,19 +66,19 @@ export default function ProfilePage() {
   function removePhoto() {
     try {
       setPhoto(null);
-      setPhotoFeedback({ message: 'Foto profil dihapus.', error: false });
+      setPhotoFeedback({ message: 'Profile photo removed.', error: false });
     } catch (error) {
-      setPhotoFeedback({ message: error instanceof Error ? error.message : 'Foto gagal dihapus.', error: true });
+      setPhotoFeedback({ message: error instanceof Error ? error.message : 'Could not remove the photo.', error: true });
     }
   }
 
   if (!user) return (
     <section className={styles.page} aria-label="Profile">
       <h1>Profile</h1>
-      <p role="status">{isLoading ? 'Memuat profil...' : 'Data akun belum tersedia. Muat ulang profil atau masuk kembali.'}</p>
+      <p role="status">{isLoading ? 'Loading profile...' : 'Account data is unavailable. Reload your profile or sign in again.'}</p>
       <div className={styles.recovery}>
-        <button type="button" onClick={() => void fetchMe()} disabled={isLoading}>Muat ulang profil</button>
-        <Link href="/login">Masuk kembali</Link>
+        <button type="button" onClick={() => void fetchMe()} disabled={isLoading}>Reload profile</button>
+        <Link href="/login">Sign in again</Link>
       </div>
     </section>
   );
@@ -88,28 +88,28 @@ export default function ProfilePage() {
   const fields = [
     { id: 'username', label: 'Username', value: user.username },
     { id: 'role', label: 'Role', value: user.role.charAt(0).toUpperCase() + user.role.slice(1) },
-    { id: 'status', label: 'Status akun', value: typeof user.isActive === 'boolean' ? user.isActive ? 'Aktif' : 'Nonaktif' : 'Belum tersedia' },
-    { id: 'created-at', label: 'Terdaftar sejak', value: accountDate(user.createdAt) },
-    { id: 'language', label: 'Bahasa aplikasi', value: 'Bahasa Indonesia', setting: true },
-    { id: 'timezone', label: 'Zona waktu aplikasi', value: 'Asia/Jakarta (WIB)', setting: true },
+    { id: 'status', label: 'Account status', value: typeof user.isActive === 'boolean' ? user.isActive ? 'Active' : 'Inactive' : 'Unavailable' },
+    { id: 'created-at', label: 'Member since', value: accountDate(user.createdAt) },
+    { id: 'language', label: 'Application language', value: 'English', setting: true },
+    { id: 'timezone', label: 'Application time zone', value: 'Asia/Jakarta (WIB)', setting: true },
   ];
-  const search = query.trim().toLocaleLowerCase('id-ID');
-  const visibleFields = fields.filter(field => `${field.label} ${field.value}`.toLocaleLowerCase('id-ID').includes(search));
+  const search = query.trim().toLocaleLowerCase('en-GB');
+  const visibleFields = fields.filter(field => `${field.label} ${field.value}`.toLocaleLowerCase('en-GB').includes(search));
 
   return (
     <section className={styles.page} aria-label="Profile">
       <header className={styles.header}>
         <div className={styles.welcome}>
           <h1>Welcome, {user.username}</h1>
-          <time dateTime={today?.toISOString()}>{today ? today.toLocaleDateString('en-GB', { timeZone: 'Asia/Jakarta', weekday: 'short', day: '2-digit', month: 'long', year: 'numeric' }) : 'Memuat tanggal...'}</time>
+          <time dateTime={today?.toISOString()}>{today ? today.toLocaleDateString('en-GB', { timeZone: 'Asia/Jakarta', weekday: 'short', day: '2-digit', month: 'long', year: 'numeric' }) : 'Loading date...'}</time>
         </div>
         <div className={styles.headerActions}>
           <label className="app-search">
             <Search size={16} aria-hidden="true" />
-            <input type="search" placeholder="Search profile details..." aria-label="Cari informasi profil" aria-controls="profile-details" value={query} onChange={event => setQuery(event.target.value)} />
+            <input type="search" placeholder="Search profile details..." aria-label="Search profile information" aria-controls="profile-details" value={query} onChange={event => setQuery(event.target.value)} />
           </label>
           <NotificationPopover className={styles.notification} panelClassName={styles.notificationPanel} icon={<Image src="/images/profile/notification.svg" alt="" width={25.1707} height={25.1707} unoptimized />} />
-          <a href="#profile-identity" className={styles.headerAvatar} aria-label={`Profil ${user.username}`}>
+          <a href="#profile-identity" className={styles.headerAvatar} aria-label={`Profile ${user.username}`}>
             {photo ? <Image src={photo} alt="" width={52} height={52} unoptimized /> : initials}
           </a>
         </div>
@@ -122,15 +122,15 @@ export default function ProfilePage() {
       <div className={styles.content}>
         <div id="profile-identity" className={styles.identity}>
           <div className={styles.identityDetails}>
-            <button type="button" className={styles.avatar} aria-label="Ubah foto profil" disabled={photoBusy} onClick={() => photoInput.current?.click()}>
+            <button type="button" className={styles.avatar} aria-label="Change profile photo" disabled={photoBusy} onClick={() => photoInput.current?.click()}>
               {photo ? <Image src={photo} alt="" width={100} height={100} unoptimized /> : initials}
             </button>
             <div className={styles.name}>
               <h2>{user.username}</h2>
-              <p>{email || 'Email belum tersedia'}</p>
+              <p>{email || 'Email unavailable'}</p>
               <div className={styles.photoActions}>
-                <button type="button" disabled={photoBusy} onClick={() => photoInput.current?.click()}>{photoBusy ? 'Menyimpan...' : 'Ubah foto'}</button>
-                {photo && <button type="button" disabled={photoBusy} onClick={removePhoto}>Hapus foto</button>}
+                <button type="button" disabled={photoBusy} onClick={() => photoInput.current?.click()}>{photoBusy ? 'Saving...' : 'Change photo'}</button>
+                {photo && <button type="button" disabled={photoBusy} onClick={removePhoto}>Remove photo</button>}
               </div>
             </div>
           </div>
@@ -138,8 +138,8 @@ export default function ProfilePage() {
         </div>
 
         <div className={styles.photoSettings}>
-          <input ref={photoInput} className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" aria-label="Unggah foto profil" disabled={photoBusy} onChange={event => void changePhoto(event)} />
-          <p>JPG, PNG, atau WebP, maksimal 2 MB. Foto disimpan di browser ini untuk akun Anda.</p>
+          <input ref={photoInput} className={styles.fileInput} type="file" accept="image/jpeg,image/png,image/webp" aria-label="Upload profile photo" disabled={photoBusy} onChange={event => void changePhoto(event)} />
+          <p>Choose a JPG, PNG, or WebP file up to 2 MB. Your photo is stored in this browser for your account.</p>
           {photoFeedback && <p className={photoFeedback.error ? styles.photoError : styles.photoSuccess} role={photoFeedback.error ? 'alert' : 'status'}>{photoFeedback.message}</p>}
         </div>
 
@@ -154,19 +154,19 @@ export default function ProfilePage() {
             </label>
           ))}
         </div>
-        {!visibleFields.length && <p className={styles.empty} role="status">Tidak ada informasi profil yang sesuai pencarian.</p>}
+        {!visibleFields.length && <p className={styles.empty} role="status">No profile information matches your search.</p>}
 
         <section className={styles.email} aria-labelledby="profile-email-title">
           <h2 id="profile-email-title">My email Address</h2>
           <div className={styles.emailDetails}>
             <span className={styles.emailIcon}><Image src="/images/profile/email.svg" alt="" width={24} height={24} unoptimized /></span>
             <div>
-              <p>{email || 'Belum tersedia'}</p>
-              <small>{email ? 'Email akun' : 'Alamat email belum tersedia pada data akun.'}</small>
+              <p>{email || 'Unavailable'}</p>
+              <small>{email ? 'Account email' : 'No email address is available for this account.'}</small>
             </div>
           </div>
           <button type="button" className={styles.addEmail} disabled aria-describedby="profile-edit-note">+Add Email Address</button>
-          <p id="profile-edit-note" className={styles.editNote}>Perubahan biodata dan alamat email belum tersedia.</p>
+          <p id="profile-edit-note" className={styles.editNote}>Personal information and email editing are currently unavailable.</p>
         </section>
       </div>
     </section>

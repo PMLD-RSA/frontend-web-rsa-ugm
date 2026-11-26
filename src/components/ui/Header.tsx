@@ -29,7 +29,7 @@ export function Header() {
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Cari tangki, gedung, atau sensor..."
+            placeholder="Search tanks, buildings, or sensors..."
             className="pl-9 pr-4 py-2 bg-slate-100 border-transparent rounded-full text-sm focus:bg-white focus-visible:outline-2 focus-visible:outline-slate-500 transition-all outline-none w-64 md:w-80 text-slate-700"
           />
         </div>
@@ -39,19 +39,19 @@ export function Header() {
         {isConnected ? (
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
             <Wifi className="w-3.5 h-3.5" />
-            <span>Sistem Online</span>
+            <span>System online</span>
           </div>
         ) : (
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold">
             <WifiOff className="w-3.5 h-3.5" />
-            <span>Menghubungkan...</span>
+            <span>Connecting...</span>
           </div>
         )}
 
         <Link
           href="/alerts"
           className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-full transition-colors relative"
-          aria-label="Lihat Peringatan"
+          aria-label="View alerts"
         >
           <Bell className="w-5 h-5" />
           {activeAlertsCount > 0 && (
@@ -67,7 +67,7 @@ export function Header() {
           </div>
           <div className="hidden md:block text-left">
             <p className="text-xs font-bold text-slate-700 leading-none">
-              {user?.username || "Pengguna"}
+              {user?.username || "User"}
             </p>
             <span className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
               <Shield className="w-3 h-3 text-blue-500" />

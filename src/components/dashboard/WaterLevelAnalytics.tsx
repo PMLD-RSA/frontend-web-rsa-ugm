@@ -112,7 +112,7 @@ export function WaterLevelAnalytics() {
 
     return {
       avgLevel: `${(totalLevel / validCount).toFixed(1)}%`,
-      avgVolume: `${Math.round(totalVolume / validCount).toLocaleString("id-ID")} L`,
+      avgVolume: `${Math.round(totalVolume / validCount).toLocaleString("en-GB")} L`,
       minLevel: `${minL.toFixed(1)}%`,
       count: validCount,
     };
@@ -121,17 +121,17 @@ export function WaterLevelAnalytics() {
   return (
       <div className={styles.analyticsSection}>
         <div className={styles.analyticsHeader}>
-          <h2>Grafik Fluktuasi &amp; Analitik Ketinggian Air</h2>
+          <h2>Water Level Trends &amp; Analytics</h2>
           <div className={styles.analyticsControls}>
             <select
-              aria-label="Pilih tangki untuk analitik"
+              aria-label="Select tank for analytics"
               value={chartTankId}
               onChange={(e) => {
                 setIsLoadingChart(true);
                 setChartTankId(e.target.value);
               }}
             >
-              <option value="ALL">Semua Tangki</option>
+              <option value="ALL">All Tanks</option>
               {tanks.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
@@ -139,41 +139,41 @@ export function WaterLevelAnalytics() {
               ))}
             </select>
             <select
-              aria-label="Pilih periode riwayat"
+              aria-label="Select history period"
               value={chartPeriod}
               onChange={(e) => {
                 setIsLoadingChart(true);
                 setChartPeriod(e.target.value);
               }}
             >
-              <option value="24">24 Jam Terakhir</option>
-              <option value="72">3 Hari Terakhir</option>
-              <option value="168">7 Hari Terakhir</option>
-              <option value="720">30 Hari Terakhir</option>
+              <option value="24">Last 24 Hours</option>
+              <option value="72">Last 3 Days</option>
+              <option value="168">Last 7 Days</option>
+              <option value="720">Last 30 Days</option>
             </select>
           </div>
         </div>
 
         <div className={styles.summary}>
           <div>
-            <span>Rata-rata Level</span>
+            <span>Average Level</span>
             <strong>{stats.avgLevel}</strong>
-            <small>Persentase ketinggian air</small>
+            <small>Water level percentage</small>
           </div>
           <div>
-            <span>Rata-rata Volume</span>
+            <span>Average Volume</span>
             <strong>{stats.avgVolume}</strong>
-            <small>Kapasitas air tersimpan</small>
+            <small>Stored water volume</small>
           </div>
           <div>
-            <span>Titik Terendah</span>
+            <span>Lowest Level</span>
             <strong style={{ color: "#b91c1c" }}>{stats.minLevel}</strong>
-            <small>Level air minimum pada periode</small>
+            <small>Minimum water level during this period</small>
           </div>
           <div>
-            <span>Total Titik Data</span>
+            <span>Total Data Points</span>
             <strong>{stats.count}</strong>
-            <small>Log pembacaan sensor</small>
+            <small>Sensor reading logs</small>
           </div>
         </div>
 
@@ -196,7 +196,7 @@ export function WaterLevelAnalytics() {
                   minTickGap={40}
                   interval="preserveStartEnd"
                   tickFormatter={(t) =>
-                    new Date(t).toLocaleTimeString("id-ID", {
+                    new Date(t).toLocaleTimeString("en-GB", {
                       hour: "2-digit",
                       minute: "2-digit",
                       ...(Number(chartPeriod) > 24 ? { month: "short", day: "numeric" } : {}),
@@ -211,12 +211,12 @@ export function WaterLevelAnalytics() {
                 />
                 <Tooltip
                   labelFormatter={(t) =>
-                    new Date(Number(t)).toLocaleString("id-ID", {
+                    new Date(Number(t)).toLocaleString("en-GB", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })
                   }
-                  formatter={(v) => [`${Number(v).toFixed(1)}%`, "Level Air"]}
+                  formatter={(v) => [`${Number(v).toFixed(1)}%`, "Water Level"]}
                 />
                 <Area
                   type="monotone"
@@ -234,8 +234,8 @@ export function WaterLevelAnalytics() {
             <Droplets size={36} color="#94a3b8" style={{ margin: "0 auto 12px" }} />
             <p>
               {isLoadingChart
-                ? "Memuat visualisasi laporan..."
-                : "Tidak ada data pembacaan sensor pada periode ini."}
+                ? "Loading report chart..."
+                : "No sensor readings are available for this period."}
             </p>
           </div>
         )}

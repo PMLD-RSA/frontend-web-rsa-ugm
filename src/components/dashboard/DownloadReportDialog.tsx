@@ -78,7 +78,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
       <header className={styles.downloadHeader}>
         <h2 id={titleId}>Download Report</h2>
         <button type="button" className={styles.closeButton} aria-label="Close report download" onClick={close}><Icon name="close-download" width={25} /></button>
-        <p>Laporan monitoring dengan tabel pemeriksaan dan area tanda tangan</p>
+        <p>Monitoring report with inspection tables and signature fields</p>
       </header>
       <div className={styles.downloadBody}>
         <label className={`${styles.reportLabel} ${styles.reportPeriod}`}>Report period
@@ -113,7 +113,7 @@ export function DownloadReportDialog({ tanks, filters, onClose }: { tanks: Tank[
             </DashboardDatePicker>
           </div>
         </div>
-        <p className={styles.reportHint}>{period === 'Dashboard' ? 'Mengikuti periode yang dipilih di dashboard' : 'Menggunakan periode laporan yang Anda pilih'}</p>
+        <p className={styles.reportHint}>{period === 'Dashboard' ? 'Uses the period selected on the dashboard' : 'Uses your selected report period'}</p>
         <label className={styles.reportLabel}>Tank 
           <span className={`${styles.selectField} ${styles.selectWithIcon}`}>
             <Icon name="report-tank" width={28} height={35} />

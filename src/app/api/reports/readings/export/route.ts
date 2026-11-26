@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     if (!res.ok) {
       return NextResponse.json(
-        { success: false, message: "Gagal mengunduh CSV dari backend." },
+        { success: false, message: "Could not download the CSV." },
         { status: res.status }
       );
     }
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
   } catch {
     return NextResponse.json(
-      { success: false, message: "Backend tidak dapat dihubungi." },
+      { success: false, message: "Could not reach the backend." },
       { status: 503 }
     );
   }

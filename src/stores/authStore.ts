@@ -79,7 +79,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         return false;
       }
     } catch {
-      set({ error: "Gagal terhubung ke server." });
+      set({ error: "Could not connect to the server." });
       return false;
     } finally {
       set({ isLoading: false });

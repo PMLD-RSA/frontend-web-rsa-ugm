@@ -55,7 +55,7 @@ export async function forwardToBackend<T>(
   } catch {
     if (options.fallbackData === undefined) {
       return NextResponse.json(
-        { success: false, message: "Backend tidak dapat diakses." },
+        { success: false, message: "The backend is unreachable." },
         { status: 503 }
       );
     }

@@ -93,7 +93,7 @@ export default function UsersPage() {
 
   function download() {
     downloadCsv("users.csv", [
-      ["No", "Username", "Role", "Status", "Tanggal dibuat"],
+      ["No", "Username", "Role", "Status", "Date created"],
       ...users.map((user, idx) => [
         idx + 1,
         user.username,
@@ -154,7 +154,7 @@ export default function UsersPage() {
           <div className="app-search">
             <Search size={16} aria-hidden="true" />
             <input
-              aria-label="Cari pengguna"
+              aria-label="Search users"
               placeholder="Search users..."
               value={query}
               onChange={(e) => {
@@ -176,7 +176,7 @@ export default function UsersPage() {
             type="button"
             className={styles.addUserBtn}
             disabled
-            title="Penambahan pengguna baru dikelola melalui backend"
+            title="New users are managed through the backend"
           >
             <Plus size={16} />
             Add New User
@@ -197,7 +197,7 @@ export default function UsersPage() {
               setPage(0);
             }}
           >
-            <option value="">Semua role</option>
+            <option value="">All roles</option>
             <option value="admin">Admin</option>
             <option value="operator">Operator</option>
             <option value="viewer">Viewer</option>
@@ -260,7 +260,7 @@ export default function UsersPage() {
                         minute: "2-digit",
                         second: "2-digit",
                       })
-                    : "Belum pernah aktif";
+                    : "Never active";
 
                   return (
                     <tr key={user.id}>
@@ -314,10 +314,10 @@ export default function UsersPage() {
                 <tr>
                   <td colSpan={6} className={styles.emptyMessage}>
                     {state === "loading"
-                      ? "Memuat data pengguna..."
+                      ? "Loading users..."
                       : state === "error"
-                      ? "Daftar pengguna tidak tersedia. Periksa koneksi backend."
-                      : "Tidak ada pengguna yang sesuai dengan pencarian."}
+                      ? "The user list is unavailable. Check the backend connection."
+                      : "No users match your search."}
                   </td>
                 </tr>
               )}
@@ -332,7 +332,7 @@ export default function UsersPage() {
               type="button"
               disabled={currentPage === 0 || showAll}
               onClick={() => setPage(currentPage - 1)}
-              aria-label="Halaman sebelumnya"
+              aria-label="Previous page"
             >
               &lt;
             </button>
@@ -353,7 +353,7 @@ export default function UsersPage() {
               type="button"
               disabled={currentPage >= pages - 1 || showAll}
               onClick={() => setPage(currentPage + 1)}
-              aria-label="Halaman berikutnya"
+              aria-label="Next page"
             >
               &gt;
             </button>
@@ -387,24 +387,24 @@ export default function UsersPage() {
               type="button"
               className={styles.dialogClose}
               onClick={() => setDetail(null)}
-              aria-label="Tutup"
+              aria-label="Close"
             >
               <X size={18} />
             </button>
             <h3 style={{ fontSize: "17px", fontWeight: 700, margin: "0 0 12px" }}>
-              Detail Pengguna: {detail.username}
+              User details: {detail.username}
             </h3>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
               <strong>Role:</strong> {detail.role}
             </p>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
-              <strong>Status:</strong> {detail.isActive ? "Aktif" : "Nonaktif"}
+              <strong>Status:</strong> {detail.isActive ? "Active" : "Inactive"}
             </p>
             <p style={{ margin: "6px 0", fontSize: "13px" }}>
-              <strong>Dibuat:</strong>{" "}
+              <strong>Created:</strong>{" "}
               {detail.createdAt
-                ? new Date(detail.createdAt).toLocaleString("id-ID")
-                : "Belum tersedia"}
+                ? new Date(detail.createdAt).toLocaleString("en-GB")
+                : "Unavailable"}
             </p>
           </div>
         </div>

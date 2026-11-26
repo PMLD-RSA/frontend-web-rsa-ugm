@@ -16,13 +16,13 @@ import styles from "./alerts.module.css";
 type ModalKind = "sensor" | "resolve" | "mark" | "pump";
 type OpenModal = { kind: ModalKind; alert: Alert };
 
-const timeFormatter = new Intl.DateTimeFormat("id-ID", {
+const timeFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Jakarta",
   hour: "2-digit",
   minute: "2-digit",
   hourCycle: "h23",
 });
-const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
   timeZone: "Asia/Jakarta",
   day: "numeric",
   month: "long",
@@ -49,12 +49,12 @@ function formatReading(value: string | number | null | undefined, unit: string) 
   if (value === null || value === undefined || value === "") return "—";
   const numeric = Number(value);
   return Number.isFinite(numeric)
-    ? `${numeric.toLocaleString("id-ID", { maximumFractionDigits: 2 })}${unit}`
+    ? `${numeric.toLocaleString("en-GB", { maximumFractionDigits: 2 })}${unit}`
     : "—";
 }
 
 function alertName(alert: Alert, tank?: Tank) {
-  return tank?.name || alert.tankName || `Tangki ${alert.tankId}`;
+  return tank?.name || alert.tankName || `Tank ${alert.tankId}`;
 }
 
 function AlertModal({
@@ -87,7 +87,7 @@ function AlertModal({
         if (event.target === event.currentTarget) dialogRef.current?.close();
       }}
     >
-      <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Tutup dialog">
+      <button type="button" className={styles.modalCloseBtn} onClick={onClose} aria-label="Close dialog">
         <Image src="/images/alerts/close.svg" alt="" width={25} height={25} />
       </button>
       <header className={styles.modalHeader}>
@@ -128,7 +128,7 @@ export default function AlertsPage() {
       const response = await fetch("/api/audit-logs?limit=100", { signal });
       const result: ApiResponse<AuditLog[]> = await response.json();
       if (!response.ok || !result.success || result.source === "mock" || !Array.isArray(result.data)) {
-        throw new Error("Riwayat tidak tersedia");
+        throw new Error("History unavailable");
       }
       setAuditLogs(result.data);
       setHistoryState("ready");
@@ -200,8 +200,8 @@ export default function AlertsPage() {
     ?? alerts.find((alert) => alert.status === "active");
   const priorityTank = priorityAlert ? tankMap.get(priorityAlert.tankId) : undefined;
   const guidance = priorityAlert
-    ? `Periksa sensor dan kondisi ${alertName(priorityAlert, priorityTank)}${priorityTank?.minThresholdPercent ? ` saat level mendekati batas minimum ${formatReading(priorityTank.minThresholdPercent, "%")}` : ""}. Catat tindakan sebelum menyelesaikan peringatan.`
-    : "Periksa status sensor dan kondisi tangki ketika peringatan muncul. Selesaikan peringatan setelah tindakan diverifikasi.";
+    ? `Check the sensor and the condition of ${alertName(priorityAlert, priorityTank)}${priorityTank?.minThresholdPercent ? ` when the level approaches the minimum threshold of ${formatReading(priorityTank.minThresholdPercent, "%")}` : ""}. Record your actions before resolving the alert.`
+    : "Check the sensor and tank when an alert appears. Verify the corrective action before resolving the alert.";
 
   async function reload() {
     await Promise.all([refreshAlerts(), fetchTanks(), loadHistory()]);
@@ -216,7 +216,7 @@ export default function AlertsPage() {
   async function confirmResolve() {
     if (!modal || (modal.kind !== "resolve" && modal.kind !== "mark")) return;
     if (modal.kind === "resolve" && !actionNotes.trim()) {
-      setFormError("Catatan tindakan wajib diisi.");
+      setFormError("Enter an action note.");
       return;
     }
     setSubmitting(true);
@@ -224,7 +224,7 @@ export default function AlertsPage() {
     try {
       const success = await resolveAlert(modal.alert.id);
       if (!success) {
-        setFormError("Alert gagal diselesaikan. Coba lagi.");
+        setFormError("Could not resolve the alert. Try again.");
         return;
       }
       setModal(null);
@@ -251,24 +251,24 @@ export default function AlertsPage() {
         </span>
         <span className={styles.refreshInfo}>
           <Image src="/images/alerts/update.svg" alt="" width={11.9992} height={12} />
-          {lastUpdated ? `Updated ${formatTime(lastUpdated.toISOString())}` : "Belum diperbarui"}
+          {lastUpdated ? `Updated ${formatTime(lastUpdated.toISOString())}` : "Awaiting first update"}
           <button type="button" onClick={() => void reload()} disabled={alertLoading}>
             <Image src="/images/alerts/reload.svg" alt="" width={10.8903} height={13} /> Reload
           </button>
         </span>
       </div>
 
-      {tankError && <p className={styles.backendNotice} role="status">Data tangki tidak tersedia: {tankError}</p>}
+      {tankError && <p className={styles.backendNotice} role="status">Tank data unavailable: {tankError}</p>}
 
-      <div className={styles.summaryRow} aria-label="Ringkasan tangki">
+      <div className={styles.summaryRow} aria-label="Tank summary">
         {([
-          { key: "pending", label: "Pending", value: tanks.length, detail: "Terdaftar dalam sistem" },
-          { key: "normal", label: "Normal", value: tanks.filter((tank) => getTankStatus(tank) === "NORMAL").length, detail: "Kondisi Air Aman" },
-          { key: "warning", label: "Peringatan", value: tanks.filter((tank) => getTankStatus(tank) === "WARNING").length, detail: "Perlu Pemantauan" },
-          { key: "critical", label: "Kritis", value: tanks.filter((tank) => getTankStatus(tank) === "CRITICAL").length, detail: "Perlu Penanganan" },
+          { key: "pending", label: "Pending", value: tanks.length, detail: "Registered in the system" },
+          { key: "normal", label: "Normal", value: tanks.filter((tank) => getTankStatus(tank) === "NORMAL").length, detail: "Safe water level" },
+          { key: "warning", label: "Warning", value: tanks.filter((tank) => getTankStatus(tank) === "WARNING").length, detail: "Monitoring required" },
+          { key: "critical", label: "Critical", value: tanks.filter((tank) => getTankStatus(tank) === "CRITICAL").length, detail: "Action required" },
         ] as const).map((item) => <div key={item.key} className={`${styles.summaryCard} ${styles[item.key]}`}>
           <h2>{item.label}</h2>
-          <div className={styles.summaryValue}><strong>{tankError ? "?" : item.value}</strong><span>Tangki</span></div>
+          <div className={styles.summaryValue}><strong>{tankError ? "?" : item.value}</strong><span>Tank</span></div>
           <p>{item.key !== "pending" && <span aria-hidden="true" />}{item.detail}</p>
         </div>)}
       </div>
@@ -276,15 +276,15 @@ export default function AlertsPage() {
           <div className={styles.filterBar}>
             <label className="app-search">
               <Search size={16} aria-hidden="true" />
-              <input type="search" aria-label="Cari peringatan" placeholder="Search by tank, medical unit, incident code..." value={query} onChange={(event) => setQuery(event.target.value)} />
+              <input type="search" aria-label="Search alerts" placeholder="Search by tank, medical unit, incident code..." value={query} onChange={(event) => setQuery(event.target.value)} />
             </label>
             <div className={styles.filterControls}>
-              <div className={styles.pills} role="group" aria-label="Status peringatan">
+              <div className={styles.pills} role="group" aria-label="Alert status">
                 <button type="button" className={`${styles.pill} ${tab === "active" ? styles.active : ""}`} aria-pressed={tab === "active"} onClick={() => setTab("active")}>Active ({counts.active})</button>
                 <button type="button" className={`${styles.pill} ${tab === "all" ? styles.active : ""}`} aria-pressed={tab === "all"} onClick={() => setTab("all")}>All ({counts.total})</button>
                 <button type="button" className={`${styles.pill} ${tab === "history" ? styles.active : ""}`} aria-pressed={tab === "history"} onClick={() => setTab("history")}>History</button>
               </div>
-              <select className={styles.tankSelect} aria-label="Filter berdasarkan tangki" value={selectedTankId} onChange={(event) => setSelectedTankId(event.target.value)}>
+              <select className={styles.tankSelect} aria-label="Filter by tank" value={selectedTankId} onChange={(event) => setSelectedTankId(event.target.value)}>
                 <option value="ALL">All Tanks</option>
                 {tankOptions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
               </select>
@@ -302,8 +302,8 @@ export default function AlertsPage() {
             </div>
 
             {alertError ? <p className={styles.emptyAlerts} role="status">{alertError}</p>
-              : alertLoading && !lastUpdated ? <p className={styles.emptyAlerts}>Memuat peringatan...</p>
-              : filteredAlerts.length === 0 ? <p className={styles.emptyAlerts}>{query || selectedTankId !== "ALL" ? "Tidak ada peringatan yang sesuai filter." : tab === "history" ? "Belum ada riwayat peringatan." : tab === "all" ? "Backend terhubung, tetapi belum ada alert yang tercatat." : "Backend terhubung. Alert akan muncul saat sensor memicu peringatan."}</p>
+              : alertLoading && !lastUpdated ? <p className={styles.emptyAlerts}>Loading alerts...</p>
+              : filteredAlerts.length === 0 ? <p className={styles.emptyAlerts}>{query || selectedTankId !== "ALL" ? "No alerts match these filters." : tab === "history" ? "No alert history yet." : tab === "all" ? "Connected. No alerts have been recorded." : "Connected. Alerts appear when a sensor triggers one."}</p>
               : filteredAlerts.map((alert) => {
                 const tank = tankMap.get(alert.tankId);
                 const critical = alert.level === "CRITICAL";
@@ -331,7 +331,7 @@ export default function AlertsPage() {
                       <button type="button" className={styles.actionGray} onClick={() => openModal("sensor", alert)}>View Sensor</button>
                       {!resolved && !critical && <button type="button" className={styles.actionGray} onClick={() => openModal("pump", alert)}>Activate Backup Pump</button>}
                       {resolved ? <span className={styles.actionResolved}><Check size={14} /> Resolved</span>
-                        : <button type="button" className={critical ? styles.actionRed : styles.actionOrange} onClick={() => openModal(critical ? "resolve" : "mark", alert)} disabled={!canResolve || submitting} title={!canResolve ? "Hanya operator atau admin yang dapat menyelesaikan alert" : undefined}>{critical ? "Resolve Alert" : "Mark as Resolved"}</button>}
+                        : <button type="button" className={critical ? styles.actionRed : styles.actionOrange} onClick={() => openModal(critical ? "resolve" : "mark", alert)} disabled={!canResolve || submitting} title={!canResolve ? "Only operators and administrators can resolve alerts" : undefined}>{critical ? "Resolve Alert" : "Mark as Resolved"}</button>}
                     </div>
                   </article>
                 );
@@ -340,11 +340,11 @@ export default function AlertsPage() {
         </div>
 
         <aside className={styles.rightCol}>
-          <section className={styles.historyCard} aria-label="Riwayat aktivitas terbaru">
+          <section className={styles.historyCard} aria-label="Recent activity history">
             <header className={styles.historyHeader}><h2>Latest Maintenance History</h2><p>{formatDate(recentEvents[0]?.createdAt)}</p></header>
-            {historyState === "loading" ? <p className={styles.historyEmpty}>Memuat riwayat...</p>
-              : historyState === "unavailable" ? <p className={styles.historyEmpty}>Riwayat aktivitas tidak tersedia.</p>
-              : recentEvents.length === 0 ? <p className={styles.historyEmpty}>Belum ada aktivitas terbaru.</p>
+            {historyState === "loading" ? <p className={styles.historyEmpty}>Loading history...</p>
+              : historyState === "unavailable" ? <p className={styles.historyEmpty}>Activity history is unavailable.</p>
+              : recentEvents.length === 0 ? <p className={styles.historyEmpty}>No recent activity.</p>
               : <div className={styles.historyList}>{recentEvents.map((log) => {
                 const relatedAlert = alerts.find((alert) => String(alert.id) === log.entityId);
                 const relatedTank = tanks.find((tank) => tank.id === log.entityId || tank.id === relatedAlert?.tankId);
@@ -354,20 +354,20 @@ export default function AlertsPage() {
                   <div className={styles.historyContent}>
                     <div className={styles.historyTitleRow}><strong>{relatedTank?.name || relatedAlert?.tankName || log.entity || log.action}</strong><time dateTime={log.createdAt}>{formatTime(log.createdAt)}</time></div>
                     <span className={isResolution ? styles.tagGreen : styles.tagGray}>{isResolution ? "Resolved" : log.action.replaceAll("_", " ")}</span>
-                    <p>{log.detail || `Dicatat oleh ${log.username || "operator"}.`}</p>
+                    <p>{log.detail || `Recorded by ${log.username || "operator"}.`}</p>
                   </div>
                 </article>;
               })}</div>}
           </section>
 
-          <section className={styles.sopCard} aria-label="Panduan penanganan peringatan">
+          <section className={styles.sopCard} aria-label="Alert response guide">
             <div className={styles.sopHeader}>
               <span className={styles.sopIcon}><Image src="/images/alerts/sop.svg" alt="" width={20} height={20} /></span>
               <h2>Medical Water Crisis SOP RSA UGM</h2>
             </div>
             <p className={styles.sopBody}>{guidance}</p>
             <div className={styles.sopFooter}>
-              <span>{counts.active} peringatan aktif</span>
+              <span>{counts.active} active alerts</span>
               <button type="button" onClick={() => setSopOpen(true)}>View SOP Procedure &rarr;</button>
             </div>
           </section>
@@ -377,7 +377,7 @@ export default function AlertsPage() {
       {sopOpen && <AlertModal kind="sop" title="Medical Water Crisis SOP - RSA UGM" subtitle="" onClose={() => setSopOpen(false)}>
         <div className={styles.sopDialogBody}>
           <p>{guidance}</p>
-          <Link href="/devices">Lihat perangkat sensor &rarr;</Link>
+          <Link href="/devices">View sensor devices &rarr;</Link>
         </div>
         <div className={styles.modalActions}><button type="button" className={styles.btnCancel} onClick={() => setSopOpen(false)}>Cancel</button></div>
       </AlertModal>}
@@ -387,7 +387,7 @@ export default function AlertsPage() {
           <div className={styles.modalContent}>
             <h3>Sensor Information</h3>
             <dl>
-              <div className={styles.sensorRow}><dt>Water Level</dt><dd className={modal.alert.level === "CRITICAL" ? styles.criticalValue : styles.warningValue}>{modalReading ? `${formatReading(modalReading.levelPercent, "%")} (${formatReading(modalReading.volumeLiters, " L")})` : "Tidak tersedia"}</dd></div>
+              <div className={styles.sensorRow}><dt>Water Level</dt><dd className={modal.alert.level === "CRITICAL" ? styles.criticalValue : styles.warningValue}>{modalReading ? `${formatReading(modalReading.levelPercent, "%")} (${formatReading(modalReading.volumeLiters, " L")})` : "Unavailable"}</dd></div>
               <div className={styles.sensorRow}><dt>Status</dt><dd><span className={modal.alert.level === "CRITICAL" ? styles.badgeCritical : styles.badgeWarning}>{modal.alert.level}</span></dd></div>
               <div className={styles.sensorRow}><dt>Last Update</dt><dd>{formatTime(modalReading?.recordedAt)}</dd></div>
             </dl>
@@ -397,17 +397,17 @@ export default function AlertsPage() {
           <div className={styles.modalContent}>
             <label className={styles.notesLabel} htmlFor="action-notes-input">Action Notes <span>*</span></label>
             <textarea id="action-notes-input" autoFocus rows={3} placeholder="e.g. Checked the tank, restarted pump..." value={actionNotes} onChange={(event) => { setActionNotes(event.target.value); setFormError(""); }} />
-            <p className={styles.notesHint}>Catatan digunakan untuk konfirmasi; API saat ini belum menyimpan catatan tindakan.</p>
+            <p className={styles.notesHint}>Notes are for confirmation only. The API does not store action notes.</p>
           </div>
           {formError && <p className={styles.formError} role="alert">{formError}</p>}
-          <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled={submitting} onClick={() => void confirmResolve()}>{submitting ? "Menyelesaikan..." : "Confirm Resolution"}</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
+          <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled={submitting} onClick={() => void confirmResolve()}>{submitting ? "Resolving..." : "Confirm Resolution"}</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
         </> : modal.kind === "mark" ? <>
           <p className={styles.confirmQuestion}>Are you sure you want to mark this alert as resolved?</p>
           {formError && <p className={styles.formError} role="alert">{formError}</p>}
-          <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled={submitting} onClick={() => void confirmResolve()}>{submitting ? "Menyelesaikan..." : "Mark as Resolved"}</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
+          <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled={submitting} onClick={() => void confirmResolve()}>{submitting ? "Resolving..." : "Mark as Resolved"}</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
         </> : <>
           <p className={styles.confirmQuestion}>Are you sure you want to activate the backup pump for {alertName(modal.alert, modalTank)}?</p>
-          <p className={styles.notesHint}>Kontrol pompa cadangan belum tersedia melalui API saat ini.</p>
+          <p className={styles.notesHint}>Backup pump control is currently unavailable.</p>
           <div className={styles.modalActions}><button type="button" className={styles.btnConfirmNavy} disabled>Activate Pump</button><button type="button" className={styles.btnCancel} onClick={() => setModal(null)}>Cancel</button></div>
         </>}
       </AlertModal>}

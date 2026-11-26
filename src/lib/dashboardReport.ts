@@ -10,32 +10,32 @@ export interface TankReportOptions {
 }
 
 const numeric = (value: unknown) => value == null || String(value).trim() === '' || !Number.isFinite(Number(value)) ? null : Number(value);
-const amount = (value: unknown, unit = '') => numeric(value)?.toLocaleString('id-ID', { maximumFractionDigits: 2 }) + unit;
-const measurement = (value: unknown, unit = '') => numeric(value) == null ? 'Belum ada data' : amount(value, unit);
-const time = (value?: string) => value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' }) + ' WIB' : 'Belum ada data';
-const date = (value: string) => value ? new Date(`${value}T12:00:00`).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+const amount = (value: unknown, unit = '') => numeric(value)?.toLocaleString('en-GB', { maximumFractionDigits: 2 }) + unit;
+const measurement = (value: unknown, unit = '') => numeric(value) == null ? 'No data' : amount(value, unit);
+const time = (value?: string) => value && Number.isFinite(Date.parse(value)) ? new Date(value).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta' }) + ' WIB' : 'No data';
+const date = (value: string) => value ? new Date(`${value}T12:00:00`).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
 const levelOf = (tank: Tank) => {
   const level = numeric(tank.latestReading?.levelPercent);
   return level != null && level >= 0 && level <= 100 ? level : null;
 };
 const statusOf = (tank: Tank) => {
   const level = levelOf(tank);
-  return level == null ? 'Belum ada data' : level > 70 ? 'Normal' : level >= 30 ? 'Warning' : 'Critical';
+  return level == null ? 'No data' : level > 70 ? 'Normal' : level >= 30 ? 'Warning' : 'Critical';
 };
-const colorOf = (tank: Tank) => ({ Normal: '52C93F', Warning: 'FECB28', Critical: 'FF2727', 'Belum ada data': 'ECECF2' }[statusOf(tank)] ?? 'ECECF2');
+const colorOf = (tank: Tank) => ({ Normal: '52C93F', Warning: 'FECB28', Critical: 'FF2727', 'No data': 'ECECF2' }[statusOf(tank)] ?? 'ECECF2');
 
 async function asset(path: string) {
   const response = await fetch(path);
-  if (!response.ok) throw new Error('Aset laporan gagal dimuat. Silakan coba lagi.');
+  if (!response.ok) throw new Error('Could not load report assets. Please try again.');
   return new Uint8Array(await response.arrayBuffer());
 }
 
 export async function createTankReport(options: TankReportOptions): Promise<{ blob: Blob; filename: string }> {
   const { tanks, startDate, endDate, format } = options;
-  if (!tanks.length) throw new Error('Tidak ada tangki untuk dilaporkan.');
+  if (!tanks.length) throw new Error('No tanks available for this report.');
   const created = new Date();
   const printed = time(created.toISOString());
-  const period = !startDate && !endDate ? 'Semua tanggal' : `${date(startDate) || 'Awal'} – ${date(endDate) || 'Sekarang'}`;
+  const period = !startDate && !endDate ? 'All dates' : `${date(startDate) || 'Start'} – ${date(endDate) || 'Now'}`;
   const ids = new Set(tanks.map(tank => tank.id));
   const alerts = options.alerts.filter(alert => {
     if (!ids.has(alert.tankId)) return false;
@@ -45,14 +45,14 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
     const day = dateInputValue(recorded);
     return (!startDate || day >= startDate) && (!endDate || day <= endDate);
   });
-  const filename = `laporan-monitoring-tangki-${dateInputValue(created)}.${format}`;
+  const filename = `tank-monitoring-report-${dateInputValue(created)}.${format}`;
   const logo = await asset('/images/login-rsa-logo.png');
   const tankAlerts = (tank: Tank) => alerts.filter(alert => alert.tankId === tank.id);
-  const identity = (tank: Tank) => `${tank.name}\n\nLokasi\n${tank.location || 'Belum ada data'}\n\nKapasitas\n${measurement(tank.capacityLiters, ' L')}`;
-  const details = (tank: Tank) => `DATA MONITORING\nLevel: ${measurement(levelOf(tank), '%')}\nVolume: ${measurement(tank.latestReading?.volumeLiters, ' L')}\nStatus level: ${statusOf(tank)}\n\nPEMBACAAN TERAKHIR\n${time(tank.latestReading?.recordedAt)}\n\nSENSOR\n${tank.nodes?.map(node => node.deviceCode).join(', ') || 'Belum ada data'}\n\nAIR MASUK / KELUAR\nBelum tersedia pada sumber data.`;
+  const identity = (tank: Tank) => `${tank.name}\n\nLocation\n${tank.location || 'No data'}\n\nCapacity\n${measurement(tank.capacityLiters, ' L')}`;
+  const details = (tank: Tank) => `MONITORING DATA\nLevel: ${measurement(levelOf(tank), '%')}\nVolume: ${measurement(tank.latestReading?.volumeLiters, ' L')}\nLevel status: ${statusOf(tank)}\n\nLAST READING\n${time(tank.latestReading?.recordedAt)}\n\nSENSOR\n${tank.nodes?.map(node => node.deviceCode).join(', ') || 'No data'}\n\nWATER INFLOW / OUTFLOW\nUnavailable from the data source.`;
   const analysis = (tank: Tank) => {
     const rows = tankAlerts(tank);
-    return `HASIL MONITORING\n${levelOf(tank) == null ? 'Level air belum tersedia atau tidak valid.' : `Level air ${measurement(levelOf(tank), '%')} berada pada kategori ${statusOf(tank)}.`}\n\nBATAS STATUS LEVEL\nNormal: >70%\nWarning: 30–70%\nCritical: <30%\n\nPERINGATAN\n${rows.length} peringatan pada data periode terpilih.\n${rows.filter(row => row.status === 'active').length} masih aktif saat ekspor.\n\nCATATAN\nAnalisa otomatis berdasarkan pembacaan terakhir. Verifikasi lapangan oleh petugas diperlukan.`;
+    return `MONITORING RESULTS\n${levelOf(tank) == null ? 'Water level is unavailable or invalid.' : `Water level ${measurement(levelOf(tank), '%')} is classified as ${statusOf(tank)}.`}\n\nWATER LEVEL THRESHOLDS\nNormal: >70%\nWarning: 30–70%\nCritical: <30%\n\nALERTS\n${rows.length} alerts in the selected period.\n${rows.filter(row => row.status === 'active').length} still active at export.\n\nNOTES\nBased on the latest reading. On-site verification is required.`;
   };
 
   if (format === 'xlsx') {
@@ -60,10 +60,10 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'RSA UGM';
     workbook.created = created;
-    workbook.title = 'Laporan Monitoring Tangki';
+    workbook.title = 'Tank Monitoring Report';
     const logoId = workbook.addImage({ base64: `data:image/png;base64,${btoa(Array.from(logo, byte => String.fromCharCode(byte)).join(''))}`, extension: 'png' });
     tanks.forEach((tank, index) => {
-      const sheet = workbook.addWorksheet(`Laporan ${index + 1}`, { pageSetup: {
+      const sheet = workbook.addWorksheet(`Report ${index + 1}`, { pageSetup: {
         paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1,
         margins: { left: 0.3, right: 0.3, top: 0.4, bottom: 0.4, header: 0.1, footer: 0.1 },
       } });
@@ -84,18 +84,18 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
         cell.alignment = { vertical: 'top', horizontal: center ? 'center' : 'left', wrapText: true };
       }
       sheet.addImage(logoId, { tl: { col: 0, row: 0.2 }, ext: { width: 100, height: 48 } });
-      merge('E1:R2', 'LAPORAN MONITORING TANGKI', true, true);
+      merge('E1:R2', 'TANK MONITORING REPORT', true, true);
       sheet.getCell('E1').font = { name: 'Arial', size: 14, bold: true };
       merge('E3:R3', 'Rumah Sakit Akademik Universitas Gadjah Mada', true, true);
-      merge('S1:V3', `Dicetak:\n${printed}`);
-      merge('A5:V5', `Periode: ${period}`);
-      const columns = [['A7:A7', 'NO'], ['B7:D7', 'TANGKI'], ['E7:I7', 'KETERANGAN'], ['J7:Q7', 'URAIAN'], ['R7:V7', 'ANALISA']];
+      merge('S1:V3', `Printed:\n${printed}`);
+      merge('A5:V5', `Period: ${period}`);
+      const columns = [['A7:A7', 'NO'], ['B7:D7', 'TANK'], ['E7:I7', 'DETAILS'], ['J7:Q7', 'DESCRIPTION'], ['R7:V7', 'ANALYSIS']];
       columns.forEach(([range, label]) => merge(range, label, true, true));
       merge('A8:A29', index + 1, false, true);
       merge('B8:D29', identity(tank), true);
       merge('E8:I29', details(tank));
       merge('R8:V29', analysis(tank));
-      merge('J8:Q9', 'PERSENTASE ISI TANGKI', true);
+      merge('J8:Q9', 'TANK FILL PERCENTAGE', true);
       merge('J10:Q11', measurement(levelOf(tank), '%'), true, true);
       sheet.getCell('J10').font = { name: 'Arial', size: 24, bold: true };
       merge('J12:Q12', levelOf(tank) ?? '');
@@ -108,10 +108,10 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
         };
         sheet.addConditionalFormatting({ ref: 'J12', rules: [rule] });
       }
-      merge('J14:Q15', `Status level: ${statusOf(tank)}`, true, true);
-      merge('J17:Q19', 'Grafik menunjukkan pembacaan terakhir, bukan riwayat perubahan level air.');
-      merge('J21:Q23', `Volume air: ${measurement(tank.latestReading?.volumeLiters, ' L')}\nKapasitas: ${measurement(tank.capacityLiters, ' L')}`);
-      merge('J25:Q29', 'Data numerik tersedia pada lembar Data Tangki.');
+      merge('J14:Q15', `Level status: ${statusOf(tank)}`, true, true);
+      merge('J17:Q19', 'The chart shows the latest water level reading.');
+      merge('J21:Q23', `Water volume: ${measurement(tank.latestReading?.volumeLiters, ' L')}\nCapacity: ${measurement(tank.capacityLiters, ' L')}`);
+      merge('J25:Q29', 'See the Tank Data sheet for numerical values.');
       for (let r = 7; r <= 29; r++) for (let c = 1; c <= 22; c++) {
         const cell = sheet.getCell(r, c);
         // Only the outside of the Uraian column is bordered, preserving chart cells.
@@ -120,12 +120,12 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       }
       sheet.getRow(7).height = 24;
       sheet.getRow(7).eachCell(cell => { cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } }; });
-      merge('A31:I31', 'Yang Membuat,');
-      merge('N31:V32', `Yogyakarta, ${date(dateInputValue(created))}\nMengetahui,`, false, true);
-      merge('A36:I37', '(____________________________)\nPetugas Monitoring Tangki');
-      merge('N36:V37', '(____________________________)\nPenanggung Jawab', false, true);
+      merge('A31:I31', 'Prepared by,');
+      merge('N31:V32', `Yogyakarta, ${date(dateInputValue(created))}\nApproved by,`, false, true);
+      merge('A36:I37', '(____________________________)\nTank Monitoring Officer');
+      merge('N36:V37', '(____________________________)\nOfficer in Charge', false, true);
       sheet.pageSetup.printArea = 'A1:V39';
-      sheet.headerFooter.oddFooter = 'RSA UGM | Halaman &P dari &N';
+      sheet.headerFooter.oddFooter = 'RSA UGM | Page &P of &N';
     });
     function table(name: string, headings: string[], widths: number[]) {
       const sheet = workbook.addWorksheet(name, { views: [{ state: 'frozen', ySplit: 1 }], pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: '1:1' } });
@@ -135,7 +135,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headings.length } };
       return sheet;
     }
-    const data = table('Data Tangki', ['No', 'Tangki', 'Lokasi', 'Status Level', 'Level (%)', 'Volume (L)', 'Kapasitas (L)', 'Pembacaan Terakhir'], [8, 36, 36, 20, 16, 20, 20, 32]);
+    const data = table('Tank Data', ['No', 'Tank', 'Location', 'Level Status', 'Level (%)', 'Volume (L)', 'Capacity (L)', 'Last Reading'], [8, 36, 36, 20, 16, 20, 20, 32]);
     tanks.forEach((tank, index) => data.addRow([index + 1, tank.name, tank.location ?? '', statusOf(tank), levelOf(tank), numeric(tank.latestReading?.volumeLiters), numeric(tank.capacityLiters), time(tank.latestReading?.recordedAt)]));
     [5, 6, 7].forEach(column => { data.getColumn(column).numFmt = '#,##0.00'; });
     data.eachRow(row => { row.height = 42; row.alignment = { vertical: 'top', wrapText: true }; });
@@ -147,7 +147,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
   const fonts = await Promise.all(['Regular', 'SemiBold'].map(weight => asset(`/fonts/dashboard/PlusJakartaSans-${weight}.ttf`)));
   const document = await PDFDocument.create();
   document.registerFontkit(fontkit);
-  document.setTitle('Laporan Monitoring Tangki RSA UGM');
+  document.setTitle('RSA UGM Tank Monitoring Report');
   document.setAuthor('RSA UGM');
   const regular = await document.embedFont(fonts[0], { subset: true });
   const bold = await document.embedFont(fonts[1], { subset: true });
@@ -181,13 +181,13 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
     const page = document.addPage([595.28, 841.89]);
     const logoSize = mark.scaleToFit(85, 43);
     page.drawImage(mark, { x: left, y: 754, ...logoSize });
-    const title = 'LAPORAN MONITORING TANGKI';
+    const title = 'TANK MONITORING REPORT';
     page.drawText(title, { x: 297.64 - bold.widthOfTextAtSize(title, 12) / 2, y: 783, font: bold, size: 12, color: ink });
     const subtitle = 'Rumah Sakit Akademik Universitas Gadjah Mada';
     page.drawText(subtitle, { x: 297.64 - regular.widthOfTextAtSize(subtitle, 8) / 2, y: 768, font: regular, size: 8, color: ink });
-    wrap(`Dicetak:\n${printed}`, 6, 85).forEach((value, i) => page.drawText(value, { x: 475, y: 789 - i * 9, font: regular, size: 6, color: ink }));
+    wrap(`Printed:\n${printed}`, 6, 85).forEach((value, i) => page.drawText(value, { x: 475, y: 789 - i * 9, font: regular, size: 6, color: ink }));
     page.drawLine({ start: { x: left, y: 743 }, end: { x: left + width, y: 743 }, color: ink, thickness: 1 });
-    page.drawText(`Periode: ${period}`, { x: left, y: 726, font: regular, size: 8, color: ink });
+    page.drawText(`Period: ${period}`, { x: left, y: 726, font: regular, size: 8, color: ink });
     return page;
   }
   function write(page: ReturnType<typeof newPage>, value: string, x: number, y: number, maxWidth: number, size = 8, heavy = false) {
@@ -206,7 +206,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       let x = left;
       const top = 710;
       const bottom = 258;
-      const headings = ['NO', 'TANGKI', 'KETERANGAN', 'URAIAN', 'ANALISA'];
+      const headings = ['NO', 'TANK', 'DETAILS', 'DESCRIPTION', 'ANALYSIS'];
       widths.forEach((columnWidth, column) => {
         page.drawRectangle({ x, y: top - 22, width: columnWidth, height: 22, color: gray, borderColor: line, borderWidth: 0.5 });
         page.drawText(headings[column], { x: x + (columnWidth - bold.widthOfTextAtSize(headings[column], 7)) / 2, y: top - 14, font: bold, size: 7, color: ink });
@@ -216,7 +216,7 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
       });
       const chartX = left + widths[0] + widths[1] + widths[2] + 10;
       const chartWidth = widths[3] - 20;
-      write(page, 'PERSENTASE ISI TANGKI', chartX, 672, chartWidth, 8, true);
+      write(page, 'TANK FILL PERCENTAGE', chartX, 672, chartWidth, 8, true);
       write(page, measurement(levelOf(tank), '%'), chartX, 637, chartWidth, 20, true);
       page.drawRectangle({ x: chartX, y: 608, width: chartWidth, height: 16, color: gray });
       const level = levelOf(tank);
@@ -224,16 +224,16 @@ export async function createTankReport(options: TankReportOptions): Promise<{ bl
         const hex = colorOf(tank);
         page.drawRectangle({ x: chartX, y: 608, width: chartWidth * level / 100, height: 16, color: rgb(parseInt(hex.slice(0, 2), 16) / 255, parseInt(hex.slice(2, 4), 16) / 255, parseInt(hex.slice(4, 6), 16) / 255) });
       }
-      write(page, `Status level: ${statusOf(tank)}`, chartX, 588, chartWidth, 9, true);
-      write(page, 'Grafik menunjukkan pembacaan terakhir, bukan riwayat perubahan level air.', chartX, 552, chartWidth);
-      write(page, `Volume air\n${measurement(tank.latestReading?.volumeLiters, ' L')}\n\nKapasitas\n${measurement(tank.capacityLiters, ' L')}`, chartX, 489, chartWidth);
-      if (part) write(page, `Lanjutan tangki ${index + 1} (${part + 1}/${pageCount})`, left, 244, width, 7);
-      write(page, 'Yang Membuat,', left, 220, 200);
-      write(page, `Yogyakarta, ${date(dateInputValue(created))}\nMengetahui,`, 370, 220, 189);
+      write(page, `Level status: ${statusOf(tank)}`, chartX, 588, chartWidth, 9, true);
+      write(page, 'The chart shows the latest water level reading.', chartX, 552, chartWidth);
+      write(page, `Water volume\n${measurement(tank.latestReading?.volumeLiters, ' L')}\n\nCapacity\n${measurement(tank.capacityLiters, ' L')}`, chartX, 489, chartWidth);
+      if (part) write(page, `Continued from tank ${index + 1} (${part + 1}/${pageCount})`, left, 244, width, 7);
+      write(page, 'Prepared by,', left, 220, 200);
+      write(page, `Yogyakarta, ${date(dateInputValue(created))}\nApproved by,`, 370, 220, 189);
       page.drawLine({ start: { x: left, y: 143 }, end: { x: 220, y: 143 }, color: ink, thickness: 0.5 });
       page.drawLine({ start: { x: 370, y: 143 }, end: { x: 559, y: 143 }, color: ink, thickness: 0.5 });
-      write(page, 'Petugas Monitoring Tangki', left, 130, 200, 8);
-      write(page, 'Penanggung Jawab', 370, 130, 189, 8);
+      write(page, 'Tank Monitoring Officer', left, 130, 200, 8);
+      write(page, 'Officer in Charge', 370, 130, 189, 8);
     }
   });
   const pages = document.getPages();
