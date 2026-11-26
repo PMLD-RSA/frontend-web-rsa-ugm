@@ -83,6 +83,8 @@ src/
 │   │   │   └── page.tsx              # Manajemen Pengguna (Khusus Admin)
 │   │   ├── logs/
 │   │   │   └── page.tsx              # Audit Trail Jejak Aktivitas Sistem
+│   │   ├── profile/
+│   │   │   └── page.tsx              # Profil Pengguna & Unggah Foto Profil Lokal
 │   │   └── reports/
 │   │       └── page.tsx              # Ekspor Laporan Data Sensor & Alert (.CSV)
 │   ├── api/                          # LAPISAN BACKEND-FOR-FRONTEND (BFF)
@@ -128,6 +130,7 @@ src/
 │   │   └── Table.tsx                 # Tabel data generik dengan pagination & filter
 ├── hooks/
 │   ├── useRealtimeSocket.ts          # Hook koneksi WebSocket ke ws://...:8000/ws?token=
+│   ├── useProfilePhoto.ts            # Penyimpanan & sinkronisasi foto profil lokal per user ID
 │   └── useBFF.ts                     # Fetcher wrapper dengan proteksi error handling
 ├── stores/
 │   ├── tankStore.ts                  # Zustand state tangki air
@@ -135,6 +138,8 @@ src/
 │   ├── authStore.ts                  # Zustand state user, role & auth status
 │   └── deviceStore.ts                # Zustand state status gateway & node
 └── lib/
+    ├── bffProxy.ts                   # Helper proksi BFF + normalisasi lokasi Vokasi UGM
+    ├── vokasiLocations.ts            # Koordinat SV UGM & normalisasi nama DTEDI/DTK/DLIKES
     ├── constants.ts                  # URL, status color codes, threshold constants
     └── utils.ts                      # Format angka liter, persen, waktu ISO
 ```
@@ -149,7 +154,7 @@ src/
   * Logo resmi RSA UGM & Judul: *"SI-POTA v1.0 — Sistem Informasi Pemantauan Tangki Air"*.
   * Input `username` dan `password`.
   * Tombol Submit *"Masuk ke Sistem"*.
-  * Indikator pesan error jika kredensial salah (HTTP 401).
+  * Indikator pesan error jika kredensial salah (HTTP `401`/`403`) maupun saat terkena batas percobaan login (*rate limit* HTTP `429` dengan penerusan header `Retry-After` dari Core Backend).
 * **Alur Teknis:** Request dikirim ke `POST /api/auth/login` (BFF). Jika berhasil, BFF memasang cookie `auth_token` dan mengarahkan pengguna ke halaman `/`.
 
 ---
@@ -179,10 +184,10 @@ src/
     * Otomatisasi aliasing nama tangki backend ke kode gedung SV UGM (`DTK`, `DTEDI`, `DLIKES`) dengan urutan terstandarisasi (DTK $\rightarrow$ DTEDI $\rightarrow$ DLIKES).
     * Sisipan otomatis placeholder gedung `DLIKES` jika telemetri sensor belum aktif agar cakupan 3 gedung pilot tetap terpantau menyeluruh.
     * Navigasi paginasi 2 tangki per halaman dengan kontrol aksesibel berlabel bahasa Indonesia (*Sebelumnya*, *Berikutnya*, *Halaman X/Y*).
-  * **Grafik Agregasi Multi-Tangki 24 Jam (`VolumeHistory` / `TankDashboard.tsx`):**
-    * Visualisasi Recharts bar chart yang menampilkan fluktuasi rata-rata volume air per jam (Liter) untuk masing-masing tangki selama 24 jam terakhir berbasis data dari `GET /api/readings/history`.
-  * **Ringkasan Riwayat Login Terkini (`RecentLogins`):**
-    * Tabel audit singkat menampilkan 6 aktivitas login terakhir pengguna dari `/api/audit-logs` lengkap dengan avatar, username, dan waktu login.
+  * **Analitik Tren Level Air (`WaterLevelAnalytics.tsx` di `TankDashboard.tsx`):**
+    * Visualisasi Recharts `AreaChart` interaktif yang menampilkan fluktuasi persentase dan volume air dengan filter pemilihan tangki (`ALL` atau tangki spesifik) serta rentang periode (default `24` jam) berbasis data dari `GET /api/readings/history?hours=...` atau `GET /api/tanks/:id/readings?hours=...&limit=500`.
+  * **Ringkasan Riwayat Login Terkini (`RecentLogins` / `RecentLogins.module.css`):**
+    * Tabel audit singkat menampilkan aktivitas login terakhir pengguna (paginasi 10 entri per halaman) dari `/api/audit-logs` lengkap dengan avatar, username, role, dan waktu login.
 
 ---
 
@@ -269,14 +274,23 @@ src/
   * Filter rentang tanggal: `startDate` s.d. `endDate` (ISO 8601).
   * Filter Tangki Tertentu (`tankId` wajib diisi untuk ekspor CSV sensor sesuai kontrak Core BE) dan filter tingkat keparahan alert (`level`: `WARNING` | `CRITICAL`).
   * Tombol Unduh:
-    * *"Download CSV Pembacaan Sensor"* (memanggil `GET /api/reports/readings/export?tankId=...&startDate=...&endDate=...`).
-    * *"Download CSV Riwayat Peringatan"* (memanggil `GET /api/reports/alerts/export?level=...&startDate=...&endDate=...`).
+    * *"Download CSV Pembacaan Sensor"* (memanggil `GET /api/reports/readings/export?tankId=...&startDate=...&endDate=...`, dengan normalisasi nama lokasi Sekolah Vokasi via `vokasiDisplayText`).
+    * *"Download CSV Riwayat Peringatan"* (memanggil `GET /api/reports/alerts/export?level=...&startDate=...&endDate=...`, dengan normalisasi nama lokasi Sekolah Vokasi via `vokasiDisplayText`).
+
+---
+
+### 4.9 Profil Pengguna & Pengaturan Akun (`/profile`)
+* **Tujuan:** Menampilkan informasi akun aktif serta pengelolaan avatar profil lokal petugas.
+* **Elemen UI & Fitur:**
+  * Informasi akun aktif dari `useAuthStore` (`username`, `role`, tanggal pembuatan akun berformat `id-ID` WIB).
+  * Pengelolaan foto profil lokal melalui hook `useProfilePhoto.ts` (validasi format JPG/PNG/WebP maksimal 2 MB, tersimpan per `user.id` di browser dan langsung tersinkronisasi dengan avatar pada `Sidebar.tsx`).
+  * Akses cepat notifikasi aktif melalui `NotificationPopover` serta tipografi lokal (`Asap`, `Inter`, `Poppins` via `next/font/local`).
 
 ---
 
 ## 5. Spesifikasi Lengkap Implementasi Rute BFF (`src/app/api/*`)
 
-Setiap rute API Next.js bertindak sebagai *handler* server yang mengamankan token, memproksikan request ke Core Backend Fastify (`CORE_BACKEND_URL`), dan mengembalikan data bersih ke klien:
+Setiap rute API Next.js bertindak sebagai *handler* server yang mengamankan token, memproksikan request ke Core Backend Fastify (`CORE_BACKEND_URL`), menerapkan normalisasi nama lokasi pilot Sekolah Vokasi (`normalizeVokasiDisplayData` pada `src/lib/bffProxy.ts` dan `vokasiDisplayText` pada rute ekspor CSV), serta mengembalikan data bersih ke klien (termasuk penerusan status `429 Too Many Requests` dan header `Retry-After` pada `/api/auth/login`):
 
 ```mermaid
 sequenceDiagram
