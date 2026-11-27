@@ -54,6 +54,7 @@ export interface Alert {
  * Entitas Modul Sensor STM32
  */
 export interface SensorNode {
+  tankName?: string | null;
   id: string;
   tankId?: string | null;
   gatewayId?: string | null;

@@ -2,7 +2,7 @@
 
 import { LuX } from "react-icons/lu";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { ApiResponse } from "@/types";
+import type { ApiResponse, Gateway } from "@/types";
 import styles from "./TankForm.module.css";
 
 export function AddTankForm({
@@ -15,13 +15,38 @@ export function AddTankForm({
   const dialog = useRef<HTMLDialogElement>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [gateways, setGateways] = useState<Gateway[]>([]);
+  const [gatewayStatus, setGatewayStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    dialog.current?.showModal();
+    const modal = dialog.current;
+    if (modal && !modal.open) modal.showModal();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadGateways() {
+      try {
+        const response = await fetch("/api/gateways", { signal: controller.signal, cache: "no-store" });
+        const result: ApiResponse<Gateway[]> = await response.json();
+        if (controller.signal.aborted) return;
+        if (!response.ok || !result.success || result.source === "mock" || !Array.isArray(result.data)) {
+          setGatewayStatus("error");
+          return;
+        }
+        setGateways(result.data);
+        setGatewayStatus("ready");
+      } catch {
+        if (!controller.signal.aborted) setGatewayStatus("error");
+      }
+    }
+    void loadGateways();
+    return () => controller.abort();
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const location = String(data.get("location") ?? "").trim();
@@ -32,6 +57,9 @@ export function AddTankForm({
     const capacityLiters = Number(data.get("capacityLiters"));
     const minDistanceCm = Number(data.get("minDistanceCm") || 30);
     const maxDistanceCm = Number(data.get("maxDistanceCm") || 350);
+    const deviceCode = String(data.get("deviceCode") ?? "").trim();
+    const gatewayId = String(data.get("gatewayId") ?? "");
+    const sensorType = String(data.get("sensorType") ?? "");
 
     if (
       !name ||
@@ -60,6 +88,11 @@ export function AddTankForm({
       return;
     }
 
+    if (!deviceCode || !gateways.some(gateway => gateway.id === gatewayId) || sensorType !== "ultrasonic") {
+      setError("Enter a sensor device code and select a registered gateway.");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
@@ -77,6 +110,7 @@ export function AddTankForm({
           maxThresholdPercent: 90,
           minDistanceCm,
           maxDistanceCm,
+          sensorNode: { deviceCode, gatewayId, sensorType },
         }),
       });
       const result: ApiResponse = await response.json();
@@ -157,6 +191,30 @@ export function AddTankForm({
             <small>Enter coordinates in decimal degrees, as shown in Google Maps.</small>
           </label>
         </div>
+        <h3 className={styles.capacityTitle}>Sensor Node</h3>
+        <div className={styles.fields}>
+          <label>
+            Sensor device code <span>*</span>
+            <input name="deviceCode" placeholder="Example: STM32-DTK" maxLength={50} required />
+            <small>Use the device code sent by the sensor.</small>
+          </label>
+          <label>
+            Gateway <span>*</span>
+            <select key={gatewayStatus} name="gatewayId" defaultValue={gateways.length === 1 ? gateways[0].id : ""} required disabled={!gateways.length}>
+              <option value="" disabled>Select a gateway</option>
+              {gateways.map(gateway => <option key={gateway.id} value={gateway.id}>{gateway.deviceCode}</option>)}
+            </select>
+            {gatewayStatus === "loading" && <small>Loading gateways...</small>}
+            {gatewayStatus === "error" && <small role="alert">Could not load gateways from the server. Reopen this form to retry.</small>}
+            {gatewayStatus === "ready" && !gateways.length && <small>Register a gateway before adding a tank.</small>}
+          </label>
+          <label>
+            Sensor type <span>*</span>
+            <select name="sensorType" defaultValue="ultrasonic" required>
+              <option value="ultrasonic">Ultrasonic</option>
+            </select>
+          </label>
+        </div>
         <h3 className={styles.capacityTitle}>Capacity & Sensor Distance Calibration</h3>
         <div className={styles.capacity}>
           <label>
@@ -213,7 +271,7 @@ export function AddTankForm({
             >
               Cancel
             </button>
-            <button type="submit" className={styles.save} disabled={saving}>
+            <button type="submit" className={styles.save} disabled={saving || !gateways.length}>
               {saving ? "Saving..." : "Save Tank"}
             </button>
           </div>

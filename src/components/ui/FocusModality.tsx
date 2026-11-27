@@ -9,6 +9,7 @@ export function FocusModality() {
       root.dataset.pointerFocus = "";
     }
     function keyboard(event: KeyboardEvent) {
+      if (typeof event.key !== "string") return;
       if (event.key === "Tab" || event.key.startsWith("Arrow") || event.key === "Escape") {
         delete root.dataset.pointerFocus;
       }

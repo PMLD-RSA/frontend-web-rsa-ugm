@@ -1,5 +1,4 @@
 import { forwardToBackend } from "@/lib/bffProxy";
-import { MOCK_TANKS } from "@/lib/mockData";
 import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
@@ -11,14 +10,5 @@ export async function GET(request: Request) {
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const fallbackData = MOCK_TANKS.map((t) => ({
-    tankId: t.id,
-    tankName: t.name,
-    reading: t.latestReading,
-  }));
-
-  return forwardToBackend("/api/readings/latest", {
-    headers,
-    fallbackData,
-  });
+  return forwardToBackend("/api/readings/latest", { headers });
 }
