@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { useTankStore } from "@/stores/tankStore";
 import { useAlertStore } from "@/stores/alertStore";
-import { Alert, WsLevelUpdateData } from "@/types";
+import type { Alert, NodeStatus, WsLevelUpdateData } from "@/types";
+import { sensorRealtimeEvent, type SensorRealtimeEvent } from "@/lib/devicePresence";
+
+function publishSensorUpdate(update: SensorRealtimeEvent) {
+  window.dispatchEvent(new CustomEvent(sensorRealtimeEvent, { detail: update }));
+}
 
 export function useRealtimeSocket() {
   const [isConnected, setIsConnected] = useState(false);
@@ -82,25 +87,36 @@ export function useRealtimeSocket() {
               };
 
               useTankStore.getState().updateTankFromWs(update);
+              if (update.sensorNodeId && !update.isBuffered && (data.timestamp || data.recordedAt)) {
+                publishSensorUpdate({ type: "reading", data: update });
+              }
             }
 
-            if (eventType === "NODE_STATUS" && (data.node_code || data.nodeCode || data.tank_id || data.tankId)) {
-              const rawStatus = String(data.status || "").toLowerCase();
-              const normalizedStatus =
+            const nodeIdentifier = data.sensor_node_id || data.sensorNodeId || data.node_code || data.nodeCode;
+            if (eventType === "NODE_STATUS" && (nodeIdentifier || data.tank_id || data.tankId)) {
+              const rawStatus = String(data.status || "").trim().toLowerCase();
+              const normalizedStatus: NodeStatus | undefined =
                 rawStatus === "online" || rawStatus === "active"
                   ? "active"
-                  : rawStatus === "offline"
+                  : rawStatus === "offline" || rawStatus === "inactive"
                   ? "offline"
                   : rawStatus === "error"
                   ? "error"
                   : undefined;
-              useTankStore.getState().updateNodeStatusFromWs({
-                nodeCode: data.node_code || data.nodeCode,
+              const update = {
+                nodeCode: nodeIdentifier,
                 tankId: data.tank_id || data.tankId,
                 status: normalizedStatus,
                 rssi: data.rssi != null ? Number(data.rssi) : undefined,
                 lastSeen: data.last_seen || data.lastSeen || data.timestamp || new Date().toISOString(),
-              });
+              };
+              useTankStore.getState().updateNodeStatusFromWs(update);
+              if (nodeIdentifier && normalizedStatus) {
+                publishSensorUpdate({
+                  type: "status",
+                  data: { ...update, identifier: nodeIdentifier, status: normalizedStatus },
+                });
+              }
             }
 
             if (eventType === "ALERT_TRIGGERED" && data.id) {

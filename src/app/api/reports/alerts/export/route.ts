@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { vokasiDisplayText } from "@/lib/vokasiLocations";
 
 const CORE_BACKEND_URL = process.env.CORE_BACKEND_URL || "http://localhost:8000";
 
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
     }
 
     const csvData = await res.text();
-    return new NextResponse(vokasiDisplayText(csvData), {
+    return new NextResponse(csvData, {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",

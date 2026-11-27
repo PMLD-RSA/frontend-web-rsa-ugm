@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,17 +15,21 @@ import {
   LuSearch as Search,
   LuSlidersHorizontal as SlidersHorizontal,
   LuTrash2 as Trash2,
+  LuWifi as Wifi,
+  LuWifiOff as WifiOff,
 } from "react-icons/lu";
 import { TankLevel, measurement } from "@/components/dashboard/TankLevel";
 import { downloadCsv } from "@/lib/downloadCsv";
 import { getTankStatus } from "@/lib/dashboard";
-import type { ApiResponse, Tank } from "@/types";
+import { getTankMonitoring } from "@/lib/devicePresence";
+import type { Tank } from "@/types";
 import styles from "./TanksPage.module.css";
 import { TankForm } from "./TankForm";
 import { AddTankForm } from "./AddTankForm";
 import { DeleteTankDialog } from "./DeleteTankDialog";
 import { NotificationPopover } from "@/components/dashboard/NotificationPopover";
 import { isAdmin, useAuthStore } from "@/stores/authStore";
+import { useTankStore } from "@/stores/tankStore";
 
 const summaries = [
   { key: "ALL", title: "Total Tanks", description: "Registered in the System" },
@@ -35,62 +39,65 @@ const summaries = [
 ] as const;
 
 export function TanksPage() {
-  const [tanks, setTanks] = useState<Tank[]>([]);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const { tanks, isLoading, error, lastFetchedAt, fetchTanks } = useTankStore();
+  const [now, setNow] = useState(0);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("ALL");
   const [form, setForm] = useState<{ tank: Tank | null } | null>(null);
   const [deletingTank, setDeletingTank] = useState<Tank | null>(null);
   const canEdit = useAuthStore((state) => isAdmin(state.user));
-  const [updated, setUpdated] = useState<Date | null>(null);
-
-  const load = useCallback(async (signal?: AbortSignal) => {
-    try {
-      const response = await fetch("/api/tanks", { signal });
-      const result: ApiResponse<Tank[]> = await response.json();
-      if (
-        !response.ok ||
-        !result.success ||
-        result.source === "mock" ||
-        !Array.isArray(result.data)
-      )
-        throw new Error("Unavailable");
-      setTanks(result.data);
-      setUpdated(new Date());
-      setState("ready");
-    } catch {
-      if (!signal?.aborted) {
-        setTanks([]);
-        setState("error");
-      }
-    }
-  }, []);
   useEffect(() => {
     const controller = new AbortController();
-    void Promise.resolve().then(() => load(controller.signal));
-    return () => controller.abort();
-  }, [load]);
+    const updateClock = () => setNow(Date.now());
+    const initialClock = setTimeout(updateClock, 0);
+    const clock = setInterval(updateClock, 5000);
+    let refresh: ReturnType<typeof setTimeout>;
 
-  const visible = tanks.filter(
-    (tank) =>
-      (filter === "ALL" || getTankStatus(tank) === filter) &&
+    async function refreshTanks(background: boolean) {
+      await fetchTanks(controller.signal, background);
+      if (!controller.signal.aborted) {
+        refresh = setTimeout(() => void refreshTanks(true), 15_000);
+      }
+    }
+    void refreshTanks(false);
+    return () => {
+      controller.abort();
+      clearTimeout(initialClock);
+      clearInterval(clock);
+      clearTimeout(refresh);
+    };
+  }, [fetchTanks]);
+
+  const loading = !lastFetchedAt && !error;
+  const rows = tanks.map(tank => {
+    const monitoring = getTankMonitoring(tank, Math.max(now, lastFetchedAt ?? 0));
+    const liveTank = {
+      ...tank,
+      latestReading: monitoring.liveReading,
+      activeAlert: monitoring.liveReading ? tank.activeAlert : null,
+    };
+    return { tank, liveTank, ...monitoring, status: getTankStatus(liveTank) };
+  });
+  const visible = rows.filter(
+    ({ tank, status }) =>
+      (filter === "ALL" || status === filter) &&
       `${tank.name} ${tank.location ?? ""}`
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   );
   function download() {
-    const rows = [
+    const csvRows = [
       ["Name", "Location", "Status", "Level (%)", "Volume (L)", "Capacity (L)"],
-      ...tanks.map((t) => [
-        t.name,
-        t.location ?? "",
-        getTankStatus(t) ?? "No data",
-        t.latestReading?.levelPercent ?? "",
-        t.latestReading?.volumeLiters ?? "",
-        t.capacityLiters,
+      ...rows.map(({ tank, liveReading, status, sensorLabel }) => [
+        tank.name,
+        tank.location ?? "",
+        status ?? sensorLabel,
+        liveReading?.levelPercent ?? "",
+        liveReading?.volumeLiters ?? "",
+        tank.capacityLiters,
       ]),
     ];
-    downloadCsv("tanks.csv", rows);
+    downloadCsv("tanks.csv", csvRows);
   }
 
   return (
@@ -117,13 +124,11 @@ export function TanksPage() {
           <BreadcrumbIcon size={16} aria-hidden="true" /><Link href="/">Dashboard</Link> &gt; Tanks
         </span>
         <span>
-          {updated &&
-            `Updated ${updated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })} · `}
+          {lastFetchedAt &&
+            `Synced ${new Date(lastFetchedAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })} · `}
           <button
-            onClick={() => {
-              setState("loading");
-              void load();
-            }}
+            disabled={isLoading}
+            onClick={() => void fetchTanks()}
           >
             <RefreshCw size={13} /> Reload
           </button>
@@ -169,10 +174,10 @@ export function TanksPage() {
               <h2>{item.title}</h2>
               <p>
                 <strong>
-                  {state === "ready"
+                  {!loading && !error
                     ? item.key === "ALL"
                       ? tanks.length
-                      : tanks.filter((t) => getTankStatus(t) === item.key)
+                      : rows.filter((row) => row.status === item.key)
                           .length
                     : "—"}
                 </strong>{" "}
@@ -205,9 +210,9 @@ export function TanksPage() {
           </div>
         ))}
       </section>
-      {state === "loading" ? (
+      {loading ? (
         <p className={styles.message}>Loading tanks…</p>
-      ) : state === "error" ? (
+      ) : error ? (
         <p className={styles.message}>
           Tank data is unavailable. Please try reloading.
         </p>
@@ -215,16 +220,21 @@ export function TanksPage() {
         <p className={styles.message}>No tanks found.</p>
       ) : (
         <section className={styles.cards} aria-label="Tanks">
-          {visible.map((tank) => {
-            const status = getTankStatus(tank) ?? "UNKNOWN";
+          {visible.map(({ tank, liveTank, liveReading, status, sensorLabel, online }) => {
             return (
               <article key={tank.id} className={styles.card}>
-                <TankLevel tank={tank} />
+                <TankLevel tank={liveTank} />
                 <div className={styles.cardInfo}>
-                  <span className={styles.badge} data-status={status}>
-                    <i />
-                    {status === "UNKNOWN" ? "NO DATA" : status}
-                  </span>
+                  <div className={styles.statuses}>
+                    <span className={styles.badge} data-status={status ?? "UNKNOWN"}>
+                      <i />
+                      {status ?? "NO DATA"}
+                    </span>
+                    <span className={styles.sensorStatus} data-online={online} role="status">
+                      {online ? <Wifi size={16} aria-hidden="true" /> : <WifiOff size={16} aria-hidden="true" />}
+                      {sensorLabel}
+                    </span>
+                  </div>
                   <div className={styles.infoRow}>
                     <span className={styles.icon}>
                       <Droplets size={25} />
@@ -244,7 +254,7 @@ export function TanksPage() {
                     <div>
                       <p>Volume</p>
                       <strong>
-                        {measurement(tank.latestReading?.volumeLiters, " L")}{" "}
+                        {measurement(liveReading?.volumeLiters, " L")}{" "}
                         <span>/ {measurement(tank.capacityLiters, " L")}</span>
                       </strong>
                     </div>
@@ -295,7 +305,7 @@ export function TanksPage() {
             close={() => setForm(null)}
             saved={() => {
               setForm(null);
-              void load();
+              void fetchTanks();
             }}
           />
         ) : (
@@ -303,7 +313,7 @@ export function TanksPage() {
             close={() => setForm(null)}
             saved={() => {
               setForm(null);
-              void load();
+              void fetchTanks();
             }}
           />
         ))}
@@ -312,10 +322,8 @@ export function TanksPage() {
           tank={deletingTank}
           close={() => setDeletingTank(null)}
           deleted={() => {
-            setTanks((current) =>
-              current.filter((tank) => tank.id !== deletingTank.id),
-            );
             setDeletingTank(null);
+            void fetchTanks();
           }}
         />
       )}

@@ -1,8 +1,6 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { forwardToBackend } from "@/lib/bffProxy";
-import { MOCK_TANKS } from "@/lib/mockData";
-import { WaterLevelReading } from "@/types";
 
 export async function GET(
   request: NextRequest,
@@ -21,28 +19,6 @@ export async function GET(
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  // Generate fallback 50 readings for this tank
-  const targetTank = MOCK_TANKS.find((t) => t.id === id);
-  const reading = targetTank?.latestReading;
-  const basePercent = Number(reading?.levelPercent);
-  const baseVolume = Number(reading?.volumeLiters);
-
-  const fallbackReadings: WaterLevelReading[] = [];
-  const now = Date.now();
-  for (let i = 0; targetTank && reading && i < Number(limit); i++) {
-    fallbackReadings.push({
-      id: 1000 + i,
-      tankId: targetTank.id,
-      sensorNodeId: targetTank.nodes?.[0]?.id || "node-sample",
-      levelPercent: (basePercent + Math.sin(i / 5) * 4).toFixed(2),
-      volumeLiters: (baseVolume + Math.sin(i / 5) * 400).toFixed(2),
-      rssi: -70 - (i % 10),
-      recordedAt: new Date(now - i * 15 * 60 * 1000).toISOString(),
-    });
-  }
-
-  return forwardToBackend(`/api/tanks/${id}/readings?hours=${hours}&limit=${limit}`, {
-    headers,
-    fallbackData: fallbackReadings,
-  });
+  const query = new URLSearchParams({ hours, limit });
+  return forwardToBackend(`/api/tanks/${encodeURIComponent(id)}/readings?${query}`, { headers });
 }

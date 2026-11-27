@@ -176,6 +176,29 @@
   gap: 22px;
   min-width: 0;
 }
+.statuses {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.sensorStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 700;
+}
+.sensorStatus[data-online="true"] {
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+  color: #047857;
+}
 .badge {
   display: inline-flex;
   align-items: center;

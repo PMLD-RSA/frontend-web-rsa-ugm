@@ -6,15 +6,9 @@ import 'leaflet/dist/leaflet.css';
 import { LuMaximize as Maximize, LuMinimize as Minimize, LuX as X } from "react-icons/lu";
 import type { Tank } from '@/types';
 import { getTankStatus } from '@/lib/dashboard';
-import { vokasiTankName } from '@/lib/vokasiLocations';
+import { VOKASI_LOCATIONS } from '@/lib/vokasiLocations';
 import { TankDetails, statusLabels } from './TankLevel';
 import styles from './TankDashboard.module.css';
-
-const locations = [
-  { id: 'DTEDI', name: 'DTEDI', position: [-7.7751166667, 110.3736611111] as [number, number], coordinateLabel: `7°46'30.42"S, 110°22'25.18"E` },
-  { id: 'DTK', name: 'DTK', position: [-7.7747805556, 110.3743777778] as [number, number], coordinateLabel: `7°46'29.21"S, 110°22'27.76"E` },
-  { id: 'DLIKES', name: 'DLIKES', position: [-7.7738361111, 110.3744027778] as [number, number], coordinateLabel: `7°46'25.81"S, 110°22'27.85"E` },
-];
 
 const colors: Record<string, string> = {
   NORMAL: '#16a34a',
@@ -43,26 +37,14 @@ export function TankMap({
   const [selected, setSelected] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
 
-  const mapLocations = useMemo(() => {
-    const matched = new Set<string>();
-    const tankLocations = tanks.flatMap(tank => {
-      const reference = locations.find(location =>
-        vokasiTankName(tank.name) === location.id ||
-        new RegExp(`(^|[^A-Z])${location.id}([^A-Z]|$)`, 'i').test(`${tank.name} ${tank.location ?? ''}`)
-      );
-      if (reference) matched.add(reference.id);
-      const latitude = tank.latitude == null || String(tank.latitude).trim() === '' ? NaN : Number(tank.latitude);
-      const longitude = tank.longitude == null || String(tank.longitude).trim() === '' ? NaN : Number(tank.longitude);
-      const valid = Number.isFinite(latitude) && Math.abs(latitude) <= 90 && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
-      const position: [number, number] | undefined = reference?.position ?? (valid ? [latitude, longitude] : undefined);
-      if (!position) return [];
-      return [{ id: tank.id, name: tank.name, position, coordinateLabel: reference?.coordinateLabel ?? `${position[0]}, ${position[1]}`, tank, tankStatus: getTankStatus(tank) ?? 'UNKNOWN' }];
-    });
-    const placeholders = locations.filter(location => !matched.has(location.id)).map(location => ({
-      ...location, tank: undefined, tankStatus: 'UNKNOWN',
-    }));
-    return [...tankLocations, ...placeholders];
-  }, [tanks]);
+  const mapLocations = useMemo(() => tanks.flatMap(tank => {
+    const latitude = tank.latitude == null || String(tank.latitude).trim() === '' ? NaN : Number(tank.latitude);
+    const longitude = tank.longitude == null || String(tank.longitude).trim() === '' ? NaN : Number(tank.longitude);
+    const valid = Number.isFinite(latitude) && Math.abs(latitude) <= 90 && Number.isFinite(longitude) && Math.abs(longitude) <= 180;
+    if (!valid) return [];
+    const position: [number, number] = [latitude, longitude];
+    return [{ id: tank.id, name: tank.name, position, coordinateLabel: `${latitude}, ${longitude}`, tank, tankStatus: getTankStatus(tank) ?? 'UNKNOWN' }];
+  }), [tanks]);
   const visible = useMemo(() => mapLocations.filter(location =>
     (status === 'ALL' || location.tankStatus === status) &&
     (area === 'ALL' || location.id === area)
@@ -77,7 +59,8 @@ export function TankMap({
     void import('leaflet').then(L => {
       if (cancelled || !mapElement.current) return;
       const instance = L.map(mapElement.current, { maxZoom: 20 });
-      instance.fitBounds(locations.map(location => location.position), { padding: [32, 32], maxZoom: 19 });
+      const { latitude, longitude } = VOKASI_LOCATIONS[0];
+      instance.setView([latitude, longitude], 17);
       L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         {

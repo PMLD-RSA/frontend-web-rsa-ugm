@@ -114,8 +114,8 @@ export function TankForm({
       maxThresholdPercent,
       minDistanceCm,
       maxDistanceCm,
-      ...(latitude !== null ? { latitude } : {}),
-      ...(longitude !== null ? { longitude } : {}),
+      latitude,
+      longitude,
     });
   }
 

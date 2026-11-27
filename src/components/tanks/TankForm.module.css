@@ -59,7 +59,8 @@
 .footer span {
   color: #b3261e;
 }
-.dialog input {
+.dialog input,
+.dialog select {
   display: block;
   width: 100%;
   height: 45px;
@@ -77,10 +78,10 @@
   color: #a1a1a1;
   opacity: 1;
 }
-:global(html:not([data-pointer-focus])) .dialog input:focus {
+:global(html:not([data-pointer-focus])) .dialog :is(input, select):focus {
   border-color: #0a3f5c;
 }
-.dialog input:disabled {
+.dialog :is(input, select):disabled {
   background: #f6f7f8;
   color: #82909d;
   cursor: not-allowed;
